@@ -1,0 +1,535 @@
+/* ============================================
+   Trouble Shoot Kebocoran Angin - Airsoft F03/F04
+   Style
+   ============================================ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0f1419;
+  --panel: #1a2128;
+  --panel-2: #232c35;
+  --text: #e6edf3;
+  --muted: #8b95a1;
+  --accent: #ff6b35;
+  --accent-2: #ffa500;
+  --bocor: #ffeb3b;
+  --leak: #ff2d55;
+  --border: #2d3640;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: linear-gradient(135deg, #1a2128 0%, #0f1419 100%);
+  padding: 0.6rem 1rem 0.4rem;
+  border-bottom: 2px solid var(--accent);
+  text-align: center;
+}
+
+header h1 {
+  font-size: 1.2rem;
+  color: var(--accent);
+  margin-bottom: 0.1rem;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.hint {
+  margin-top: 0.2rem;
+  color: var(--accent-2);
+  font-size: 0.75rem;
+}
+
+.controls {
+  padding: 0.8rem 2rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.series-tabs {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.tab {
+  padding: 0.5rem 1rem;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background: #2d3640;
+}
+
+.tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.opt-controls {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  padding: 0.45rem 0.9rem;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+}
+
+.diagram-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#diagram-container {
+  width: 100%;
+  height: 60vh;
+  max-height: 500px;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto;
+}
+
+#svgObj {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.legend>div {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-bocor {
+  background: #ffeb3b;
+  border: 1.5px solid #fbc02d;
+}
+
+.dot-leak {
+  background: #ff2d55;
+  border: 1.5px solid #c92a2a;
+}
+
+.info-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem;
+  height: fit-content;
+  position: sticky;
+  top: 0.5rem;
+  max-height: calc(100vh - 1rem);
+  overflow-y: auto;
+  z-index: 10;
+  font-size: 0.85rem;
+}
+
+.info-panel h2 {
+  color: var(--accent);
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 0.4rem;
+}
+
+.info-panel h3 {
+  color: var(--accent-2);
+  font-size: 1.05rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.info-panel p,
+.info-panel li {
+  font-size: 0.9rem;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+
+.info-panel ol {
+  padding-left: 1.4rem;
+}
+
+.info-panel hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1rem 0;
+}
+
+.info-panel .meta {
+  background: var(--panel-2);
+  border-left: 3px solid var(--accent);
+  padding: 0.5rem 0.7rem;
+  margin: 0.8rem 0;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.badge-lokasi {
+  background: var(--bocor);
+  color: #000;
+}
+
+.badge-suara {
+  background: #4dabf7;
+  color: #000;
+}
+
+.badge-penyebab {
+  background: #ff9800;
+  color: #000;
+}
+
+.badge-solusi {
+  background: var(--accent-2);
+  color: #000;
+}
+
+.severity-tinggi {
+  color: var(--leak);
+  font-weight: 700;
+}
+
+.severity-sedang {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.severity-rendah {
+  color: #4dabf7;
+  font-weight: 700;
+}
+
+.info-card {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cek: visible as hint by default (yellow pulse) */
+ellipse.cek-shown {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer;
+  fill: #ffeb3b !important;
+  fill-opacity: 0.7 !important;
+  stroke: #fbc02d !important;
+  stroke-width: 1.5 !important;
+  animation: cekPulse 1.2s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes cekPulse {
+
+  0%,
+  100% {
+    fill-opacity: 0.6;
+    transform: scale(1);
+  }
+
+  50% {
+    fill-opacity: 0.9;
+    transform: scale(1.1);
+  }
+}
+
+ellipse.cek-active {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  fill: #4dabf7 !important;
+  fill-opacity: 0.95 !important;
+  stroke: #fff !important;
+  stroke-width: 2.5 !important;
+  animation: none !important;
+}
+
+ellipse.bocor-revealed {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  fill: #ff6b35 !important;
+  fill-opacity: 0.9 !important;
+  stroke: #fff !important;
+  stroke-width: 3 !important;
+  animation: bocorReveal 1.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes bocorReveal {
+
+  0%,
+  100% {
+    fill-opacity: 0.85;
+    transform: scale(1);
+  }
+
+  50% {
+    fill-opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+#console {
+  background: #0a0e12;
+  border-top: 1px solid var(--border);
+  padding: 0.4rem 0.8rem;
+  max-height: 110px;
+  overflow-y: auto;
+}
+
+#console h3 {
+  color: var(--accent-2);
+  font-size: 0.75rem;
+  margin-bottom: 0.2rem;
+}
+
+#consoleOut {
+  color: #c9d1d9;
+  font-family: 'Consolas', monospace;
+  font-size: 0.7rem;
+  white-space: pre-wrap;
+}
+
+.log-err {
+  color: #ff6b6b;
+}
+
+.log-ok {
+  color: #69db7c;
+}
+
+.log-info {
+  color: #74c0fc;
+}
+
+/* Cek hidden: completely invisible but still clickable */
+ellipse.cek-hidden {
+  display: none !important;
+}
+
+/* Bocor hidden by default; visible only when previewing (hover) or active (click) */
+ellipse.cek-bocor-hint {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+ellipse.cek-bocor-preview {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer;
+  fill: #ffeb3b !important;
+  fill-opacity: 0.5 !important;
+  stroke: #fbc02d !important;
+  stroke-width: 1.2 !important;
+  animation: bocorHintPulse 1.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+ellipse.cek-bocor-preview:hover {
+  fill-opacity: 0.85 !important;
+}
+
+@keyframes bocorHintPulse {
+
+  0%,
+  100% {
+    fill-opacity: 0.4;
+  }
+
+  50% {
+    fill-opacity: 0.7;
+  }
+}
+
+/* Pan & Zoom viewer */
+#diagram-container {
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  width: 100%;
+  height: 100%;
+}
+
+#diagram-container.dragging {
+  cursor: grabbing;
+}
+
+#diagram-container object {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  shape-rendering: geometricPrecision;
+  pointer-events: none;  /* let mouse/wheel pass to container for pan/zoom */
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
+
+/* SVG wrap applies pan/zoom transform (stable viewBox) */
+#svgWrap {
+  position: absolute;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.viewer-toolbar {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 0.3rem;
+  align-items: center;
+}
+
+.viewer-toolbar button {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.viewer-toolbar button:hover {
+  background: #2d3640;
+}
+
+.viewer-info {
+  color: var(--muted);
+  font-size: 0.7rem;
+  margin-left: auto;
+  font-family: monospace;
+}
+/* Debug overlay (shows element under cursor) */
+#debugOverlay {
+  position: fixed;
+  bottom: 120px;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.85);
+  color: #0f0;
+  font-family: "Consolas", monospace;
+  font-size: 0.7rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  z-index: 1000;
+  pointer-events: none;
+  white-space: pre;
+  max-width: 400px;
+}

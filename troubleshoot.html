@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trouble Shoot Kebocoran Angin - Airsoft F03 / F04</title>
+<link rel="stylesheet" href="troubleshoot-style.css" />
+</head>
+<body>
+  <header>
+    <h1>Trouble Shoot Kebocoran Angin</h1>
+    <p class="subtitle">Unit Airsoft Gun - <b id="seriesSubtitle">Seri F04 (Pompa Belakang)</b></p>
+    <p class="hint">Klik ellipse <b style="color:#ffeb3b">kuning</b> di area desisan. Ellipse <b style="color:#ff2d55">merah</b> akan muncul menunjukkan oring yang harus diservis.</p>
+    <p style="text-align:center;margin-top:0.5rem"><a href="index.html" style="color:#ff6b35">← Kembali ke Animasi</a></p>
+  </header>
+
+  <div class="controls">
+    <div class="series-tabs">
+      <button class="tab active" id="tabF04" data-series="F04" role="tab" aria-selected="true">F04 - Pompa Belakang</button>
+      <button class="tab" id="tabF03" data-series="F03" role="tab" aria-selected="false">F03 - Bullpup (Pompa Depan)</button>
+    </div>
+    <div class="opt-controls">
+      <label class="toggle">
+        <input type="checkbox" id="soundToggle" />
+        <span>Efek Suara Hiss</span>
+      </label>
+      <button id="resetBtn" class="btn-secondary">↺ Reset Pilihan</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="diagram-wrap">
+      <div id="diagram-container">
+        <div id="svgWrap"><object id="svgObj" type="image/svg+xml" data="serif04.svg" aria-label="Diagram"></object></div>
+      </div>
+      <div class="legend">
+        <div><span class="dot dot-bocor"></span> <b>kuning</b> - area desisan terdengar (klik ini)</div>
+        <div><span class="dot dot-leak"></span> <b>merah</b> - o-ring yang harus diservis (muncul setelah klik)</div>
+      </div>
+    </div>
+
+    <aside class="info-panel" id="infoPanel">
+      <div class="info-empty">
+        <h2>Panduan Trouble Shoot</h2>
+        <p>Unit Airsoft Gun - <b id="seriesName">F04 (Pompa Belakang)</b></p>
+        <p>Klik area di diagram di mana Anda <b>mendengar suara desisan</b>.</p>
+        <hr />
+        <h3>Cara Pakai</h3>
+        <ol>
+          <li>Pompa unit seperti biasa</li>
+          <li>Dengarkan di mana ada suara "psshh"</li>
+          <li>Klik ellipse <span class="dot dot-bocor" style="vertical-align:middle"></span> <b>kuning</b> di area desisan</li>
+          <li>Ellipse <span class="dot dot-leak" style="vertical-align:middle"></span> <b>merah</b> akan muncul menunjukkan oring yang harus diservis</li>
+        </ol>
+      </div>
+    </aside>
+  </main>
+
+  <div id="debugOverlay"></div>
+
+  <div id="console">
+    <h3>Console</h3>
+    <pre id="consoleOut"></pre>
+  </div>
+
+  <script src="leakData.js"></script>
+  <script src="troubleshoot.js"></script>
+</body>
+</html>

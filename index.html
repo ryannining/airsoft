@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+<meta http-equiv="Pragma" content="no-cache" />
+<title>Animasi Unit F03 / F04</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Animasi Unit F03 / F04</h1>
+    <p style="text-align:center;margin-top:0.4rem"><a href="troubleshoot.html" style="color:#ff6b35;font-size:0.85rem">🔧 Ke Trouble Shoot Kebocoran Angin →</a></p>
+    <div class="header-controls">
+      <label>Unit:
+        <select id="unitSelect"></select>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="modeToggle" />
+        <span>Mode Editor</span>
+      </label>
+      <span id="status">Siap</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- LEFT: Tree (editor only) -->
+    <aside class="tree-pane" id="treePane">
+      <div class="pane-title">📂 Hirarki Objek</div>
+      <div class="tree-toolbar">
+        <button class="btn-icon" id="expandAll">Expand</button>
+        <button class="btn-icon" id="collapseAll">Collapse</button>
+      </div>
+      <div id="treeRoot"></div>
+    </aside>
+
+    <!-- CENTER: Viewer -->
+    <section class="viewer-pane" id="viewerPane">
+      <div class="action-list" id="actionList"></div>
+      <div class="viewer-toolbar">
+        <label class="toggle">
+          <input type="checkbox" id="loopToggle" checked />
+          <span>Loop</span>
+        </label>
+        <span class="speed-label">Speed:</span>
+        <input type="range" id="speedSlider" min="0.25" max="3" step="0.25" value="1" />
+        <span class="speed-value" id="speedValue">1x</span>
+        <span style="flex:1"></span>
+        <button class="btn-icon" id="zoomIn">+</button>
+        <button class="btn-icon" id="zoomOut">−</button>
+        <button class="btn-icon" id="zoomReset">100%</button>
+        <button class="btn-icon" id="zoomFit">Fit</button>
+        <span class="viewer-info" id="viewerInfo">100%</span>
+      </div>
+      <div id="viewerWrap">
+        <div id="svgContainer">
+          <object id="svgObj" type="image/svg+xml" data="serif04.svg" aria-label="Diagram"></object>
+        </div>
+        <div id="textOverlay"></div>
+      </div>
+      <div class="timeline">
+        <div id="timelineBar">
+          <div id="timelineProgress"></div>
+          <div id="timelineCursor"></div>
+        </div>
+        <div id="timelineLabels"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Script (editor only) -->
+    <aside class="script-pane" id="scriptPane">
+      <div class="pane-title">📝 Script</div>
+      <p class="hint-inline">
+        <code>&gt;nama</code> = aksi baru<br>
+        <code>@t,obj,X+Y</code> = step animasi<br>
+        <code>@t,T,teks</code> = tampilkan teks overlay
+      </p>
+      <textarea id="scriptArea" spellcheck="false"></textarea>
+      <div class="script-actions">
+        <button id="applyBtn" class="btn-primary">Terapkan</button>
+        <button id="addActionBtn" class="btn-secondary">+ Aksi Baru</button>
+        <button id="saveBtn" class="btn-secondary">💾 Simpan</button>
+      </div>
+    </aside>
+  </main>
+
+  <div id="console">
+    <h3>Console</h3>
+    <pre id="consoleOut"></pre>
+  </div>
+
+  <!-- Modal for new action -->
+  <div class="modal-bg" id="modal" style="display:none">
+    <div class="modal">
+      <h2 id="modalTitle">Aksi Baru</h2>
+      <label>Nama aksi:</label>
+      <input type="text" id="modalName" placeholder="contoh: majukan valve" />
+      <label>Jenis:</label>
+      <select id="modalType">
+        <option value="steps">Dengan step @waktu,obj,X+Y</option>
+        <option value="compose">Compose (gabung aksi lain)</option>
+      </select>
+      <div class="modal-buttons">
+        <button class="btn-secondary" id="modalCancel">Batal</button>
+        <button class="btn-primary" id="modalOk">Tambah</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="actionPlayer.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
