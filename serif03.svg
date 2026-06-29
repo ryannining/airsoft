@@ -24,9 +24,9 @@
      inkscape:deskcolor="#ffffff"
      inkscape:document-units="mm"
      showborder="true"
-     inkscape:zoom="2.7137544"
-     inkscape:cx="1565.3591"
-     inkscape:cy="371.80963"
+     inkscape:zoom="2.7956367"
+     inkscape:cx="1255.5279"
+     inkscape:cy="366.28508"
      inkscape:window-width="1920"
      inkscape:window-height="999"
      inkscape:window-x="0"
@@ -202,46 +202,6 @@
        style="display:inline"
        transform="matrix(-1,0,0,1,80.449936,287.90802)">
       <g
-         id="full_gagang_pompa">
-        <rect
-           style="display:inline;vector-effect:non-scaling-stroke;fill:#ececec;fill-opacity:0.70303;stroke:#666666;stroke-width:0.591029;-inkscape-stroke:hairline"
-           id="batang_pompa-7"
-           width="232.69199"
-           height="7.5726523"
-           x="-261.0126"
-           y="7.8086152"
-           transform="scale(-1,1)" />
-        <path
-           id="tutup_drat_gagangpompa-7"
-           style="fill:#1a1a1a;stroke-width:1.72345;stroke-linecap:round;stroke-linejoin:round"
-           d="m 212.47904,3.9075679 23.77961,1.5 V 17.782315 l -23.77961,1.5 z"
-           sodipodi:nodetypes="ccccc" />
-        <rect
-           style="vector-effect:non-scaling-stroke;fill:#008000;fill-opacity:1;stroke:none;stroke-width:0.264583;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:hairline"
-           id="handle_pompa-1"
-           width="50.839752"
-           height="24.389341"
-           x="234.98561"
-           y="-0.59976029" />
-        <g
-           id="piston_pompa-1">
-          <path
-             id="3d_piston-5"
-             style="fill:#ff0000;stroke:none;stroke-width:1.82762;stroke-linecap:round;stroke-linejoin:round"
-             d="m 19.050517,7.8889242 v 7.4119508 h 1.837614 v -1.837614 h 1.899109 l 2.021445,1.837614 7.90198,-0.5 V 8.3889242 l -7.90198,-0.5 -2.021445,1.8376139 H 20.888131 V 7.8889242 Z"
-             sodipodi:nodetypes="ccccccccccccc" />
-          <rect
-             style="vector-effect:non-scaling-stroke;fill:#4d4d4d;fill-opacity:1;stroke:#1a1a1a;stroke-width:0.143298;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:hairline"
-             id="oring_piston-9"
-             width="2.5228634"
-             height="9.6703024"
-             x="21.091139"
-             y="6.759798"
-             rx="1.2614317"
-             ry="1.5065098" />
-        </g>
-      </g>
-      <g
          id="full_body_pompa">
         <rect
            style="display:inline;vector-effect:non-scaling-stroke;fill:#666666;fill-opacity:0.70303;stroke:none;stroke-width:0.676923;-inkscape-stroke:hairline"
@@ -321,6 +281,47 @@
            x="-104.18963"
            y="3.5216956"
            transform="scale(-1,1)" />
+      </g>
+      <g
+         id="full_gagang_pompa">
+        <rect
+           style="display:inline;vector-effect:non-scaling-stroke;fill:#ececec;fill-opacity:0.70303;stroke:#666666;stroke-width:0.614045;-inkscape-stroke:hairline"
+           id="batang_pompa-7"
+           width="251.16815"
+           height="7.5726523"
+           x="-261.0126"
+           y="7.8086152"
+           transform="scale(-1,1)" />
+        <path
+           id="tutup_drat_gagangpompa-7"
+           style="fill:#1a1a1a;stroke-width:1.72345;stroke-linecap:round;stroke-linejoin:round"
+           d="m 212.47904,3.9075679 23.77961,1.5 V 17.782315 l -23.77961,1.5 z"
+           sodipodi:nodetypes="ccccc" />
+        <rect
+           style="vector-effect:non-scaling-stroke;fill:#008000;fill-opacity:1;stroke:none;stroke-width:0.264583;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:hairline"
+           id="handle_pompa-1"
+           width="50.839752"
+           height="24.389341"
+           x="234.98561"
+           y="-0.59976029" />
+        <g
+           id="piston_pompa-1"
+           transform="translate(-20.68227)">
+          <path
+             id="3d_piston-5"
+             style="fill:#ff0000;stroke:none;stroke-width:1.82762;stroke-linecap:round;stroke-linejoin:round"
+             d="m 19.050517,7.8889242 v 7.4119508 h 1.837614 v -1.837614 h 1.899109 l 2.021445,1.837614 7.90198,-0.5 V 8.3889242 l -7.90198,-0.5 -2.021445,1.8376139 H 20.888131 V 7.8889242 Z"
+             sodipodi:nodetypes="ccccccccccccc" />
+          <rect
+             style="vector-effect:non-scaling-stroke;fill:#4d4d4d;fill-opacity:1;stroke:#1a1a1a;stroke-width:0.143298;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:hairline"
+             id="oring_piston-9"
+             width="2.5228634"
+             height="9.6703024"
+             x="21.091139"
+             y="6.759798"
+             rx="1.2614317"
+             ry="1.5065098" />
+        </g>
       </g>
     </g>
     <g
@@ -489,6 +490,6 @@
     <path
        id="tekanan"
        style="display:inline;opacity:0.0145138;fill:#ff0000;fill-opacity:0.456884;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none"
-       d="m 89.71934,292.51097 h 49.20492 v 14.20561 H 89.71934 Z" />
+       d="m 97.858512,292.51097 h 46.933518 v 14.20561 H 97.858512 Z" />
   </g>
 </svg>

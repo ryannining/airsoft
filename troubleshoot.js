@@ -19,7 +19,7 @@ let currentSeries = 'F04';
 let audioCtx = null;
 
 function log(msg, cls = 'log-info') {
-  const t = new Date().toTimeString().slice(0,8);
+  const t = new Date().toTimeString().slice(0, 8);
   consoleOut.innerHTML += `<span class="${cls}">[${t}] ${msg}</span>\n`;
   consoleOut.parentElement.scrollTop = consoleOut.parentElement.scrollHeight;
 }
@@ -66,7 +66,7 @@ function setupPanZoom() {
   document.addEventListener('mousedown', e => {
     const rect = diagramContainer.getBoundingClientRect();
     const inContainer = e.clientX >= rect.left && e.clientX <= rect.right &&
-                       e.clientY >= rect.top && e.clientY <= rect.bottom;
+      e.clientY >= rect.top && e.clientY <= rect.bottom;
     if (!inContainer) return;
     isDragging = true;
     dragStartX = e.clientX; dragStartY = e.clientY;
@@ -79,7 +79,7 @@ function setupPanZoom() {
     if (!isDragging) return;
     const dx = e.clientX - dragStartX;
     const dy = e.clientY - dragStartY;
-    totalDragDist = Math.max(totalDragDist, Math.sqrt(dx*dx + dy*dy));
+    totalDragDist = Math.max(totalDragDist, Math.sqrt(dx * dx + dy * dy));
     panX = panStartX + dx;
     panY = panStartY + dy;
     applyTransform();
@@ -108,6 +108,7 @@ function setupPanZoom() {
     }
   });
   // Track mouse for hover detection
+  var oldHit = 0;
   document.addEventListener('mousemove', e => {
     if (isDragging) return;
     if (!svgDoc) return;
@@ -121,6 +122,7 @@ function setupPanZoom() {
     const result = findEllipseAt(e.clientX, e.clientY);
     // Always show debug (even if null)
     if (result) {
+      oldHit = result;
       const el = result.el;
       const sx = result.sx;
       const sy = result.sy;
@@ -134,6 +136,11 @@ function setupPanZoom() {
       }
     } else {
       // No ellipse hit - show debug with null
+      if (oldHit) {
+        const label = oldHit.el.getAttribute('inkscape:label');
+        onCekLeave(CEK_MAP[label], label);
+      }
+      oldHit = 0;
       showDebugOverlay(e.clientX, e.clientY, null);
     }
   });
@@ -148,12 +155,12 @@ function setupPanZoom() {
   document.addEventListener('wheel', e => {
     const rect = diagramContainer.getBoundingClientRect();
     const inContainer = e.clientX >= rect.left && e.clientX <= rect.right &&
-                       e.clientY >= rect.top && e.clientY <= rect.bottom;
+      e.clientY >= rect.top && e.clientY <= rect.bottom;
     if (!inContainer) return;
     e.preventDefault();
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
-    const delta = e.deltaY > 0 ? 1/1.1 : 1.1;
+    const delta = e.deltaY > 0 ? 1 / 1.1 : 1.1;
     const newZoom = Math.max(0.1, Math.min(20, zoom * delta));
     const factor = (newZoom - zoom) / newZoom;
     panX += mx * factor;
@@ -171,7 +178,7 @@ function applyTransform() {
   if (!wrap) return;
   wrap.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
   const info = document.querySelector('.viewer-info');
-  if (info) info.textContent = `${Math.round(zoom*100)}%`;
+  if (info) info.textContent = `${Math.round(zoom * 100)}%`;
 }
 function zoomFit() {
   if (!svgObj) return;
@@ -223,30 +230,28 @@ function findEllipseAt(x, y) {
   // Skip if mouse outside container
   const cRect = document.getElementById('diagram-container').getBoundingClientRect();
   if (!cRect || x < cRect.left || x > cRect.right || y < cRect.top || y > cRect.bottom) return null;
-  // Use reliable manual formula: mouseScreen - containerOffset - pan / zoom
-  // CSS transform on #svgWrap is: translate(panX, panY) scale(zoom)
-  // So screenPoint = svgUserCoord * zoom + (panX, panY) + containerOffset
-  // => svgUserCoord = (screenPoint - containerOffset - pan) / zoom
+  // Compute sx, sy using the same manual formula
+
   const relX = x - cRect.left;
   const relY = y - cRect.top;
   const sx = (relX - panX) / zoom;
   const sy = (relY - panY) / zoom;
-  // Test each ellipse using its attributes (in user-coords)
+  // Test each ellipse: BOTH screen rect (with big tolerance) AND getBBox user-coord
   const allLabels = [...Object.keys(CEK_MAP), ...Object.keys(BOCOR_MAP)];
+  const tolerance = 0;  // big pixel tolerance for easier clicking
   for (const label of allLabels) {
     const el = findByLabel(label);
     if (!el) continue;
-    const ecx = parseFloat(el.getAttribute('cx'));
-    const ecy = parseFloat(el.getAttribute('cy'));
-    const erx = parseFloat(el.getAttribute('rx'));
-    const ery = parseFloat(el.getAttribute('ry'));
-    if (isNaN(ecx) || isNaN(ecy) || isNaN(erx) || isNaN(ery)) continue;
-    const dx = (sx - ecx) / erx;
-    const dy = (sy - ecy) / ery;
-    if (dx*dx + dy*dy <= 1) {
-      const cs = svgDoc.defaultView.getComputedStyle(el);
-      if (cs.display === 'none' || parseFloat(cs.opacity) === 0) continue;
-      return { el, sx, sy };
+    // 1) Test screen rect (getBoundingClientRect includes all CSS transforms)
+    const r = el.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0) {
+      if (sx >= r.left - tolerance && sx <= r.right + tolerance &&
+        sy >= r.top - tolerance && sy <= r.bottom + tolerance) {
+        const cs = svgDoc.defaultView.getComputedStyle(el);
+        if (cs.display !== 'none' && parseFloat(cs.opacity) > 0) {
+          return { el, sx, sy };
+        }
+      }
     }
   }
   return null;
@@ -402,54 +407,26 @@ function setBocorStyle(el, mode) {
 
 /* Show debug info: mouse coords, element under cursor, label */
 function showDebugOverlay(x, y, el, sx, sy) {
+  return;
   const overlay = document.getElementById('debugOverlay');
   if (!overlay) return;
-  // Compute sx, sy from screen coords if not provided
+  // Compute sx, sy using the same manual formula as findEllipseAt (which user confirmed works)
+  const container = document.getElementById('diagram-container');
+  const cRect = container ? container.getBoundingClientRect() : null;
   if (sx === undefined || sy === undefined) {
-    if (svgDoc) {
-      const svgEl = svgDoc.querySelector('svg');
-      if (svgEl) {
-        const ctm = svgEl.getScreenCTM();
-        if (ctm) {
-          const a = ctm.a, b = ctm.b, c = ctm.c, d = ctm.d, e = ctm.e, f = ctm.f;
-          const det = a * d - b * c;
-          if (det !== 0) {
-            sx = (d * (x - e) - b * (y - f)) / det;
-            sy = (-c * (x - e) + a * (y - f)) / det;
-          }
-        }
-      }
+    if (cRect) {
+      sx = (x - cRect.left - panX) / zoom;
+      sy = (y - cRect.top - panY) / zoom;
     }
   }
   const tag = el ? el.tagName.toLowerCase() : 'null';
   const id = el && el.id ? `#${el.id}` : '';
   const label = el && el.getAttribute('inkscape:label') ? `label="${el.getAttribute('inkscape:label')}"` : '';
   const className = el && el.getAttribute('class') ? `class="${el.getAttribute('class')}"` : '';
-  // Show container info
-  const container = document.getElementById('diagram-container');
-  const cRect = container ? container.getBoundingClientRect() : null;
-  const containerInfo = cRect ? `container: x=${Math.round(cRect.left)}-${Math.round(cRect.right)} y=${Math.round(cRect.top)}-${Math.round(cRect.bottom)} (${Math.round(cRect.width)}x${Math.round(cRect.height)})` : '';
-  // Show mouse user-coords (after transform)
-  const userInfo = (sx !== undefined) ? `mouse (user-coord svg): x=${sx.toFixed(2)} y=${sy.toFixed(2)}` : 'mouse (user-coord svg): -';
-  // Show pan/zoom state
+  const containerInfo = cRect ? `container: x=${Math.round(cRect.left)}-${Math.round(cRect.right)} y=${Math.round(cRect.top)}-${Math.round(cRect.bottom)}` : '';
+  const userInfo = (sx !== undefined) ? `mouse (svg user-coord): x=${sx.toFixed(2)} y=${sy.toFixed(2)}` : 'mouse (svg user-coord): -';
   const transformInfo = `pan: (${panX.toFixed(1)}, ${panY.toFixed(1)}), zoom: ${zoom.toFixed(2)}`;
-  // Compute manual transform (mouseX - containerLeft - panX) / zoom
-  let manualX = null, manualY = null;
-  if (svgDoc && cRect) {
-    const svgEl2 = svgDoc.querySelector('svg');
-    if (svgEl2) {
-      const a = parseFloat(svgEl2.getAttribute('width')) || 0;
-      // Use simple math: relative to container - panX, divided by zoom
-      const relX = x - cRect.left;
-      const relY = y - cRect.top;
-      // The transform is: translate(panX, panY) scale(zoom) which means screen = svg * zoom + pan
-      // So svg_x = (screen - pan) / zoom
-      manualX = (relX - panX) / zoom;
-      manualY = (relY - panY) / zoom;
-    }
-  }
-  const manualInfo = (manualX !== null) ? `manual: x=${manualX.toFixed(2)} y=${manualY.toFixed(2)}` : 'manual: -';
-  // Show ellipse info in user-coords (cx, cy, rx, ry from attributes)
+  // Show ellipse info: BOTH user-coord attrs (cx, cy) AND screen rect
   let userCoords = '';
   if (svgDoc) {
     [...Object.keys(CEK_MAP), ...Object.keys(BOCOR_MAP)].forEach(lbl => {
@@ -459,10 +436,11 @@ function showDebugOverlay(x, y, el, sx, sy) {
       const cy = e.getAttribute('cy');
       const rx = e.getAttribute('rx');
       const ry = e.getAttribute('ry');
-      userCoords += `${lbl}: cx=${cx} cy=${cy} rx=${rx} ry=${ry}\n`;
+      const r = e.getBoundingClientRect();
+      userCoords += `${lbl}: (screen: ${Math.round(r.left)},${Math.round(r.top)}-${Math.round(r.right)},${Math.round(r.bottom)})\n`;
     });
   }
-  overlay.textContent = `mouse (screen): x=${Math.round(x)}, y=${Math.round(y)}\n${userInfo}\n${manualInfo}\nhit: <${tag}${id}> ${label} ${className}\n${containerInfo}\n${transformInfo}\n\nellipse attrs (user-coords):\n${userCoords}`;
+  overlay.textContent = `mouse (screen): x=${Math.round(x)}, y=${Math.round(y)}\n${userInfo}\nhit: <${tag}${id}> ${label} ${className}\n${containerInfo}\n${transformInfo}\n\nellipses (user-coord | screen-rect):\n${userCoords}`;
 }
 
 function clearActive() {
@@ -517,7 +495,7 @@ function renderInfoPanel(data) {
 
 function playHiss() {
   if (!audioCtx) {
-    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return; }
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
   }
   try {
     const dur = 0.8;
@@ -535,7 +513,7 @@ function playHiss() {
     filter.frequency.value = 2000;
     src.connect(filter).connect(audioCtx.destination);
     src.start();
-  } catch(e) { /* ignore */ }
+  } catch (e) { /* ignore */ }
 }
 
 function countAllObjects() {
@@ -570,7 +548,7 @@ function switchSeries(series) {
 function setupControls() {
   soundToggle.addEventListener('change', () => {
     if (soundToggle.checked && !audioCtx) {
-      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { }
     }
   });
   resetBtn.addEventListener('click', () => {
