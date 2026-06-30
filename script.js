@@ -5,6 +5,7 @@
 const svgObj = document.getElementById('svgObj');
 const svgContainer = document.getElementById('svgContainer');
 const viewerWrap = document.getElementById('viewerWrap');
+const touchOverlay = document.getElementById('touchOverlay');
 const unitSelect = document.getElementById('unitSelect');
 const loopToggle = document.getElementById('loopToggle');
 const speedSlider = document.getElementById('speedSlider');
@@ -336,7 +337,11 @@ function onSvgLoaded() {
   renderTree();
   log(`SVG loaded: ${countAllObjects()} objects, ${actions.size} actions`, 'log-ok');
   setStatus(`${countAllObjects()} objects`);
-  zoomFit();
+  // Delay initial fit until viewer dimensions are stable (especially mobile)
+  requestAnimationFrame(() => {
+    zoomFit();
+    requestAnimationFrame(() => applyTransform());
+  });
 }
 
 /* Hide all bocor_* and cek_* ellipses (not relevant for animation editor) */
@@ -474,21 +479,58 @@ document.getElementById('collapseAll').addEventListener('click', () => {
    Pan & Zoom - using SVG viewBox (vector quality)
    ============================================ */
 let baseViewBox = null;  // original viewBox of SVG
+
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    if (svgDoc) {
+      zoomFit();
+      applyTransform();
+    }
+  }, 150);
+});
+
+// Watch viewer size; on mobile initial layout can be 0 until DOM settles
+if (typeof ResizeObserver !== 'undefined') {
+  const ro = new ResizeObserver(entries => {
+    const rect = viewerWrap.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0 && svgDoc) {
+      if (!baseViewBox || zoom === 0 || Number.isNaN(zoom)) {
+        zoomFit();
+      } else {
+        applyTransform();
+      }
+    }
+  });
+  ro.observe(viewerWrap);
+}
 function applyTransform() {
-  if (!svgDoc) return;
+  if (!svgDoc) { setTouchDebug('ERR: no svgDoc'); return; }
   const svgEl = svgDoc.querySelector('svg');
-  if (!svgEl || !baseViewBox) return;
+  if (!svgEl) { setTouchDebug('ERR: no svgEl'); return; }
+  if (!baseViewBox) { setTouchDebug('ERR: no baseViewBox'); return; }
+  // Guard against bad pan state
+  if (Number.isNaN(panX) || Number.isNaN(panY)) { panX = 0; panY = 0; }
   // ViewBox dimension = baseViewBox dimension / zoom
   const w = baseViewBox.width / zoom;
   const h = baseViewBox.height / zoom;
   // Center of viewBox stays at baseViewBox center, shifted by pan (px -> vb units)
   const wrapRect = viewerWrap.getBoundingClientRect();
+  if (wrapRect.width === 0 || wrapRect.height === 0) {
+    setTouchDebug('SKIP: viewer size 0');
+    return;
+  }
   const pxToVb = baseViewBox.width / wrapRect.width;
   const cx = baseViewBox.x + baseViewBox.width / 2 - panX * pxToVb;
   const cy = baseViewBox.y + baseViewBox.height / 2 - panY * pxToVb;
   const x = cx - w / 2;
   const y = cy - h / 2;
-  svgEl.setAttribute('viewBox', `${x.toFixed(3)} ${y.toFixed(3)} ${w.toFixed(3)} ${h.toFixed(3)}`);
+  const vb = `${x.toFixed(3)} ${y.toFixed(3)} ${w.toFixed(3)} ${h.toFixed(3)}`;
+  svgEl.setAttribute('viewBox', vb);
+  // Force reflow/repaint so mobile browsers actually apply the new viewBox
+  void svgEl.getBoundingClientRect();
+  setTouchDebug(`APPLY zoom=${zoom.toFixed(2)} pan=${panX.toFixed(0)},${panY.toFixed(0)}\n${vb}`);
 }
 function zoomFit() {
   if (!svgDoc) return;
@@ -507,6 +549,10 @@ function zoomFit() {
   }
   // Zoom fit = container / baseViewBox
   const wrapRect = viewerWrap.getBoundingClientRect();
+  if (wrapRect.width === 0 || wrapRect.height === 0) {
+    setTouchDebug('SKIP fit: viewer size 0');
+    return;
+  }
   const zX = wrapRect.width / baseViewBox.width;
   const zY = wrapRect.height / baseViewBox.height;
   const z = Math.min(zX, zY);  // full fit (no 0.95)
@@ -542,11 +588,13 @@ if (recordLastBtn) {
   });
 }
 
-viewerWrap.addEventListener('mousedown', e => {
+const gestureTarget = touchOverlay || viewerWrap;
+
+gestureTarget.addEventListener('mousedown', e => {
   isDragging = true;
   dragStartX = e.clientX; dragStartY = e.clientY;
   panStartX = panX; panStartY = panY;
-  viewerWrap.classList.add('dragging');
+  gestureTarget.classList.add('dragging');
 });
 window.addEventListener('mousemove', e => {
   if (!isDragging) return;
@@ -556,9 +604,9 @@ window.addEventListener('mousemove', e => {
 });
 window.addEventListener('mouseup', () => {
   isDragging = false;
-  viewerWrap.classList.remove('dragging');
+  gestureTarget.classList.remove('dragging');
 });
-viewerWrap.addEventListener('wheel', e => {
+gestureTarget.addEventListener('wheel', e => {
   e.preventDefault();
   const rect = viewerWrap.getBoundingClientRect();
   const mx = e.clientX - rect.left;
@@ -578,6 +626,11 @@ viewerWrap.addEventListener('wheel', e => {
    Touch pan & pinch zoom
    ============================================ */
 let touchState = null; // { mode:'pan'|'pinch', startZoom, startPanX, startPanY, startTouches: [{id,x,y}], startDist, startMid }
+const touchDebug = document.getElementById('touchDebug');
+
+function setTouchDebug(msg) {
+  if (touchDebug) touchDebug.textContent = msg;
+}
 
 function getTouchPos(t) {
   const rect = viewerWrap.getBoundingClientRect();
@@ -590,10 +643,11 @@ function touchMidpoint(a, b) {
   return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 }
 
-viewerWrap.addEventListener('touchstart', e => {
+gestureTarget.addEventListener('touchstart', e => {
   if (e.touches.length === 0) return;
   const rect = viewerWrap.getBoundingClientRect();
   const touches = Array.from(e.touches).map(t => getTouchPos(t));
+  setTouchDebug(`START touches=${e.touches.length}`);
   if (e.touches.length === 1) {
     touchState = {
       mode: 'pan',
@@ -613,7 +667,7 @@ viewerWrap.addEventListener('touchstart', e => {
   }
 }, { passive: false });
 
-viewerWrap.addEventListener('touchmove', e => {
+gestureTarget.addEventListener('touchmove', e => {
   if (!touchState) return;
   e.preventDefault();
   const rect = viewerWrap.getBoundingClientRect();
@@ -649,6 +703,7 @@ viewerWrap.addEventListener('touchmove', e => {
     const c = touches[0];
     panX = touchState.startPanX + (c.x - s.x);
     panY = touchState.startPanY + (c.y - s.y);
+    setTouchDebug(`MOVE pan dx=${(c.x - s.x).toFixed(0)} dy=${(c.y - s.y).toFixed(0)}\npan=${panX.toFixed(0)},${panY.toFixed(0)}`);
     applyTransform();
   } else if (e.touches.length >= 2 && touchState.mode === 'pinch') {
     const t0 = touches[0], t1 = touches[1];
@@ -661,15 +716,17 @@ viewerWrap.addEventListener('touchmove', e => {
     panX = (mx - centerX) * (1 - newZoom / touchState.startZoom) + touchState.startPanX * newZoom / touchState.startZoom;
     panY = (my - centerY) * (1 - newZoom / touchState.startZoom) + touchState.startPanY * newZoom / touchState.startZoom;
     zoom = newZoom;
+    setTouchDebug(`MOVE pinch ratio=${ratio.toFixed(2)} zoom=${zoom.toFixed(2)}`);
     applyTransform();
   }
 }, { passive: false });
 
 function endTouch() {
+  setTouchDebug('END touch');
   touchState = null;
 }
-viewerWrap.addEventListener('touchend', endTouch, { passive: false });
-viewerWrap.addEventListener('touchcancel', endTouch, { passive: false });
+gestureTarget.addEventListener('touchend', endTouch, { passive: false });
+gestureTarget.addEventListener('touchcancel', endTouch, { passive: false });
 
 /* ============================================
    Script Apply / Action List
