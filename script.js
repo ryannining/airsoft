@@ -52,7 +52,7 @@ const UNITS = [
 @6000,T,Tembak !
 
 @6000-7000,trigger,R-20
-@7000-7100,sear,R+10,-9,2
+@7000-7100,sear,R+10
 @7100-7200,valve_dumping,X0
 @8000,T,Selesai
 @7200+500,angin,O1
@@ -65,7 +65,7 @@ const UNITS = [
 @0+1000,pasak_belakang2,X+50;Y+50
 
 @1000-1500,trigger,R-20
-@1000-1500,sear,R+10,-9,2
+@1000-1500,sear,R+10
 
 @1500-2500,pompa,X+190
 @2500-3500,pompa,Y-50
@@ -84,7 +84,7 @@ const UNITS = [
 @3000+1000,pasak_belakang2,X0;Y0
 
 @1000-1500,trigger,R-20
-@1000-1500,sear,R+10,-9,2
+@1000-1500,sear,R+10
 
 @1500-2500,pompa,X0
 @3000+500,trigger,R0
@@ -111,6 +111,7 @@ const UNITS = [
 @3500,T,Masukkan lagi
 @4500,T,Pasang paku
 @7000,T,Selesai
+
 `
   },
   {
@@ -124,12 +125,15 @@ const UNITS = [
 @0-10,sear,R+10,-9,2
 @0-10,valve_f03,X+15
 @0-10,tekanan,O0
+@0-10,picu,R-20,-1.3,-3.6
 
 @10,T,Majukan valve
 @10-1000,valve_f03,X0
 @500,T,Picu akan maju, siap pompa
 @1000-1010,trigger,R0,2.4,-7.9
 @1000-1010,sear,R0
+@1000+30,picu,R0
+
 
 @1000,T,Pompa
 @1000-2000,full_gagang_pompa,X+100
@@ -142,6 +146,8 @@ const UNITS = [
 @3000-4000,valve_f03,X15
 @3000-4000,valve_dumping,X-15
 @6000,T,Tembak !
+
+@6000+1000,picu,R-20
 
 @6000-7000,trigger,R-20,2.4,-7.9
 @7000-7100,sear,R+10
@@ -208,6 +214,26 @@ const UNITS = [
 @1000,T,Masukkan valve
 @3100,T,Pasang Paku
 @4000,T,Selesai
+
+>menambah ruang angin
+@0+1000,pasak1,X-50;Y-50
+@0+1000,pasak2,X-50;Y+50
+
+@1500-2500,pompa,X+190
+@2500+500,spacer,SX0.1;X-140
+@3000+1000,spacer2,X+40
+
+@4000+1500,pompa,X+0
+@5500+1000,pasak1,X0;Y0
+@5500+1000,pasak2,X0;Y0
+
+
+@10,T,Cabut 2 paku pompa
+@1500,T,Tarik keluar pompa
+@5000,T,Selesai
+
+
+
 `
   }
 ];
@@ -233,7 +259,7 @@ const exportLastBtn = document.getElementById('exportLastBtn');
 const recordLastBtn = document.getElementById('recordLastBtn');
 
 function log(msg, cls = 'log-info') {
-  const t = new Date().toTimeString().slice(0,8);
+  const t = new Date().toTimeString().slice(0, 8);
   consoleOut.innerHTML += `<span class="${cls}">[${t}] ${msg}</span>\n`;
   consoleOut.parentElement.scrollTop = consoleOut.parentElement.scrollHeight;
 }
@@ -247,7 +273,7 @@ function populateUnitSelect() {
   unitSelect.innerHTML = '';
   // Restore last selected unit from storage
   let lastUnit = null;
-  try { lastUnit = localStorage.getItem('action_script_last_unit'); } catch(e) {}
+  try { lastUnit = localStorage.getItem('action_script_last_unit'); } catch (e) { }
   for (const u of UNITS) {
     const opt = document.createElement('option');
     opt.value = u.id;
@@ -273,7 +299,7 @@ unitSelect.addEventListener('change', () => {
   if (player) player.reset();
   svgObj.setAttribute('data', u.file + '?v=' + Date.now());
   // Save selected unit for next reload
-  try { localStorage.setItem('action_script_last_unit', u.id); } catch(e) {}
+  try { localStorage.setItem('action_script_last_unit', u.id); } catch (e) { }
   // Load script for this unit (saved or default)
   const saved = loadScript();
   if (saved) scriptArea.value = saved;
@@ -364,7 +390,7 @@ function renderTree() {
   if (!svg) return;
   // Top-level = direct children of svg (excluding defs, namedview, ellipse)
   for (const child of svg.children) {
-    if (['defs','namedview','style','sodipodi:namedview'].includes(child.tagName.toLowerCase())) continue;
+    if (['defs', 'namedview', 'style', 'sodipodi:namedview'].includes(child.tagName.toLowerCase())) continue;
     if (child.tagName.toLowerCase() === 'ellipse') continue;
     if (!child.id) {
       // If no id, just show contents directly
@@ -463,7 +489,7 @@ function applyTransform() {
   const x = cx - w / 2;
   const y = cy - h / 2;
   svgEl.setAttribute('viewBox', `${x.toFixed(3)} ${y.toFixed(3)} ${w.toFixed(3)} ${h.toFixed(3)}`);
-  viewerInfo.textContent = `${Math.round(zoom*100)}%`;
+  viewerInfo.textContent = `${Math.round(zoom * 100)}%`;
 }
 function zoomFit() {
   if (!svgDoc) return;
@@ -543,7 +569,7 @@ viewerWrap.addEventListener('wheel', e => {
   const rect = viewerWrap.getBoundingClientRect();
   const mx = e.clientX - rect.left;
   const my = e.clientY - rect.top;
-  const delta = e.deltaY > 0 ? 1/1.1 : 1.1;
+  const delta = e.deltaY > 0 ? 1 / 1.1 : 1.1;
   const newZoom = Math.max(0.1, Math.min(20, zoom * delta));
   const centerX = rect.width / 2;
   const centerY = rect.height / 2;
@@ -603,7 +629,7 @@ viewerWrap.addEventListener('touchmove', e => {
 
   // If touch count changed mid-gesture, re-baseline from current state
   if ((e.touches.length >= 2 && touchState.mode !== 'pinch') ||
-      (e.touches.length === 1 && touchState.mode !== 'pan')) {
+    (e.touches.length === 1 && touchState.mode !== 'pan')) {
     if (e.touches.length >= 2) {
       const t0 = touches[0], t1 = touches[1];
       touchState = {
@@ -833,7 +859,7 @@ function renderTimeline(action) {
   for (const t of times) {
     const obj = action.steps.find(s => s.time === t).objId;
     const lbl = document.createElement('span');
-    lbl.style.cssText = `position:absolute;left:${(t/total*100).toFixed(1)}%;top:18px;font-size:0.6rem;color:var(--muted);`;
+    lbl.style.cssText = `position:absolute;left:${(t / total * 100).toFixed(1)}%;top:18px;font-size:0.6rem;color:var(--muted);`;
     lbl.textContent = `[${t}] ${obj}`;
     timelineBar.appendChild(lbl);
   }
@@ -1035,8 +1061,8 @@ function exportActionAsSVG(actionName) {
       }
     }
     // Make sure last keyTime is 1
-    if (trTimes[trTimes.length-1] !== '1.0000') {
-      const lastStep = steps[steps.length-1];
+    if (trTimes[trTimes.length - 1] !== '1.0000') {
+      const lastStep = steps[steps.length - 1];
       trValues.push(`${lastStep.to.x.toFixed(3)} ${lastStep.to.y.toFixed(3)}`);
       trTimes.push('1.0000');
       rotValues.push(lastStep.to.r.toFixed(3));
@@ -1089,7 +1115,7 @@ function exportActionAsSVG(actionName) {
       // Dedupe adjacent keyframes with same value to avoid SMIL issues
       const deduped = [opKeyframes[0]];
       for (let i = 1; i < opKeyframes.length; i++) {
-        if (opKeyframes[i].time !== deduped[deduped.length-1].time || opKeyframes[i].value !== deduped[deduped.length-1].value) {
+        if (opKeyframes[i].time !== deduped[deduped.length - 1].time || opKeyframes[i].value !== deduped[deduped.length - 1].value) {
           deduped.push(opKeyframes[i]);
         }
       }
@@ -1098,8 +1124,8 @@ function exportActionAsSVG(actionName) {
         deduped.unshift({ time: 0, value: deduped[0].value });
       }
       // Make sure last keyTime is 1
-      if (deduped[deduped.length-1].time < totalDur) {
-        deduped.push({ time: totalDur, value: deduped[deduped.length-1].value });
+      if (deduped[deduped.length - 1].time < totalDur) {
+        deduped.push({ time: totalDur, value: deduped[deduped.length - 1].value });
       }
       const opValues = deduped.map(k => k.value).join('; ');
       const opKeyTimes = deduped.map(k => (k.time / totalDur).toFixed(4)).join('; ');
