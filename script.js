@@ -227,6 +227,10 @@ let actions = new Map();      // name -> { steps, duration }
 let objectTree = [];          // tree of objects from SVG
 let zoom = 1, panX = 0, panY = 0;
 let isDragging = false, dragStartX = 0, dragStartY = 0, panStartX = 0, panStartY = 0;
+let lastActionName = null;
+const lastActionLabel = document.getElementById('lastActionLabel');
+const exportLastBtn = document.getElementById('exportLastBtn');
+const recordLastBtn = document.getElementById('recordLastBtn');
 
 function log(msg, cls = 'log-info') {
   const t = new Date().toTimeString().slice(0,8);
@@ -499,6 +503,25 @@ document.getElementById('zoomOut').addEventListener('click', zoomOut);
 document.getElementById('zoomReset').addEventListener('click', zoomReset);
 document.getElementById('zoomFit').addEventListener('click', zoomFit);
 
+if (exportLastBtn) {
+  exportLastBtn.addEventListener('click', () => {
+    if (!lastActionName) {
+      log('Belum ada aksi yang dijalankan. Klik sebuah aksi dulu.', 'log-err');
+      return;
+    }
+    exportActionAsSVG(lastActionName);
+  });
+}
+if (recordLastBtn) {
+  recordLastBtn.addEventListener('click', () => {
+    if (!lastActionName) {
+      log('Belum ada aksi yang dijalankan. Klik sebuah aksi dulu.', 'log-err');
+      return;
+    }
+    exportActionAsGIF(lastActionName);
+  });
+}
+
 viewerWrap.addEventListener('mousedown', e => {
   isDragging = true;
   dragStartX = e.clientX; dragStartY = e.clientY;
@@ -522,23 +545,111 @@ viewerWrap.addEventListener('wheel', e => {
   const my = e.clientY - rect.top;
   const delta = e.deltaY > 0 ? 1/1.1 : 1.1;
   const newZoom = Math.max(0.1, Math.min(20, zoom * delta));
-  // Zoom toward mouse: shift panX/panY so the world point under cursor stays fixed
-  // ViewBox center moves by (new_pxToVb - old_pxToVb) * (mouse_from_center)
-  const wrapW = rect.width;
-  const oldPxToVb = baseViewBox ? baseViewBox.width / (wrapW * (1/newZoom)) : 0;  // before zoom
-  const newPxToVb = baseViewBox ? baseViewBox.width / (wrapW * (1/zoom)) : 0;  // after old zoom
-  // Simpler: just use shift proportional to mouse-from-center
-  const centerX = wrapW / 2;
+  const centerX = rect.width / 2;
   const centerY = rect.height / 2;
-  const dx = mx - centerX;
-  const dy = my - centerY;
-  // old ratio = w_old/zoom_old, new ratio = w_old/zoom_new
-  // pan should shift so that point (mx,my) stays at same vb coord
-  panX += dx * (1 - zoom / newZoom);
-  panY += dy * (1 - zoom / newZoom);
+  // Mouse-centric zoom: keep the world point under cursor fixed
+  panX = (mx - centerX) * (1 - newZoom / zoom) + panX * newZoom / zoom;
+  panY = (my - centerY) * (1 - newZoom / zoom) + panY * newZoom / zoom;
   zoom = newZoom;
   applyTransform();
 }, { passive: false });
+
+/* ============================================
+   Touch pan & pinch zoom
+   ============================================ */
+let touchState = null; // { mode:'pan'|'pinch', startZoom, startPanX, startPanY, startTouches: [{id,x,y}], startDist, startMid }
+
+function getTouchPos(t) {
+  const rect = viewerWrap.getBoundingClientRect();
+  return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+}
+function touchDistance(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+function touchMidpoint(a, b) {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
+viewerWrap.addEventListener('touchstart', e => {
+  if (e.touches.length === 0) return;
+  const rect = viewerWrap.getBoundingClientRect();
+  const touches = Array.from(e.touches).map(t => getTouchPos(t));
+  if (e.touches.length === 1) {
+    touchState = {
+      mode: 'pan',
+      startPanX: panX, startPanY: panY,
+      startTouches: touches
+    };
+  } else if (e.touches.length >= 2) {
+    const t0 = touches[0], t1 = touches[1];
+    touchState = {
+      mode: 'pinch',
+      startZoom: zoom,
+      startPanX: panX, startPanY: panY,
+      startDist: touchDistance(t0, t1),
+      startMid: touchMidpoint(t0, t1),
+      startTouches: touches
+    };
+  }
+}, { passive: false });
+
+viewerWrap.addEventListener('touchmove', e => {
+  if (!touchState) return;
+  e.preventDefault();
+  const rect = viewerWrap.getBoundingClientRect();
+  const touches = Array.from(e.touches).map(t => getTouchPos(t));
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+
+  // If touch count changed mid-gesture, re-baseline from current state
+  if ((e.touches.length >= 2 && touchState.mode !== 'pinch') ||
+      (e.touches.length === 1 && touchState.mode !== 'pan')) {
+    if (e.touches.length >= 2) {
+      const t0 = touches[0], t1 = touches[1];
+      touchState = {
+        mode: 'pinch',
+        startZoom: zoom,
+        startPanX: panX, startPanY: panY,
+        startDist: touchDistance(t0, t1),
+        startMid: touchMidpoint(t0, t1),
+        startTouches: touches
+      };
+    } else {
+      touchState = {
+        mode: 'pan',
+        startPanX: panX, startPanY: panY,
+        startTouches: touches
+      };
+    }
+    return;
+  }
+
+  if (e.touches.length === 1 && touchState.mode === 'pan') {
+    const s = touchState.startTouches[0];
+    const c = touches[0];
+    panX = touchState.startPanX + (c.x - s.x);
+    panY = touchState.startPanY + (c.y - s.y);
+    applyTransform();
+  } else if (e.touches.length >= 2 && touchState.mode === 'pinch') {
+    const t0 = touches[0], t1 = touches[1];
+    const dist = touchDistance(t0, t1);
+    const mid = touchMidpoint(t0, t1);
+    const ratio = dist / touchState.startDist;
+    const newZoom = Math.max(0.1, Math.min(20, touchState.startZoom * ratio));
+    const mx = mid.x, my = mid.y;
+    // Pinch-centric zoom: keep world point under pinch midpoint fixed
+    panX = (mx - centerX) * (1 - newZoom / touchState.startZoom) + touchState.startPanX * newZoom / touchState.startZoom;
+    panY = (my - centerY) * (1 - newZoom / touchState.startZoom) + touchState.startPanY * newZoom / touchState.startZoom;
+    zoom = newZoom;
+    applyTransform();
+  }
+}, { passive: false });
+
+function endTouch() {
+  touchState = null;
+}
+viewerWrap.addEventListener('touchend', endTouch, { passive: false });
+viewerWrap.addEventListener('touchcancel', endTouch, { passive: false });
 
 /* ============================================
    Script Apply / Action List
@@ -620,24 +731,6 @@ function renderActionList() {
     const chip = document.createElement('span');
     chip.className = 'action-chip';
     const stepCount = action.steps.length;
-    // SVG export button
-    const exportBtn = document.createElement('span');
-    exportBtn.className = 'export-btn';
-    exportBtn.textContent = 'SVG';
-    exportBtn.title = 'Export ke file SVG animated';
-    exportBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      exportActionAsSVG(name);
-    });
-    // GIF export button
-    const gifBtn = document.createElement('span');
-    gifBtn.className = 'export-btn';
-    gifBtn.textContent = '🎬';
-    gifBtn.title = 'Export ke video (WebM)';
-    gifBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      exportActionAsGIF(name);
-    });
     const label = document.createElement('span');
     label.className = 'chip-label';
     label.textContent = '▶ ' + name;
@@ -646,8 +739,6 @@ function renderActionList() {
     count.textContent = stepCount;
     chip.appendChild(label);
     chip.appendChild(count);
-    chip.appendChild(exportBtn);
-    chip.appendChild(gifBtn);
     chip.title = `Durasi: ${action.duration}ms, ${stepCount} steps\nKlik untuk run`;
     chip.addEventListener('click', () => playAction(name));
     actionList.appendChild(chip);
@@ -675,6 +766,11 @@ function playAction(name) {
     log('Aksi tidak ditemukan: ' + name, 'log-err');
     log('Tersedia: ' + [...actions.keys()].join(', '), 'log-info');
     return;
+  }
+  lastActionName = name;
+  if (lastActionLabel) {
+    lastActionLabel.textContent = name;
+    lastActionLabel.title = `Aksi terakhir: ${name}`;
   }
   log(`▶ ${name} (${action.duration}ms, ${action.steps.length} steps)`, 'log-info');
   player.loop = loopToggle.checked;
@@ -1136,11 +1232,13 @@ async function exportActionAsGIF(actionName) {
     a.click();
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+    if (recordLastBtn) recordLastBtn.classList.remove('recording');
     log('Video exported: ' + Math.round(blob.size / 1024) + ' KB', 'log-ok');
     setStatus('Video exported (WebM)');
   };
   log('Recording video ' + (action.duration / 1000) + 's...', 'log-info');
   setStatus('Recording...');
+  if (recordLastBtn) recordLastBtn.classList.add('recording');
   player.captureOriginalTransforms();
   // Create text overlay element on live SVG for recording
   const recTextEl = svgDoc.createElementNS(NS, 'text');
@@ -1182,43 +1280,50 @@ async function exportActionAsGIF(actionName) {
   ctx.drawImage(img0, 0, 0, canvas.width, canvas.height);
   // Start recording
   recorder.start();
-  // Render frames at 30fps
-  const fps = 30;
-  const frameDelay = 1000 / fps;
-  const totalDur = action.duration;
-  const numFrames = Math.ceil(totalDur / frameDelay);
-  for (let i = 1; i <= numFrames; i++) {
-    const t = i * frameDelay;
-    player.applyState(action, t);
-    // Update text overlay for this frame
-    let activeText = null;
-    for (const ts of textStepsForRec) {
-      if (t >= ts.start && t < ts.end) { activeText = ts.text; break; }
+  try {
+    // Render frames at 30fps
+    const fps = 30;
+    const frameDelay = 1000 / fps;
+    const totalDur = action.duration;
+    const numFrames = Math.ceil(totalDur / frameDelay);
+    for (let i = 1; i <= numFrames; i++) {
+      const t = i * frameDelay;
+      player.applyState(action, t);
+      // Update text overlay for this frame
+      let activeText = null;
+      for (const ts of textStepsForRec) {
+        if (t >= ts.start && t < ts.end) { activeText = ts.text; break; }
+      }
+      if (activeText) {
+        recTextEl.textContent = activeText;
+        recTextEl.setAttribute('opacity', '1');
+      } else {
+        recTextEl.setAttribute('opacity', '0');
+      }
+      // Re-render SVG to canvas
+      const svgStr = serializer.serializeToString(origSvg);
+      const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+      const img = new Image();
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = svgUrl;
+      });
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      await new Promise(r => setTimeout(r, frameDelay));
     }
-    if (activeText) {
-      recTextEl.textContent = activeText;
-      recTextEl.setAttribute('opacity', '1');
-    } else {
-      recTextEl.setAttribute('opacity', '0');
-    }
-    // Re-render SVG to canvas
-    const svgStr = serializer.serializeToString(origSvg);
-    const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
-    const img = new Image();
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-      img.src = svgUrl;
-    });
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    await new Promise(r => setTimeout(r, frameDelay));
+  } catch (err) {
+    log('Recording error: ' + err.message, 'log-err');
+    setStatus('Recording failed');
+  } finally {
+    // Remove temp text element
+    if (recTextEl.parentNode) recTextEl.parentNode.removeChild(recTextEl);
+    // Stop recording
+    recorder.stop();
+    // Restore
+    player.reset();
+    if (recordLastBtn) recordLastBtn.classList.remove('recording');
   }
-  // Remove temp text element
-  if (recTextEl.parentNode) recTextEl.parentNode.removeChild(recTextEl);
-  // Stop recording
-  recorder.stop();
-  // Restore
-  player.reset();
 }

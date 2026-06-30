@@ -236,17 +236,16 @@ function findEllipseAt(x, y) {
   const relY = y - cRect.top;
   const sx = (relX - panX) / zoom;
   const sy = (relY - panY) / zoom;
-  // Test each ellipse: BOTH screen rect (with big tolerance) AND getBBox user-coord
+  // Test each ellipse using screen rect from getBoundingClientRect
   const allLabels = [...Object.keys(CEK_MAP), ...Object.keys(BOCOR_MAP)];
-  const tolerance = 0;  // big pixel tolerance for easier clicking
   for (const label of allLabels) {
     const el = findByLabel(label);
     if (!el) continue;
     // 1) Test screen rect (getBoundingClientRect includes all CSS transforms)
     const r = el.getBoundingClientRect();
     if (r.width > 0 && r.height > 0) {
-      if (sx >= r.left - tolerance && sx <= r.right + tolerance &&
-        sy >= r.top - tolerance && sy <= r.bottom + tolerance) {
+      if (sx >= r.left && sx <= r.right &&
+          sy >= r.top && sy <= r.bottom) {
         const cs = svgDoc.defaultView.getComputedStyle(el);
         if (cs.display !== 'none' && parseFloat(cs.opacity) > 0) {
           return { el, sx, sy };
