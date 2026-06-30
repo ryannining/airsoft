@@ -245,7 +245,7 @@ const timelineCursor = document.getElementById('timelineCursor');
 const timelineLabels = document.getElementById('timelineLabels');
 const actionList = document.getElementById('actionList');
 const treeRoot = document.getElementById('treeRoot');
-const viewerInfo = document.getElementById('viewerInfo');
+
 
 let svgDoc = null;
 let player = null;
@@ -489,7 +489,6 @@ function applyTransform() {
   const x = cx - w / 2;
   const y = cy - h / 2;
   svgEl.setAttribute('viewBox', `${x.toFixed(3)} ${y.toFixed(3)} ${w.toFixed(3)} ${h.toFixed(3)}`);
-  viewerInfo.textContent = `${Math.round(zoom * 100)}%`;
 }
 function zoomFit() {
   if (!svgDoc) return;
@@ -521,13 +520,8 @@ function zoomReset() {
   zoom = 1; panX = 0; panY = 0;
   applyTransform();
 }
-function zoomIn() { zoom = Math.min(zoom * 1.2, 20); applyTransform(); }
-function zoomOut() { zoom = Math.max(zoom / 1.2, 0.1); applyTransform(); }
 
-document.getElementById('zoomIn').addEventListener('click', zoomIn);
-document.getElementById('zoomOut').addEventListener('click', zoomOut);
-document.getElementById('zoomReset').addEventListener('click', zoomReset);
-document.getElementById('zoomFit').addEventListener('click', zoomFit);
+// Zoom in/out/fit/reset are now handled by mouse wheel and touch pinch; keeping zoomFit for initial load.
 
 if (exportLastBtn) {
   exportLastBtn.addEventListener('click', () => {

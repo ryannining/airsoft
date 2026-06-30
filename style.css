@@ -438,9 +438,9 @@ body.mode-player .action-list {
   header h1 { font-size: 0.9rem; }
   .header-controls { gap: 0.3rem; }
   .header-controls label, .header-controls select, .header-controls input { font-size: 0.75rem; }
-  #status { font-size: 0.7rem; }
-  header p { margin-top: 0.15rem !important; }
-  header p a { font-size: 0.7rem !important; }
+  .header-controls .toggle { display: none; }
+  #status { display: none; }
+  header p { display: none; }
 
   main {
     padding: 0.3rem;
@@ -454,23 +454,21 @@ body.mode-player .action-list {
   }
 
   .action-list {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    max-height: 36px;
-    padding-bottom: 0.25rem;
+    flex-wrap: wrap;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 72px;
+    padding-bottom: 0.2rem;
     margin-bottom: 0.25rem;
     gap: 0.25rem;
-    scrollbar-width: none;  /* Firefox */
   }
-  .action-list::-webkit-scrollbar { display: none; }
   .action-chip {
     flex: 0 0 auto;
-    padding: 0.2rem 0.45rem;
-    font-size: 0.7rem;
-    border-radius: 12px;
+    padding: 0.12rem 0.35rem;
+    font-size: 0.65rem;
+    border-radius: 10px;
   }
-  .action-chip .step-count { font-size: 0.6rem; }
+  .action-chip .step-count { font-size: 0.55rem; }
 
   .viewer-toolbar {
     gap: 0.2rem;
