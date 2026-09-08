@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulator Kinematika Pompa — Senapan Angin Multi-Pump Pneumatic</title>
+<style>
+/* ============================================================
+   TEMA GELAP / GAYA GAMBAR TEKNIK
+   ============================================================ */
+:root{
+  --bg:#070a10; --panel:#101825; --panel2:#151f2e; --line:#1f2c3f; --line2:#2b3d57;
+  --text:#e7eef8; --muted:#8fa2bd; --dim:#61748f;
+  --acc:#4fd1c5; --acc2:#63b3ed; --warn:#f6ad55; --bad:#fc8181; --good:#68d391;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 700px at 12% -10%, #16202f 0%, transparent 58%),
+    radial-gradient(900px 600px at 108% 8%, #131a29 0%, transparent 52%), var(--bg);
+  color:var(--text); font-family:"Segoe UI",Inter,system-ui,-apple-system,Roboto,Arial,sans-serif;
+  font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;
+}
+.app{display:flex;flex-direction:column;min-height:100vh}
+
+header.top{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:11px 16px;
+  border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(21,31,46,.92),rgba(12,17,26,.6));
+  position:sticky;top:0;z-index:20;backdrop-filter:blur(6px)}
+.brand{display:flex;gap:11px;align-items:center;min-width:0}
+.mark{width:34px;height:34px;flex:0 0 34px;border-radius:9px;background:linear-gradient(145deg,#1d2b3f,#0e1520);
+  border:1px solid var(--line2);display:grid;place-items:center;color:var(--acc)}
+h1{margin:0;font-size:15px;font-weight:650;letter-spacing:.2px}
+.sub{margin:1px 0 0;color:var(--dim);font-size:11.5px;font-family:var(--mono)}
+.head-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.layout{flex:1;display:grid;grid-template-columns:minmax(300px,362px) minmax(0,1fr);gap:13px;padding:13px;align-items:start}
+@media (max-width:1080px){.layout{grid-template-columns:minmax(0,1fr)}}
+
+.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);
+  border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.panel-h{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.02);border-radius:12px 12px 0 0}
+.panel-h h2{margin:0;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.panel-h .tag{margin-left:auto;font-size:10px;color:var(--dim);font-family:var(--mono);
+  border:1px solid var(--line2);padding:1px 6px;border-radius:99px;white-space:nowrap}
+.panel-b{padding:12px}
+aside{display:flex;flex-direction:column;gap:12px;position:sticky;top:66px;max-height:calc(100vh - 82px);
+  overflow:auto;padding-right:4px;scrollbar-width:thin}
+@media (max-width:1080px){aside{position:static;max-height:none;overflow:visible}}
+main{display:flex;flex-direction:column;gap:12px;min-width:0}
+aside::-webkit-scrollbar{width:8px}
+aside::-webkit-scrollbar-thumb{background:#22304a;border-radius:8px}
+
+.ctl{margin-bottom:13px}
+.ctl:last-child{margin-bottom:2px}
+.ctl-h{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.ctl-h label{font-size:12px;color:var(--muted);flex:1;min-width:0}
+.ctl-h .sym{font-family:var(--mono);color:var(--acc);font-size:11px}
+.num{display:flex;align-items:center;gap:4px;background:#0a111b;border:1px solid var(--line2);border-radius:7px;padding:2px 6px}
+.num input{width:54px;background:none;border:0;color:var(--text);font-family:var(--mono);font-size:12px;text-align:right;outline:none}
+.num span{color:var(--dim);font-size:10.5px;font-family:var(--mono)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;cursor:pointer;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:99px;background:linear-gradient(90deg,#2a3d5c,#1a2536)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;margin-top:-5px;border-radius:50%;
+  background:linear-gradient(180deg,#eaf3ff,#a9bed8);border:1px solid #0a1018;box-shadow:0 0 0 3px rgba(79,209,197,.14)}
+input[type=range]::-moz-range-track{height:5px;border-radius:99px;background:#22314a}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#dfe9f7;border:1px solid #0a1018}
+input[type=range].pump::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(99,179,237,.22)}
+.hint{margin:3px 0 0;font-size:10.5px;color:var(--dim);font-family:var(--mono);line-height:1.5}
+.checks{display:flex;flex-wrap:wrap;gap:6px 14px}
+.chk{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);cursor:pointer;user-select:none}
+.chk input{accent-color:var(--acc);width:14px;height:14px;margin:0}
+.btns,.btn-row{display:flex;gap:7px;flex-wrap:wrap}
+.btn{flex:1 1 auto;min-width:92px;background:linear-gradient(180deg,#1d2a3d,#141d2b);border:1px solid var(--line2);
+  color:var(--text);padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;
+  display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit}
+.btn:hover{border-color:#3b5478;background:linear-gradient(180deg,#24344a,#18222f)}
+.btn:active{transform:translateY(1px)}
+.btn.pri{border-color:#2f7f78;background:linear-gradient(180deg,#1a4b48,#123634);color:#c9fff7}
+.btn.pri:hover{background:linear-gradient(180deg,#206059,#164240)}
+.btn.dgr{border-color:#7a3b3b;background:linear-gradient(180deg,#43211f,#2c1715);color:#ffd9d5}
+select{width:100%;background:#0a111b;border:1px solid var(--line2);color:var(--text);border-radius:8px;
+  padding:7px 8px;font-size:12px;outline:none;font-family:inherit}
+.seg{display:flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden;background:#0a111b;margin-bottom:11px}
+.seg button{flex:1;background:none;border:0;color:var(--muted);padding:6px 4px;font-size:11px;cursor:pointer;font-family:var(--mono)}
+.seg button:hover{color:#fff}
+.seg button.on{background:linear-gradient(180deg,#24405c,#1a2c40);color:#e7f3ff}
+
+.stage{position:relative}
+.stage svg#svg{display:block;width:100%;height:auto;border-radius:0 0 12px 12px;touch-action:none;outline:none;cursor:grab;
+  background:radial-gradient(760px 380px at 46% 44%,#101a28 0%,#080d15 72%)}
+.stage svg#svg:focus-visible{box-shadow:0 0 0 2px rgba(79,209,197,.4) inset}
+.stage-tools{position:absolute;top:8px;right:12px;display:flex;gap:6px;z-index:3}
+.mini{background:rgba(10,17,27,.85);border:1px solid var(--line2);color:var(--muted);border-radius:7px;
+  padding:3px 9px;font-size:11px;cursor:pointer;font-family:var(--mono)}
+.mini:hover{color:#fff;border-color:#3b5478}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;padding:9px 12px;border-top:1px solid var(--line);
+  background:rgba(255,255,255,.015);border-radius:0 0 12px 12px}
+.lg{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.sw{width:11px;height:11px;border-radius:3px;flex:0 0 11px;border:1px solid rgba(255,255,255,.22)}
+.sw.round{border-radius:50%}
+.sw.line{height:3px;border-radius:2px;width:16px;flex-basis:16px}
+
+.grid-ro{display:grid;grid-template-columns:repeat(auto-fit,minmax(166px,1fr));gap:9px}
+.ro{background:linear-gradient(180deg,#131d2b,#0e1520);border:1px solid var(--line);border-radius:10px;
+  padding:9px 11px;min-width:0;transition:border-color .3s,box-shadow .3s}
+.ro.lit{border-color:#5c3a2a;box-shadow:0 0 0 1px rgba(246,173,85,.2),0 0 22px rgba(246,173,85,.12) inset}
+.ro .k{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ro .v{font-family:var(--mono);font-size:21px;font-weight:600;margin-top:2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ro .u{font-size:11px;color:var(--muted);margin-left:3px;font-weight:400}
+.ro .s{font-size:10.5px;color:var(--dim);font-family:var(--mono);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ro.hot .v{color:#ffb4a8}
+.row2{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:1300px){.row2{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
+.note{font-size:12px;color:var(--muted);line-height:1.62}
+.note h3{margin:10px 0 5px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+.note h3:first-child{margin-top:0}
+.note ul{margin:4px 0 8px;padding-left:18px}
+.note li{margin-bottom:4px}
+.note code{font-family:var(--mono);background:#0a111b;border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:#cfe4ff;font-size:11.5px}
+.eq{font-family:var(--mono);font-size:12px;color:#d6e7ff;background:#0a111b;border:1px solid var(--line);
+  border-left:2px solid var(--acc);border-radius:7px;padding:6px 9px;margin:5px 0;overflow-x:auto;white-space:nowrap}
+#infoBox{font-family:var(--mono);font-size:11.5px;line-height:1.9;color:var(--muted)}
+#infoBox b{color:#cfe4ff}
+footer{padding:13px 18px 22px;color:var(--dim);font-size:11px;font-family:var(--mono);border-top:1px solid var(--line);text-align:center}
+  /* v7: bar kontrol posisi tuas tepat di atas diagram */
+  .theta-bar{padding:10px 12px 9px;border-bottom:1px solid #16233a;background:#0c1220}
+  .theta-bar .ctl{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:0}
+  .theta-bar .ctl-h{display:flex;align-items:center;gap:10px;flex:0 0 auto;margin:0}
+  .theta-bar input[type=range]{flex:1 1 240px;margin:0}
+  .theta-bar .hint{flex-basis:100%;margin:3px 0 0}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <div class="mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <path d="M3 8h11"/><path d="M14 5.5v5"/><path d="M6 12l4 7"/>
+          <circle cx="6" cy="12" r="1.6"/><circle cx="10" cy="19" r="1.6"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Simulator Kinematika Pompa &mdash; Senapan Angin Multi-Pump Pneumatic</h1>
+        <p class="sub">slider-crank offset &middot; V = (&pi;/4)&middot;d&sup2;&middot;L &middot; Hukum Boyle &middot; 1 file HTML, vanilla JS + inline SVG</p>
+      </div>
+    </div>
+    <div class="head-actions">
+      <button class="btn pri" id="btnAnim">&#9654; Animasi Pompa</button>
+      <button class="btn" id="btnReset" title="Kosongkan tabung reservoir, hitung ulang dari tekanan atmosfer">&#8635; Reset Tekanan</button>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- ======================= PANEL KONTROL ======================= -->
+    <aside>
+      <section class="panel">
+        <div class="panel-h"><h2>1 &middot; Geometri Pompa</h2><span class="tag">mm</span></div>
+        <div class="panel-b" id="geomCtl"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-h"><h2>2 &middot; Posisi Tuas &amp; Animasi</h2><span class="tag" id="tagTheta">&theta; = 0&deg;</span></div>
+        <div class="panel-b" id="leverCtl"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-h"><h2>3 &middot; Termodinamika</h2><span class="tag">isotermal</span></div>
+        <div class="panel-b" id="thermoCtl"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-h"><h2>4 &middot; Tampilan</h2></div>
+        <div class="panel-b" id="viewCtl"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-h"><h2>5 &middot; Konfigurasi</h2></div>
+        <div class="panel-b">
+          <select id="presetSel">
+            <option value="">Preset &mdash; pilih konfigurasi&hellip;</option>
+            <option value="std">Standar Pabrikan (d16 / L100)</option>
+            <option value="compact">Kompak (d13 / L60)</option>
+            <option value="bigbore">Big Bore (d22 / L140)</option>
+            <option value="long">Langkah Panjang (d25 / L200)</option>
+            <option value="hpc">Kompresi Tinggi (d12 / L120)</option>
+          </select>
+          <div class="btn-row" style="margin-top:8px">
+            <button class="btn" id="btnExport">&#8681; Export JSON</button>
+            <button class="btn" id="btnImport">&#8682; Import JSON</button>
+          </div>
+          <p class="hint" id="cfgHint">Konfigurasi tersimpan otomatis di browser (localStorage).</p>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ======================= VISUALISASI ======================= -->
+    <main>
+      <section class="panel stage">
+        <div class="panel-h">
+          <h2>Mekanisme Tuas &amp; Piston &mdash; Tampilan Potong (Cutaway)</h2>
+          <span class="tag" id="tagScale">&mdash;</span>
+        </div>
+        <div class="theta-bar" id="thetaBar"></div>
+        <div class="stage-tools">
+          <button class="mini" id="btnZoomOut">&minus;</button>
+          <button class="mini" id="btnZoomFit">FIT</button>
+          <button class="mini" id="btnZoomIn">+</button>
+        </div>
+        <svg id="svg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" tabindex="0"
+             aria-label="Simulasi mekanisme tuas dan piston pompa senapan angin"></svg>
+        <div class="legend">
+          <span class="lg"><i class="sw round" style="background:#ffd166"></i>Pin pivot utama (O)</span>
+          <span class="lg"><i class="sw round" style="background:#ff7b72"></i>Pin engkol (C)</span>
+          <span class="lg"><i class="sw round" style="background:#4fd1c5"></i>Pin ujung batang piston (B)</span>
+          <span class="lg"><i class="sw line" style="background:#93b4d8"></i>Batang penghubung L&#8322;</span>
+          <span class="lg"><i class="sw line" style="background:#7c8ea6"></i>Tuas pompa</span>
+          <span class="lg"><i class="sw" style="background:#f6ad55"></i>Katup buang &rarr; tabung</span>
+          <span class="lg"><i class="sw" style="background:#63b3ed"></i>Katup hisap piston</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-h"><h2>Readout Realtime</h2><span class="tag" id="tagStatus">idle</span></div>
+        <div class="panel-b">
+          <div class="grid-ro">
+            <div class="ro"><div class="k">Sudut Tuas &theta;</div><div class="v"><span id="ro-theta">0.0</span><span class="u">&deg;</span></div><div class="s" id="ro-theta-s">&mdash;</div></div>
+            <div class="ro"><div class="k">Posisi Piston x</div><div class="v"><span id="ro-pos">0.0</span><span class="u">mm</span></div><div class="s" id="ro-pos-s">&mdash;</div></div>
+            <div class="ro"><div class="k">Volume Sapuan / Langkah</div><div class="v"><span id="ro-swept">0.00</span><span class="u">cc</span></div><div class="s" id="ro-swept-s">&mdash;</div></div>
+            <div class="ro"><div class="k">Volume Udara Terkompresi</div><div class="v"><span id="ro-disp">0.00</span><span class="u">cc</span></div><div class="s" id="ro-disp-s">&mdash;</div></div>
+            <div class="ro"><div class="k">Rasio Kompresi</div><div class="v"><span id="ro-ratio">1.00</span><span class="u">: 1</span></div><div class="s" id="ro-ratio-s">&mdash;</div></div>
+            <div class="ro" id="roP"><div class="k">Tekanan Ruang Pompa</div><div class="v"><span id="ro-p">1.01</span><span class="u">bar</span></div><div class="s" id="ro-p-s">&mdash;</div></div>
+            <div class="ro"><div class="k">Tekanan Tabung Reservoir</div><div class="v"><span id="ro-tank">1.01</span><span class="u">bar</span></div><div class="s" id="ro-tank-s">&mdash;</div></div>
+            <div class="ro"><div class="k">Jumlah Pompaan</div><div class="v"><span id="ro-n">0</span><span class="u">langkah</span></div><div class="s" id="ro-n-s">&mdash;</div></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="row2">
+        <section class="panel">
+          <div class="panel-h"><h2>Kurva Indikator p&ndash;V dan p&ndash;s</h2><span class="tag">Boyle / isotermal</span></div>
+          <div class="panel-b"><svg id="chart" viewBox="0 0 640 252" style="display:block;width:100%;height:auto"></svg></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-h"><h2>Validasi &amp; Batas Mekanik</h2></div>
+          <div class="panel-b">
+            <div id="infoBox"></div>
+            <div id="warnBox" style="margin-top:8px"></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel-h"><h2>Catatan Perancangan &mdash; Kinematika &amp; Asumsi</h2></div>
+        <div class="panel-b">
+          <div class="note">
+            <h3>Fase 1 &mdash; Titik asal, tabung-panjang &amp; rantai kinematik</h3>
+            <p>Origin <code>(0,0)</code> dunia diletakkan di <b>pin pivot tuas (O)</b> yang kini <b>menyatu dengan tutup belakang tabung</b> dan <b>sejajar sumbu piston / tengah pipa</b> (y = 0). Tabung pompa panjang: dari kepala silinder sampai tutup pivot, terbagi dua zona &mdash; <b>bore terseal</b> (area efektif pompa, kepala &rarr; bulkhead) dan <b>channel bercelah lurus</b> (bulkhead &rarr; pivot): celah/slot lurus di dinding samping channel adalah tempat <b>batang penghubung L&#8322; keluar-masuk</b> untuk mencapai <b>pin B di mata batang piston</b> di dalam channel. Tuas tetap lengan bengkok <code>___ / ~~</code>: handle <code>___</code> offset <code>h_g</code> di bawah sumbu saat terlipat, siku <code>/</code> memegang pin engkol C, lengan <code>~~</code> pivot&rarr;C.</p>
+            <div class="eq">&phi;(&theta;) = &theta; &minus; &theta;<sub>oc</sub> &nbsp;&rArr;&nbsp; C(&theta;) = ( &minus;r<sub>c</sub>&middot;cos&phi; , &minus;r<sub>c</sub>&middot;sin&phi; ) &nbsp;[pivot di sumbu &rArr; sumbu y = 0]</div>
+            <div class="eq">B<sub>x</sub>(&theta;) = &minus;r<sub>c</sub>&middot;cos&phi; &minus; &radic;( L&#8322;&sup2; &minus; r<sub>c</sub>&sup2;sin&sup2;&phi; ) &nbsp;&nbsp;[pin B &amp; O keduanya di sumbu]</div>
+            <div class="eq">Langkah: L = B<sub>x</sub>(&theta;<sub>max</sub>) &minus; B<sub>x</sub>(0) &rarr; r<sub>c</sub> dicari biseksi (monoton, tanpa fixed-point karena h&#8322; tak lagi menggeser sumbu)</div>
+            <div class="eq">TOGGLE/OVER-CENTER: torsi gas tentang O = (C&minus;O)&times;F<sub>link</sub> = 0 tepat saat O, C, B segaris &hArr; C di sumbu &hArr; &theta; = &theta;<sub>oc</sub>; untuk &theta; &lt; &theta;<sub>oc</sub> (C seberang sumbu) momen berbalik menekan tuas ke stop = TERKUNCI</div>
+            <div class="eq">&theta;<sub>max</sub> = 180&deg; (efisiensi pipa): batas fisik otomatis = min( diskriminan |r<sub>c</sub>sin&phi;| &le; L&#8322; ; syarat <b>muka piston tidak melewati pivot</b>: B<sub>x</sub>(&theta;) &le; batang+piston&minus;2 ; syarat mata batang tidak menabrak tutup pivot: B<sub>x</sub>(&theta;) &le; &minus;14&minus;mata )</div>
+            <div class="eq">Efisiensi pipa: batang piston stub pendek (mata+12 mm) sehingga pin B dekat piston; awal celah = posisi muka piston saat BDC + 3 mm &rArr; saat &theta;<sub>max</sub> muka piston berada dekat pivot dan panjang tabung &asymp; stroke + piston + celah kepala, tanpa ruang mati yang besar</div>
+            <p>Area efektif kompresi = bore terseal di depan celah (kepala &rarr; awal celah); volume swept tetap A<sub>c</sub>&middot;L karena seal di muka piston menutup penuh zona itu sepanjang langkah. Batang penghubung keluar-masuk tabung melalui celah lurus sisi channel.</p>
+            <h3>Fase 1b &mdash; Volume sapuan &amp; kompresi</h3>
+            <div class="eq">Luas penampang: A<sub>c</sub> = (&pi;/4)&middot;d&sup2;  [mm&sup2;]     konversi: 1 mm langkah = A<sub>c</sub>/1000 cc</div>
+            <div class="eq">Volume sapuan: V<sub>s</sub> = (&pi;/4)&middot;d&sup2;&middot;L / 1000  [cc]</div>
+            <div class="eq">Pergeseran sesaat: V<sub>disp</sub> = A<sub>c</sub>&middot;s /1000 ,  s = A<sub>x</sub>(&theta;) &minus; A<sub>x</sub>(0)   (0 &rArr; L)</div>
+            <div class="eq">Volume terjebak: V(&theta;) = V&#8320; + A<sub>c</sub>&middot;s/1000 = V&#8320; + V<sub>disp</sub>   [cc]</div>
+            <div class="eq">Rasio kompresi: R<sub>c</sub> = (V&#8320; + V<sub>s</sub>) / V(&theta;)    tekanan: p = p&#8320;&middot;(V&#8320;+V<sub>s</sub>)/V(&theta;)</div>
+            <div class="eq">Tabung (tiap langkah penuh): p' = (p'&middot;V<sub>t</sub> + p&middot;V&#8320;) / (V<sub>t</sub> + V&#8320;)</div>
+
+            <h3>Asumsi penyederhanaan</h3>
+            <ul>
+              <li>Kompresi <b>isotermal</b> (Hukum Boyle, suhu konstan). Proses nyata sebagian adiabatik, sehingga tekanan dan suhu riil sedikit lebih tinggi pada langkah cepat.</li>
+              <li>Katup ideal: hisap penuh saat tuas terbuka 100% (BDC), buang penuh saat tertutup 0% (TDC) bila <code>p<sub>pompa</sub> &gt; p<sub>tabung</sub></code>. Rugi kebocoran seal, gesek, dan volume selang diabaikan.</li>
+              <li>Murni <b>kinematika</b>: massa tuas/batang diabaikan. Pemeriksaan gaya samping diwakili rasio L&#8322;/r<sub>c</sub> dan sudut batang &beta;.</li>
+              <li><b>Kunci toggle over-center</b>: pada &theta; &lt; &theta;<sub>oc</sub> momen gaya udara tentang pivot berbalik arah (menekan tuas ke stop tertutup), meniru pompa multi-pump nyata yang tidak mental saat dilepas. Di luar zona itu dimodelkan <b>pegas retour</b>: tuas yang dilepas akan spring terbuka (animasi).</li>
+              <li>Sesuai permintaan, <b>laras dan popor tidak digambar</b>; yang ditampilkan adalah unit pompa: tabung + kepala katup + tabung reservoir + batang + tuas, dengan tata letak senapan angin multi-pump. Ukuran tabung reservoir pada gambar bersifat skematik (panjangnya proporsional terhadap V<sub>t</sub>).</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>Seret di mana saja pada gambar = geser tampilan (pan) &middot; roda mouse = zoom di kursor &middot; dobel-klik = reset &middot; tuas diatur lewat slider &larr; &rarr; (Shift = halus) &middot; spasi = animasi &middot; semua koordinat joint dihitung ulang tiap frame dari &theta;</footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================================
+   SIMULATOR MEKANISME TUAS & PISTON POMPA SENAPAN ANGIN MULTI-PUMP  (v2)
+   ----------------------------------------------------------------------------
+   Perbaikan v2 sesuai masukan:
+   • Tuas pompa BUKAN papan lurus: bentuk nyata = lengan bengkok  "___ / ~~"
+       ___  = lengan pegangan (handle), saat terlipat sejajar sumbu tetapi
+              offset h_g di bawah sumbu silinder,
+       /    = bagian diagonal; PIN ENGKOL (C) berada di siku atasnya,
+       ~~   = lengan dari pivot O ke pin C, SAAT TERLIPAT SEJAJAR PISTON.
+   • Batang penghubung (L₂) menyambung ke UJUNG BELAKANG BATANG PISTON (pin B)
+     yang keluar dari tabung — bukan ke pin di dalam piston.
+   • OVER-CENTER / TOGGLE LOCK: titik mati (dead-center) diletakkan SEBELUM
+     posisi tertutup (θ = θ_oc > 0 dihitung dari tertutup ke arah "lepas"),
+     sehingga pada θ = 0 garis kerja batang penghubung sudah lewat pusat →
+     gaya udara menekan tuas masuk ke stop, tuas TIDAK mental saat dilepas.
+   • Pegas retour: bila tuas dilepas di luar zona kunci, tuas spring terbuka
+     (animasi), meniru pegas return pompa nyata.
+   FASE 1 kinematika → derive/solve · FASE 2 UI → PARAMS/buildUI
+   FASE 3 SVG → buildGeometry · FASE 4 loop & validasi → updateFrame
+   ============================================================================ */
+
+/* ---------- utilitas ---------- */
+const $  = s => document.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const mk = (t,a)=>{const e=document.createElementNS(NS,t); if(a) for(const k in a) e.setAttribute(k,a[k]); return e;};
+const set= (e,a)=>{for(const k in a){const v=a[k]; if(v===null||v===undefined) e.removeAttribute(k); else e.setAttribute(k,v);} return e;};
+const clr= e=>{while(e&&e.firstChild)e.removeChild(e.firstChild);};
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const lerp=(a,b,t)=>a+(b-a)*t;
+const D2R=Math.PI/180, R2D=180/Math.PI;
+const fmt=(v,n)=>(Math.abs(v)<5e-10?0:v).toFixed(n===undefined?2:n);
+
+/* ============================================================================
+   FASE 2 — TABEL PARAMETER
+   ============================================================================ */
+const PARAMS = [
+  {id:"d",  group:"geom",  label:"Diameter Tabung Pompa (Bore)", sym:"d", unit:"mm",
+   min:12, max:25, step:0.5, def:16,
+   hint:"Diameter dalam silinder. Menentukan A_c = (π/4)·d² dan volume sapuan."},
+  {id:"L",  group:"geom",  label:"Panjang Langkah Piston (Stroke)", sym:"L", unit:"mm",
+   min:50, max:200, step:1, def:155,
+   hint:"Jarak pin B dari TDC (tuas tertutup) ke BDC (tuas terbuka). Jari-jari engkol r_c dihitung otomatis darinya."},
+  {id:"L2", group:"geom",  label:"Panjang Batang Penghubung", sym:"L₂", unit:"mm",
+   min:20, max:420, step:1, def:120,
+   hint:"Panjang linkage C→B (pin engkol → ujung batang piston). Rasio L₂/r_c idealnya ≥ 2."},
+  {id:"rod",group:"geom", label:"Panjang As Piston (Piston Rod)", sym:"L_r", unit:"mm",
+   min:12, max:160, step:1, def:99,
+   hint:"Panjang as dari belakang piston sampai pin B. Bersama piston, L₂ dan r_c menentukan panjang pipa: rantai terkunci (piston+as)+L₂+r_c harus pas mengisi pipa."},
+  {id:"ha", group:"geom",  label:"Offset Lengan Tuas “___” di Bawah Sumbu", sym:"h_g", unit:"mm",
+   min:14, max:70, step:1, def:28,
+   hint:"Saat terlipat, garis lengan pegangan berada h_g di bawah sumbu silinder (memberi ruang bebas tabung). Bagian “/” menaikkan pin engkol dari garis ini."},
+  {id:"oc", group:"geom",  label:"Sudut Over-Center (Kunci Toggle)", sym:"θ_oc", unit:"°",
+   min:2, max:14, step:0.5, def:2,
+   hint:"Dead-center ditempatkan pada θ = θ_oc, sehingga di θ < θ_oc (termasuk 0%) mekanisme lewat pusat dan TERKUNCI: tuas tidak mental saat dilepas."},
+  {id:"tho",group:"geom",  label:"Sudut Bukaan Tuas Maksimum", sym:"θmax", unit:"°",
+   min:40, max:180, step:1, def:180,
+   hint:"Rentang ayun tuas terlipat (0%) s.d. terbuka penuh (100%); maksimal 180°. Otomatis dibatasi agar muka piston tidak melewati pivot dan mata batang tidak menabrak tutup pivot."},
+  {id:"llev",group:"geom", label:"Panjang Tuas Pompa (Handle)", sym:"L_h", unit:"mm",
+   min:120, max:400, step:5, def:210,
+   hint:"Jarak pivot → ujung pegangan. Murni visual/ergonomi, tidak memengaruhi kinematika."},
+  {id:"V0", group:"thermo",label:"Volume Ruang Kepala (Clearance)", sym:"V₀", unit:"cc",
+   min:0.2, max:6, step:0.1, def:1.0,
+   hint:"Volume mati di depan piston saat TDC. Makin kecil → rasio kompresi makin tinggi."},
+  {id:"Vt", group:"thermo",label:"Volume Tabung Reservoir", sym:"V_t", unit:"cc",
+   min:10, max:200, step:1, def:55,
+   hint:"Volume tabung udara bertekanan. Menentukan kenaikan tekanan per pompaan."},
+  {id:"Patm",group:"thermo",label:"Tekanan Atmosfer", sym:"p₀", unit:"bar",
+   min:0.8, max:1.2, step:0.001, def:1.013,
+   hint:"Tekanan udara hisap awal (1.013 bar = atmosfer standar)."},
+  {id:"rpm",group:"lever", label:"Kecepatan Pompa", sym:"n", unit:"ppm",
+   min:10, max:240, step:5, def:90,
+   hint:"Jumlah langkah penuh per menit saat animasi berjalan."}
+];
+
+const PRESETS = {
+  std:     {d:16, L:155, L2:120, rod:99, ha:28, oc:2, tho:180, llev:250, V0:1.0, Vt:55,  Patm:1.013, rpm:90},
+  compact: {d:13, L:60,  L2:120, rod:16, ha:22, oc:6, tho:180, llev:200, V0:0.6, Vt:32,  Patm:1.013, rpm:120},
+  bigbore: {d:22, L:140, L2:190, rod:26, ha:34, oc:6, tho:180, llev:300, V0:1.8, Vt:90,  Patm:1.013, rpm:70},
+  long:    {d:25, L:200, L2:270, rod:34, ha:42, oc:6, tho:180, llev:360, V0:2.4, Vt:130, Patm:1.013, rpm:55},
+  hpc:     {d:12, L:120, L2:160, rod:18, ha:30, oc:6, tho:180, llev:280, V0:0.4, Vt:45,  Patm:1.013, rpm:100}
+};
+
+const state = Object.assign({thetaPct:0, zoom:1, panX:0, panY:0}, PRESETS.std);
+const view  = {dims:true, labels:true, ghost:true, trace:true};
+
+const sim = {tank:state.Patm, pumps:0, atTop:false, atBot:false,
+             discharging:false, charging:false, armed:false, locked:false, spring:false};
+
+/* ============================================================================
+   FASE 1 — KINEMATIKA SLIDER-CRANK OFFSET + TOGGLE OVER-CENTER
+   ----------------------------------------------------------------------------
+   Koordinat dunia (mm): O = (0,0) pin pivot utama tuas; +X ke moncong; +Y atas.
+   Sumbu silinder (garis gerak pin B) berada di y = a_x = −h₂  (h₂ = tinggi
+   over-center), sehingga saat tuas terlipat (θ=0) lengan “~~” (O→C) horizontal
+   dan pin C berada h₂ DI ATAS sumbu → garis kerja batang penghubung sudah
+   lewat pusat = terkunci.
+     ψ(θ) = 180° + θ                      (arah lengan ~~ / vektor O→C)
+     C(θ) = ( −r_c·cosθ , −r_c·sinθ )
+     dy   = a_x − C_y = r_c·sinθ − h₂     (komponen tegak lurus sumbu)
+     B_x(θ) = C_x − √( L₂² − dy² )        (pin B di belakang C, pada sumbu)
+   Dead-center (dy = 0) terjadi pada θ = θ_oc  ⇒  h₂ = r_c·sin(θ_oc).
+   Langkah: L = B_x(θmax) − B_x(0)  →  r_c dicari numerik (biseksi + fixed-point).
+   ============================================================================ */
+/* posisi aksial pin B utk crank radius r: φ = θ − θ_oc (pivot SESUMBU piston) */
+function axialOf(r, L2, oc, th){
+  const ph = th - oc;
+  return -r*Math.cos(ph) - Math.sqrt(Math.max(0, L2*L2 - (r*Math.sin(ph))**2));
+}
+function solveRC(L, L2, oc, tho){
+  let lo=0.5, hi=4000;
+  for(let i=0;i<60;i++){
+    const m=(lo+hi)/2;
+    if(axialOf(m,L2,oc,tho)-axialOf(m,L2,oc,0) < L) lo=m; else hi=m;
+  }
+  return (lo+hi)/2;
+}
+function derive(){
+  const d=state.d, L=state.L, tho=state.tho*D2R, oc=state.oc*D2R;
+  let L2=state.L2, autoL2=null;
+  let S = solveRC(L, L2, oc, tho);
+  if(!(S>0.5)||S>1500){                             // L₂ terlalu pendek → naikkan
+    for(let cand=L2+10; cand<=520; cand+=10){
+      const r2=solveRC(L, cand, oc, tho);
+      if(r2<=1500){ L2=cand; autoL2=cand; S=r2; break; }
+    }
+  }
+  const rc=S, h2=rc*Math.sin(oc);                  // h₂ = tinggi pin C DI ATAS sumbu saat θ=0 (margin toggle)
+  const xTDC = axialOf(rc,L2,oc,0), xBDC = axialOf(rc,L2,oc,tho);
+
+  const Ac=Math.PI/4*d*d, ccPerMm=Ac/1000, Vs=ccPerMm*L;
+  const clearance=(state.V0*1000)/Ac, VBDC=state.V0+Vs;
+  const tIn=d/2, tOut=d/2+Math.max(4.2,d*0.28);
+  const pisLen=Math.max(1.6*d,26);
+  const eyeR=Math.min(8,d*0.45);                    // radius mata batang (rod-eye) di pin B
+  /* batang stub pendek: pin B tepat di belakang piston; jarak jauh diambil oleh L₂.
+     Efek: pipa efisien — saat θmax muka piston berada dekat pivot. */
+  const rodEx=Math.max(6,state.rod);                // v5: panjang as piston = parameter user
+  const rodVis=rodEx;                               // batang piston (belakang piston → pin B)
+  /* awal celah lurus = posisi muka piston saat BDC + 3 mm (batas area efektif/terseal) */
+  const xSlot0=xBDC-rodEx-pisLen+3;
+  const ht=Math.max(4.6,d*0.26);                    // setengah tebal strap tuas
+  /* batas fisik θmax: (i) diskriminan L₂, (ii) muka piston TIDAK boleh melewati pivot,
+     (iii) mata batang tidak boleh menabrak tutup pivot */
+  const bOf=th=>axialOf(rc,L2,oc,th);
+  const limPis=rodEx+pisLen-2, limEye=-14-eyeR, PI=Math.PI;
+  const bisLim=lim=>{ let lo=oc, hi=PI;
+    for(let i=0;i<52;i++){ const m=(lo+hi)/2; if(bOf(m)<=lim) lo=m; else hi=m; }
+    return (lo+hi)/2; };
+  const thFeasP = bOf(PI)<=limPis ? PI : bisLim(limPis);
+  const thFeasE = bOf(PI)<=limEye ? PI : bisLim(limEye);
+  let thFeas = (L2>=rc) ? (180*D2R) : (Math.asin(clamp(L2/rc,-1,1))+oc);
+  thFeas = Math.min(thFeas, 180*D2R, thFeasP, thFeasE);
+  const thMax  = Math.min(tho, thFeas);
+  return {d,L,L2,rc,h2,oc,tho,thFeas,thMax,xTDC,xBDC,strokeActual:xBDC-xTDC,
+          Ac,ccPerMm,Vs,clearance,VBDC,tIn,tOut,pisLen,rodVis,ht,eyeR,xSlot0,
+          thFeasP,thFeasE, ax:0, autoL2};
+}
+function solve(g, th){
+  const ph=th-g.oc;                                 // sudut engkol dari garis sumbu
+  const Cx=-g.rc*Math.cos(ph), Cy=-g.rc*Math.sin(ph);
+  const dy=Cy;                                      // sumbu = garis pivot (y=0)
+  const disc=g.L2*g.L2-dy*dy;
+  if(disc<0) return null;
+  const Bx=Cx-Math.sqrt(disc);
+  return {Cx,Cy,Bx,By:0,dy,s:Bx-g.xTDC};
+}
+function thermo(g, sol){
+  const s=clamp(sol.s,0,g.L);
+  const Vdisp=g.ccPerMm*s;
+  const Vch=state.V0+Vdisp;
+  const ratio=g.VBDC/Vch;
+  const p=state.Patm*ratio;
+  return {Vch,ratio,p,Vdisp,s,gapHead:g.clearance+s};
+}
+
+/* ============================================================================
+   GEOMETRI VISUAL STATIK (mm)
+   ============================================================================ */
+function computeGeo(g){
+  const F_TDC   = g.xTDC - g.rodVis;                // muka piston saat tertutup (θ=0)
+  /* v5 — PERSAMAAN RANTAI KUNCI (permintaan user):
+     panjang pipa (dinding dalam kepala → pivot) HARUS sama dengan
+     (piston + as piston) + L₂ + (pin engkol C → pivot O = r_c).
+     Kepala jadi dipatok di -stackLen: saat dead-center (θ=θ_oc, rantai segaris)
+     muka piston tepat mentok kepala; saat θ=0 sisa ε≈0.3 mm karena over-center.
+     Volume mati kompresi tetap dimodelkan dari V₀ (kantong katup kepala),
+     bukan dari celah geometris. */
+  const stackLen= g.pisLen + g.rodVis + g.L2 + g.rc;
+  const xHeadIn = -stackLen;
+  const xTubeFr = xHeadIn;                          // tabung menyatu kepala → tutup pivot
+  const headLen = Math.max(18, g.d*1.15);
+  const xHeadOut= xHeadIn - headLen;
+  const resFront= xHeadOut - 4;
+  const resLen  = clamp(state.Vt*1.15, 55, 240);
+  const resRear = resFront - resLen;
+  const resR    = Math.sqrt((state.Vt*1000)/(Math.PI*resLen));
+  const gaugeX  = resRear - Math.min(18, resR*0.9);
+  const gaugeR  = clamp(resR*0.85, 10, 17);
+  const xCapIn  = -10, xCapOut = 16;                // tutup belakang = dudukan pivot
+  const leverTip= Math.max(state.llev, g.rc+45);
+  let tipOpenY=0;                                   // titik terendah ujung tuas sepanjang ayun
+  for(let a=0;a<=g.thMax+1e-9;a+=2*D2R){
+    const ps=(180+a*R2D-g.oc*R2D)*D2R;
+    const y=leverTip*Math.sin(ps)+state.ha*Math.cos(ps);
+    tipOpenY=Math.min(tipOpenY,y);
+  }
+  const mRun    = clamp(g.rc*0.22, 12, 36);         // panjang horisontal bagian “/”
+  const hDrop   = state.ha;                         // handle h_g di bawah sumbu (=garis pivot)
+  let tipMaxX=0;
+  for(let a=0;a<=g.thMax+1e-9;a+=2*D2R){
+    const xx=-leverTip*Math.cos(a)+state.ha*Math.sin(a);
+    tipMaxX=Math.max(tipMaxX,xx);
+  }
+  return {g,xTubeFr,F_TDC,xHeadIn,stackLen,xHeadOut,headLen,resFront,resRear,resLen,resR,
+          gaugeX,gaugeR,leverTip,tipOpenY,mRun,hDrop,xCapIn,xCapOut,tipMaxX};
+}
+
+/* ---------- layout dunia→layar ---------- */
+const VIEW={w:1000,h:560,m:34};
+const layout={K:1,OX:0,OY:0,box:null};
+const SX=x=>layout.OX+x*layout.K;
+const SY=y=>layout.OY-y*layout.K;
+const MM=v=>v*layout.K;
+function computeLayout(){
+  const g=G, GE=geo;
+  const box={x0:GE.gaugeX-GE.gaugeR-14, x1:Math.max(34,GE.tipMaxX+26), y0:GE.tipOpenY-30, y1:g.ax+g.tOut+62};
+  const W=box.x1-box.x0, H=box.y1-box.y0;
+  const K=Math.min((VIEW.w-2*VIEW.m)/W,(VIEW.h-2*VIEW.m)/H);   // v7: zoom lewat scale transform worldG, bukan K
+  layout.K=K;
+  layout.OX=VIEW.m+((VIEW.w-2*VIEW.m)-W*K)/2-box.x0*K;
+  layout.OY=VIEW.m+((VIEW.h-2*VIEW.m)-H*K)/2+box.y1*K;
+  layout.box=box;
+}
+
+/* ============================================================================
+   FASE 3 — SVG
+   ============================================================================ */
+const svg=$("#svg");
+const LAYER_NAMES=["ghost","reservoir","frame","tube","head","air","piston","rod","lever","pins","dim","labels"];
+const layers={}; LAYER_NAMES.forEach(n=>layers[n]=mk("g",{"data-layer":n}));
+let worldG=null;   // v6: grup dunia tempat semua layer bergantung → target transform pan
+function applyPan(){ if(worldG) worldG.setAttribute("transform",`translate(${state.panX} ${state.panY}) scale(${state.zoom})`); }
+function updateTagScale(){ const t=$("#tagScale"); if(t) t.textContent=`1 mm ≈ ${fmt(layout.K*state.zoom,2)} px · zoom ${fmt(state.zoom*100,0)}%`; }
+const el={P:{},labels:[],particles:[]};
+let G=derive(), geo=computeGeo(G), cur=null;
+
+function buildDefs(){
+  const d=mk("defs");
+  const grad=(id,x1,y1,x2,y2,st)=>{
+    const g=mk("linearGradient",{id,x1,y1,x2,y2});
+    st.forEach(([o,c,a])=>g.appendChild(mk("stop",{offset:o,"stop-color":c,"stop-opacity":a===undefined?1:a})));
+    return g;
+  };
+  d.appendChild(grad("gTube","0","0","0","1",[[0,"#a3b5cc"],[.3,"#66788f"],[.72,"#3a4759"],[1,"#6d7f96"]]));
+  d.appendChild(grad("gBore","0","0","0","1",[[0,"#080e18"],[.5,"#16233a"],[1,"#080e18"]]));
+  d.appendChild(grad("gPiston","0","0","0","1",[[0,"#eef4fb"],[.28,"#b3c4d8"],[.62,"#7286a0"],[1,"#48586d"]]));
+  d.appendChild(grad("gLever","0","0","0","1",[[0,"#a8bacf"],[.34,"#748799"],[.76,"#4a5b70"],[1,"#8395ab"]]));
+  d.appendChild(grad("gRod","0","0","0","1",[[0,"#cfdaea"],[.45,"#93a3b8"],[1,"#5d6e83"]]));
+  d.appendChild(grad("gRes","0","0","0","1",[[0,"#8b9db4"],[.3,"#54657c"],[.76,"#313e50"],[1,"#5e6e85"]]));
+  d.appendChild(grad("gHead","0","0","0","1",[[0,"#b6c4d6"],[.42,"#7a8ba2"],[1,"#4a586c"]]));
+  d.appendChild(grad("gAir","1","0","0","0",[[0,"#ff5f56",.95],[.55,"#f6ad55",.8],[1,"#ffd166",.55]]));
+  const p=mk("pattern",{id:"hatch",width:"7",height:"7",patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"});
+  p.appendChild(mk("line",{x1:0,y1:0,x2:0,y2:7,stroke:"#93a6bf","stroke-width":"1","stroke-opacity":".3"}));
+  d.appendChild(p);
+  const p2=mk("pattern",{id:"boreGrid",width:"11",height:"11",patternUnits:"userSpaceOnUse"});
+  p2.appendChild(mk("path",{d:"M11 0H0V11",fill:"none",stroke:"#2f4763","stroke-width":".6","stroke-opacity":".55"}));
+  d.appendChild(p2);
+  const p3=mk("pattern",{id:"gridBg",width:"26",height:"26",patternUnits:"userSpaceOnUse"});
+  p3.appendChild(mk("path",{d:"M26 0H0V26",fill:"none",stroke:"#16233a","stroke-width":"1"}));
+  d.appendChild(p3);
+  const f=mk("filter",{id:"glow",x:"-70%",y:"-70%",width:"240%",height:"240%"});
+  f.appendChild(mk("feGaussianBlur",{stdDeviation:"3",result:"b"}));
+  const m=mk("feMerge"); m.appendChild(mk("feMergeNode",{in:"b"})); m.appendChild(mk("feMergeNode",{in:"SourceGraphic"}));
+  f.appendChild(m); d.appendChild(f);
+  return d;
+}
+function buildStatic(){
+  clr(svg);
+  svg.appendChild(buildDefs());
+  svg.appendChild(mk("rect",{x:0,y:0,width:VIEW.w,height:VIEW.h,fill:"url(#gridBg)",opacity:".5"}));
+  worldG=mk("g",{id:"worldG"}); svg.appendChild(worldG);
+  LAYER_NAMES.forEach(n=>worldG.appendChild(layers[n]));  // v6: satu grup dunia → pan/zoom menggerakkan SEMUA isi, termasuk label & HUD
+  el.P={}; el.labels=[]; el.particles=[];
+}
+
+function buildGeometry(){
+  const g=G, GE=geo, P=el.P;
+  const ax=g.ax, tIn=g.tIn, tOut=g.tOut;
+  const {xHeadIn,xHeadOut,xTubeFr,resFront,resRear,resR,gaugeX,gaugeR,leverTip,mRun,hDrop}=GE;
+
+  /* ---------- GHOST posisi 0% & 100% + busur pin C ---------- */
+  const gh=layers.ghost; clr(gh);
+  P.ghost=mk("g",{opacity:view.ghost?".6":"0"});
+  [0,g.thMax].forEach(th=>{
+    const s=solve(g,th); if(!s) return;
+    const psi=(180+th*R2D-g.oc*R2D)*D2R;
+    /* siluet strap tuas (polyline bengkok) */
+    const cm=Math.cos(g.oc-Math.PI), sm=Math.sin(g.oc-Math.PI);
+    const lm=(x,y)=>[cm*x-sm*y, sm*x+cm*y];
+    const lp=[[0,0], lm(-g.rc,0), lm(-g.rc-mRun,-hDrop), lm(-(leverTip-40),-hDrop)];
+    const wpt=lp.map(([x,y])=>[x*Math.cos(psi)-y*Math.sin(psi), x*Math.sin(psi)+y*Math.cos(psi)]);
+    P.ghost.appendChild(mk("path",{
+      d:"M "+wpt.map(([x,y])=>`${fmt(SX(x),1)} ${fmt(SY(y),1)}`).join(" L "),
+      fill:"none",stroke:"#3f6288","stroke-width":MM(2*g.ht),"stroke-linecap":"round",
+      "stroke-linejoin":"round","stroke-dasharray":"7 6",opacity:".42"}));
+    P.ghost.appendChild(mk("line",{x1:SX(s.Cx),y1:SY(s.Cy),x2:SX(s.Bx),y2:SY(s.By),
+      stroke:"#3d5a76","stroke-width":MM(3.4),"stroke-linecap":"round","stroke-dasharray":"5 5",opacity:".7"}));
+    const F=s.Bx-g.rodVis-g.pisLen;
+    P.ghost.appendChild(mk("rect",{x:SX(F),y:SY(ax+tIn-0.7),width:MM(g.pisLen),height:MM(2*tIn-1.4),
+      fill:"none",stroke:"#3d5a76","stroke-width":"1","stroke-dasharray":"4 3",opacity:".75"}));
+  });
+  P.ghost.appendChild(mk("path",{
+    d:`M ${SX(-g.rc*Math.cos(g.oc))} ${SY(g.rc*Math.sin(g.oc))} A ${MM(g.rc)} ${MM(g.rc)} 0 0 1 ${SX(-g.rc*Math.cos(g.thMax-g.oc))} ${SY(-g.rc*Math.sin(g.thMax-g.oc))}`,
+    fill:"none",stroke:"#ff7b72","stroke-width":"1.1","stroke-dasharray":"3 5",opacity:view.trace?".5":"0"}));
+  P.traceArc=P.ghost.lastChild;
+  gh.appendChild(P.ghost);
+
+  /* ---------- TABUNG RESERVOIR + MANOMETER (sesumbu silinder) ---------- */
+  const rs=layers.reservoir; clr(rs);
+  rs.appendChild(mk("rect",{x:SX(resRear),y:SY(ax+resR),width:MM(resFront-resRear),height:MM(2*resR),
+    rx:MM(resR*0.5),fill:"url(#gRes)",stroke:"#080d15","stroke-width":"1.3"}));
+  P.resFill=mk("rect",{x:SX(resRear+3),y:SY(ax+resR-3),width:MM(resFront-resRear-6),height:MM(2*resR-6),
+    rx:MM(resR*0.45),fill:"#38bdf8",opacity:".08"});
+  rs.appendChild(P.resFill);
+  rs.appendChild(mk("rect",{x:SX(resRear),y:SY(ax+resR*0.55),width:MM(resFront-resRear),height:MM(resR*0.3),fill:"#fff",opacity:".07"}));
+  rs.appendChild(mk("rect",{x:SX(resRear-6),y:SY(ax+resR*0.62),width:MM(7),height:MM(resR*1.24),rx:MM(2),fill:"#2b384a",stroke:"#080d15","stroke-width":"1"}));
+  rs.appendChild(mk("rect",{x:SX(gaugeX+gaugeR*0.4),y:SY(ax+3.4),width:MM(resRear-gaugeX+4),height:MM(6.8),fill:"#33415a",stroke:"#080d15","stroke-width":"1"}));
+  const dial=mk("g");
+  dial.appendChild(mk("circle",{cx:SX(gaugeX),cy:SY(ax),r:MM(gaugeR),fill:"#131c29",stroke:"#8395ab","stroke-width":"1.5"}));
+  dial.appendChild(mk("circle",{cx:SX(gaugeX),cy:SY(ax),r:MM(gaugeR*0.8),fill:"#0a1018",stroke:"#2b3d57","stroke-width":".8"}));
+  for(let i=0;i<=10;i++){
+    const a=(135+270*i/10)*D2R,r1=gaugeR*0.6,r2=gaugeR*0.76;
+    dial.appendChild(mk("line",{x1:SX(gaugeX)+Math.cos(a)*MM(r1),y1:SY(ax)-Math.sin(a)*MM(r1),
+      x2:SX(gaugeX)+Math.cos(a)*MM(r2),y2:SY(ax)-Math.sin(a)*MM(r2),
+      stroke:i>7?"#fc8181":"#a3b5cc","stroke-width":i%5===0?"1.4":".75"}));
+  }
+  P.needle=mk("line",{x1:SX(gaugeX),y1:SY(ax),x2:SX(gaugeX),y2:SY(ax)-MM(gaugeR*0.66),stroke:"#ff7b72","stroke-width":"1.7","stroke-linecap":"round"});
+  dial.appendChild(P.needle);
+  dial.appendChild(mk("circle",{cx:SX(gaugeX),cy:SY(ax),r:MM(1.8),fill:"#ffd166"}));
+  const gt=mk("text",{x:SX(gaugeX),y:SY(ax-gaugeR*0.42),"text-anchor":"middle",fill:"#8fa2bd",
+    "font-size":Math.max(6,MM(gaugeR*0.34)),"font-family":"var(--mono)"});
+  gt.textContent="bar"; dial.appendChild(gt);
+  rs.appendChild(dial);
+
+  /* ---------- RANGKA / DUDUKAN PIVOT ---------- */
+  const fr=layers.frame; clr(fr);
+  const bx0=gaugeX-gaugeR-10, bx1=26, by0=Math.min(-tOut*1.2,GE.tipOpenY*0.16)+ax-4, by1=ax+tOut+8;
+  fr.appendChild(mk("rect",{x:SX(bx0),y:SY(by1),width:MM(bx1-bx0),height:MM(by1-by0),rx:MM(10),
+    fill:"none",stroke:"#22304a","stroke-width":"1.1","stroke-dasharray":"10 7",opacity:".85"}));
+  /* tiang dudukan pivot (pivot berada h₂ di atas sumbu) */
+  fr.appendChild(mk("path",{d:`M ${SX(-13)} ${SY(ax-tOut-1)} L ${SX(13)} ${SY(ax-tOut-1)} L ${SX(8)} ${SY(4)} L ${SX(-8)} ${SY(4)} Z`,
+    fill:"#26334a",stroke:"#080d15","stroke-width":"1.1",opacity:".9"}));
+  fr.appendChild(mk("circle",{cx:SX(0),cy:SY(0),r:MM(15),fill:"#22304a",stroke:"#080d15","stroke-width":"1.3"}));
+  fr.appendChild(mk("circle",{cx:SX(0),cy:SY(0),r:MM(10),fill:"#161f2e",stroke:"#33455f","stroke-width":"1"}));
+  fr.appendChild(mk("line",{x1:SX(bx0+8),y1:SY(ax),x2:SX(GE.xCapIn-2),y2:SY(ax),
+    stroke:"#4fd1c5","stroke-width":".9","stroke-dasharray":"14 4 3 4",opacity:".4"}));
+
+
+  /* ---------- TABUNG POMPA (cutaway: bore terseal + channel bercelah lurus s.d. pivot) ---------- */
+  const tb=layers.tube; clr(tb);
+  const wallT=tOut-tIn, xS=g.xSlot0, xCI=GE.xCapIn, xCO=GE.xCapOut;
+  /* --- BORE TERSEAL (area efektif pompa): kepala → bulkhead/awal celah --- */
+  tb.appendChild(mk("rect",{x:SX(xHeadIn),y:SY(ax+tOut),width:MM(xS-xHeadIn),height:MM(wallT),fill:"url(#gTube)",stroke:"#080d15","stroke-width":"1.1"}));
+  tb.appendChild(mk("rect",{x:SX(xHeadIn),y:SY(ax+tOut),width:MM(xS-xHeadIn),height:MM(wallT),fill:"url(#hatch)"}));
+  tb.appendChild(mk("rect",{x:SX(xHeadIn),y:SY(ax-tIn),width:MM(xS-xHeadIn),height:MM(wallT),fill:"url(#gTube)",stroke:"#080d15","stroke-width":"1.1"}));
+  tb.appendChild(mk("rect",{x:SX(xHeadIn),y:SY(ax-tIn),width:MM(xS-xHeadIn),height:MM(wallT),fill:"url(#hatch)"}));
+  tb.appendChild(mk("rect",{x:SX(xHeadIn),y:SY(ax+tIn),width:MM(xS-xHeadIn),height:MM(2*tIn),fill:"url(#gBore)",stroke:"#080d15","stroke-width":".9"}));
+  tb.appendChild(mk("rect",{x:SX(xHeadIn),y:SY(ax+tIn),width:MM(xS-xHeadIn),height:MM(2*tIn),fill:"url(#boreGrid)",opacity:".33"}));
+  /* --- CHANNEL / CELOH CELAH LURUS: bulkhead → tutup pivot (dinding samping terbuka) --- */
+  tb.appendChild(mk("rect",{x:SX(xS),y:SY(ax+tOut),width:MM(xCI-xS),height:MM(wallT),fill:"url(#gTube)",stroke:"#080d15","stroke-width":"1.1"}));
+  tb.appendChild(mk("rect",{x:SX(xS),y:SY(ax-tIn),width:MM(xCI-xS),height:MM(wallT),fill:"url(#gTube)",stroke:"#080d15","stroke-width":"1.1"}));
+  tb.appendChild(mk("rect",{x:SX(xS),y:SY(ax+tIn),width:MM(xCI-xS),height:MM(2*tIn),fill:"#0a101b",stroke:"#080d15","stroke-width":".9"}));
+  tb.appendChild(mk("line",{x1:SX(xS+2),y1:SY(ax+tIn-0.7),x2:SX(xCI-2),y2:SY(ax+tIn-0.7),stroke:"#5d7395","stroke-width":".9","stroke-dasharray":"6 5",opacity:".75"}));
+  tb.appendChild(mk("line",{x1:SX(xS+2),y1:SY(ax-tIn+0.7),x2:SX(xCI-2),y2:SY(ax-tIn+0.7),stroke:"#5d7395","stroke-width":".9","stroke-dasharray":"6 5",opacity:".75"}));
+  /* --- bibir celah (slot start) : penanda batas area efektif --- */
+  const rodH=Math.min(9,g.d*0.45);
+  tb.appendChild(mk("rect",{x:SX(xS-2.5),y:SY(ax+tOut),width:MM(2.5),height:MM(wallT),fill:"#33415a",stroke:"#080d15","stroke-width":".9"}));
+  tb.appendChild(mk("rect",{x:SX(xS-2.5),y:SY(ax-tIn),width:MM(2.5),height:MM(wallT),fill:"#33415a",stroke:"#080d15","stroke-width":".9"}));
+  /* --- tutup belakang: dudukan pivot, MENYATU dgn tabung & SESUMBU piston --- */
+  tb.appendChild(mk("rect",{x:SX(xCI),y:SY(ax+tOut+4),width:MM(xCO-xCI),height:MM(2*tOut+8),rx:MM(3),fill:"url(#gTube)",stroke:"#080d15","stroke-width":"1.2"}));
+  tb.appendChild(mk("rect",{x:SX(xCI),y:SY(ax+tOut+4),width:MM(xCO-xCI),height:MM(2*tOut+8),rx:MM(3),fill:"url(#hatch)"}));
+  tb.appendChild(mk("rect",{x:SX(xHeadIn-4),y:SY(ax+tOut+2),width:MM(5),height:MM(2*tOut+4),rx:MM(1.4),fill:"url(#gTube)",stroke:"#080d15","stroke-width":"1.1"}));
+
+  /* ---------- KEPALA SILINDER + KATUP BUANG + TRANSFER ---------- */
+  const hd=layers.head; clr(hd);
+  hd.appendChild(mk("rect",{x:SX(xHeadOut),y:SY(ax+tOut+1.5),width:MM(GE.headLen),height:MM(2*tOut+3),rx:MM(2.4),fill:"url(#gHead)",stroke:"#080d15","stroke-width":"1.3"}));
+  hd.appendChild(mk("rect",{x:SX(xHeadOut),y:SY(ax+tOut+1.5),width:MM(GE.headLen),height:MM(2*tOut+3),rx:MM(2.4),fill:"url(#hatch)"}));
+  for(let i=0;i<3;i++){
+    const xx=xHeadOut+4+i*(GE.headLen-8)/3;
+    hd.appendChild(mk("rect",{x:SX(xx),y:SY(ax+tOut-1),width:MM(2.2),height:MM(2*tOut-1),fill:"#dfe9f5",opacity:".14"}));
+  }
+  const vx=xHeadOut+GE.headLen*0.5;
+  hd.appendChild(mk("rect",{x:SX(xHeadOut+3),y:SY(ax+tIn*0.75),width:MM(GE.headLen-6),height:MM(tIn*0.85),rx:MM(1.6),fill:"#0e1725",stroke:"#080d15","stroke-width":".8"}));
+  hd.appendChild(mk("rect",{x:SX(resFront-2),y:SY(ax+4.6),width:MM(vx-resFront+6),height:MM(9.2),fill:"#33415a",stroke:"#080d15","stroke-width":"1"}));
+  hd.appendChild(mk("rect",{x:SX(resFront-2),y:SY(ax+2.6),width:MM(vx-resFront+6),height:MM(5.2),fill:"#0b1220"}));
+  P.valveGlow=mk("rect",{x:SX(resFront-2),y:SY(ax+2.9),width:MM(vx-resFront+6),height:MM(4.6),fill:"#f6ad55",opacity:"0",filter:"url(#glow)"});
+  hd.appendChild(P.valveGlow);
+  hd.appendChild(mk("rect",{x:SX(vx-6),y:SY(ax+tIn*0.75+4),width:MM(12),height:MM(11),rx:MM(2),fill:"#2b384a",stroke:"#080d15","stroke-width":"1.1"}));
+  P.valveBall=mk("circle",{cx:SX(vx),cy:SY(ax+tIn*0.75-0.5),r:MM(2.4),fill:"#f6ad55",opacity:".9"});
+  hd.appendChild(P.valveBall);
+
+  /* ---------- UDARA + PARTIKEL ---------- */
+  const air=layers.air; clr(air);
+  P.chamber=mk("rect",{x:0,y:0,width:0,height:0,fill:"url(#gAir)",opacity:".12"});
+  air.appendChild(P.chamber);
+  P.chamberGlow=mk("rect",{x:0,y:0,width:0,height:0,fill:"#ff8c69",opacity:"0",filter:"url(#glow)"});
+  air.appendChild(P.chamberGlow);
+  for(let i=0;i<26;i++){
+    const c=mk("circle",{r:"2",fill:"#ffe6a7",opacity:".6"});
+    el.particles.push({node:c,u:i/26+Math.random()*0.02,v:Math.random()*2-1,ph:Math.random()*6.28,rr:0.8+Math.random()*1.4});
+    air.appendChild(c);
+  }
+
+  /* ---------- PISTON + BATANG PISTON + MATA BATANG di B ---------- */
+  const ps=layers.piston; clr(ps);
+  P.pistonBody=mk("path",{d:"",fill:"url(#gPiston)",stroke:"#080d15","stroke-width":"1.3","stroke-linejoin":"round"});
+  ps.appendChild(P.pistonBody);
+  P.pistonHL=mk("path",{d:"",fill:"#fff",opacity:".18"});
+  ps.appendChild(P.pistonHL);
+  P.seals=[0,1].map(()=>{const r=mk("rect",{fill:"#12161d",stroke:"#000","stroke-width":".6"}); ps.appendChild(r); return r;});
+  P.intakeFlap=mk("rect",{x:0,y:0,width:0,height:0,rx:MM(1),fill:"#63b3ed",stroke:"#0a1018","stroke-width":".9"});
+  ps.appendChild(P.intakeFlap);
+  P.pRod=mk("rect",{x:0,y:0,width:0,height:0,rx:MM(rodH/2),fill:"url(#gRod)",stroke:"#080d15","stroke-width":"1"});
+  ps.appendChild(P.pRod);
+  P.pRodHL=mk("line",{stroke:"#fff","stroke-width":"1",opacity:".22","stroke-linecap":"round"});
+  ps.appendChild(P.pRodHL);
+  P.eye=mk("g");
+  P.eye.appendChild(mk("circle",{r:MM(5.6),fill:"#93a6bf",stroke:"#080d15","stroke-width":"1.3"}));
+  P.eye.appendChild(mk("circle",{r:MM(2.4),fill:"#0e1520"}));
+  ps.appendChild(P.eye);
+
+  /* ---------- BATANG PENGHUBUNG L₂ (C → B) ---------- */
+  const rl=layers.rod; clr(rl);
+  P.link=mk("path",{d:"",fill:"url(#gRod)",stroke:"#080d15","stroke-width":"1.3","stroke-linejoin":"round"});
+  rl.appendChild(P.link);
+  P.linkHL=mk("line",{stroke:"#fff","stroke-width":"1.1",opacity:".2","stroke-linecap":"round"});
+  rl.appendChild(P.linkHL);
+  P.linkHole=mk("circle",{r:MM(3.4),fill:"#0e1520",stroke:"#080d15","stroke-width":".9",opacity:".85"});
+  rl.appendChild(P.linkHole);
+
+  /* ---------- TUAS POMPA BENGKOK  “___ / ~~”  (grup lokal, rotasi terhadap O) ----------
+     lokal: +x = arah pegangan; saat tertutup lokal +x → dunia −x (rotasi 180°+θ)   */
+  const lv=layers.lever; clr(lv);
+  P.leverG=mk("g");
+  /* frame inner = pose “layar saat tertutup” (lengan ~~ ke −x, handle h_g di bawah sumbu);
+     matriks kompensasi karena rotasi tertutup = 180°−θ_oc (bukan 180°) */
+  const c0=Math.cos(Math.PI-g.oc), s0=Math.sin(Math.PI-g.oc);
+  const inner=mk("g",{transform:`matrix(${fmt(c0,5)} ${fmt(s0,5)} ${fmt(-s0,5)} ${fmt(c0,5)} 0 0)`});
+  P.leverG.appendChild(inner);
+  /* v7: vertex siku "/" HARUS berimpit dengan pin engkol C untuk semua θ.
+     Rotasi net grup tuas = R(-θ), maka titik lokal q=( -r_c·cos θ_oc , -r_c·sin θ_oc )
+     selalu terpeta tepat ke C(θ) = r_c·(sudut π+oc-θ di layar). */
+  const qex=-g.rc*Math.cos(g.oc), qey=-g.rc*Math.sin(g.oc);
+  const strap=`M 0 0 L ${MM(qex)} ${MM(qey)} L ${MM(-g.rc-mRun)} ${MM(hDrop)} L ${MM(-leverTip+40)} ${MM(hDrop)}`;
+  inner.appendChild(mk("path",{d:strap,fill:"none",stroke:"#080d15","stroke-width":MM(2*g.ht+2.8),"stroke-linecap":"round","stroke-linejoin":"round"}));
+  inner.appendChild(mk("path",{d:strap,fill:"none",stroke:"url(#gLever)","stroke-width":MM(2*g.ht),"stroke-linecap":"round","stroke-linejoin":"round"}));
+  inner.appendChild(mk("path",{d:strap,fill:"none",stroke:"#0a0f17","stroke-width":"1.2",opacity:".35","stroke-linecap":"round","stroke-linejoin":"round"}));
+  /* slot peringanan pada lengan handle */
+  if(leverTip-g.rc-mRun>70)
+    inner.appendChild(mk("rect",{x:MM(-leverTip+42),y:MM(hDrop-g.ht*0.34),width:MM(leverTip-58-g.rc-mRun),height:MM(g.ht*0.68),
+      rx:MM(g.ht*0.34),fill:"#0f1622",stroke:"#080d15","stroke-width":".9",opacity:".85"}));
+  /* bos pivot & bos pin engkol (siku “/”) */
+  inner.appendChild(mk("circle",{cx:0,cy:0,r:MM(10.5),fill:"#33415a",stroke:"#080d15","stroke-width":"1.1"}));
+  inner.appendChild(mk("circle",{cx:MM(qex),cy:MM(qey),r:MM(7.8),fill:"#33415a",stroke:"#080d15","stroke-width":"1.1"}));
+  /* pegangan + gerigi */
+  inner.appendChild(mk("rect",{x:MM(-leverTip-6),y:MM(hDrop-g.ht*1.9),width:MM(58),height:MM(g.ht*3.8),rx:MM(4.6),fill:"#2c3b52",stroke:"#0a0f17","stroke-width":"1.3"}));
+  for(let i=0;i<5;i++){
+    const xx=-(leverTip-46+i*10);
+    inner.appendChild(mk("line",{x1:MM(xx),y1:MM(hDrop-g.ht*1.4),x2:MM(xx),y2:MM(hDrop+g.ht*1.4),stroke:"#0a0f17","stroke-width":"1.6",opacity:".8"}));
+  }
+  lv.appendChild(P.leverG);
+  /* badge kunci over-center */
+  P.lockG=mk("g",{opacity:"0"});
+  P.lockG.appendChild(mk("circle",{cx:SX(0),cy:SY(0),r:MM(20),fill:"none",stroke:"#68d391","stroke-width":"2","stroke-dasharray":"4 4"}));
+  P.lockTxt=mk("text",{x:SX(0),y:SY(0)-MM(24),"text-anchor":"middle",fill:"#9ae6b4","font-size":"11",
+    "font-family":"var(--mono)","paint-order":"stroke",stroke:"#070a10","stroke-width":"3.4"});
+  P.lockTxt.textContent="OVER-CENTER · TERKUNCI";
+  P.lockG.appendChild(P.lockTxt);
+  lv.appendChild(P.lockG);
+
+  /* ---------- PIN ---------- */
+  const pn=layers.pins; clr(pn);
+  const pin=(rad,col)=>{const grp=mk("g");
+    grp.appendChild(mk("circle",{r:MM(rad),fill:col,stroke:"#080d15","stroke-width":"1.5"}));
+    grp.appendChild(mk("circle",{r:MM(rad*0.34),fill:"#080d15"}));return grp;};
+  P.pinO=pin(5.4,"#ffd166"); set(P.pinO,{transform:`translate(${SX(0)} ${SY(0)})`}); pn.appendChild(P.pinO);
+  P.pinC=pin(4.6,"#ff7b72"); pn.appendChild(P.pinC);
+  P.pinB=pin(4.2,"#4fd1c5"); pn.appendChild(P.pinB);
+
+  const dm=layers.dim; clr(dm);
+  P.dimG=mk("g",{opacity:view.dims?"1":"0"});
+  dm.appendChild(P.dimG);
+  buildLabels();
+}
+
+const LABEL_DEFS=[
+  {mode:"tube",   txt:"Tabung Pompa (bore d)"},
+  {mode:"head",   txt:"Kepala Silinder + Katup Buang & Transfer"},
+  {mode:"res",    txt:"Tabung Reservoir Udara"},
+  {mode:"piston", txt:"Kepala Piston + Seal O-ring"},
+  {mode:"prod",   txt:"Batang Piston (rod)"},
+  {mode:"link",   txt:"Batang Penghubung (L₂)"},
+  {mode:"lever",  txt:"Tuas Pompa “___ / ~~”"},
+  {mode:"O",      txt:"Pivot (O) — seumbu piston"},
+  {mode:"slot",   txt:"Celah lurus (slot) — batas area efektif"},
+  {mode:"C",      txt:"Pin Engkol (C) — siku “/”"},
+  {mode:"B",      txt:"Pin Ujung Batang Piston (B)"}
+];
+function buildLabels(){
+  const lg=layers.labels; clr(lg);
+  el.labels=LABEL_DEFS.map(def=>{
+    const grp=mk("g",{opacity:view.labels?".95":"0"});
+    const line=mk("line",{stroke:"#5d7395","stroke-width":"1","stroke-dasharray":"3 3"});
+    const dot=mk("circle",{r:"2.5",fill:"#9fb2c9",stroke:"#070a10","stroke-width":".9"});
+    const txt=mk("text",{fill:"#d3e2f6","font-size":"11.5","font-family":"var(--mono)",
+      "paint-order":"stroke",stroke:"#070a10","stroke-width":"3.4","stroke-linejoin":"round"});
+    txt.textContent=def.txt;
+    grp.appendChild(line); grp.appendChild(dot); grp.appendChild(txt);
+    lg.appendChild(grp);
+    return {def,grp,line,dot,txt};
+  });
+}
+
+/* ============================================================================
+   FASE 4 — UPDATE FRAME
+   ============================================================================ */
+function currentTheta(){ return clamp(G.thMax*state.thetaPct/100, 0, G.thMax); }
+
+function updateFrame(){
+  const g=G, GE=geo, P=el.P;
+  if(!P.leverG) return;
+  const th=currentTheta();
+  let sol=solve(g,th);
+  const blocked=!sol;
+  if(blocked) sol=solve(g,g.thMax)||{Cx:-g.rc*Math.cos(g.oc),Cy:g.rc*Math.sin(g.oc),Bx:g.xTDC,By:0,dy:g.h2,s:0};
+  const t2=thermo(g,sol);
+  const locked = th <= g.oc + 1e-9;                 // zona toggle over-center
+  sim.locked = locked;
+  cur={th,sol,t2,blocked,locked};
+
+  const ax=g.ax;
+  const F = sol.Bx - g.rodVis - g.pisLen;           // muka piston
+  const psi=(180+th*R2D-g.oc*R2D);
+
+  /* tuas: rotasi terhadap pivot */
+  set(P.leverG,{transform:`translate(${fmt(SX(0),2)} ${fmt(SY(0),2)}) rotate(${fmt(-psi,3)})`});
+  set(P.lockG,{opacity:locked?"1":"0"});
+
+  /* batang penghubung C→B */
+  {
+    const dx=sol.Bx-sol.Cx, dy=sol.By-sol.Cy, len=Math.hypot(dx,dy)||1;
+    const nx=-dy/len, ny=dx/len;
+    const wC=Math.min(7.6,g.d*0.42), wB=Math.min(6.0,g.d*0.33);
+    const pts=[[sol.Cx+nx*wC,sol.Cy+ny*wC],[sol.Bx+nx*wB,sol.By+ny*wB],
+               [sol.Bx-nx*wB,sol.By-ny*wB],[sol.Cx-nx*wC,sol.Cy-ny*wC]]
+              .map(p=>`${fmt(SX(p[0]),2)} ${fmt(SY(p[1]),2)}`).join(" L ");
+    set(P.link,{d:`M ${pts} Z`});
+    set(P.linkHL,{x1:SX(sol.Cx+nx*wC*0.42),y1:SY(sol.Cy+ny*wC*0.42),x2:SX(sol.Bx+nx*wB*0.42),y2:SY(sol.By+ny*wB*0.42)});
+    set(P.linkHole,{cx:SX(sol.Cx+dx*0.42),cy:SY(sol.Cy+dy*0.42)});
+  }
+
+  /* piston + batang piston + mata batang */
+  {
+    const gap=0.7, tIn=g.tIn, xB=F+g.pisLen;
+    set(P.pistonBody,{d:`M ${SX(F)} ${SY(ax+tIn-gap)} L ${SX(xB)} ${SY(ax+tIn-gap)} L ${SX(xB)} ${SY(ax-tIn+gap)} L ${SX(F)} ${SY(ax-tIn+gap)} Z`});
+    set(P.pistonHL,{d:`M ${SX(F+1.5)} ${SY(ax+tIn-gap-1.4)} L ${SX(xB-1.5)} ${SY(ax+tIn-gap-1.4)} L ${SX(xB-1.5)} ${SY(ax+tIn-gap-3.4)} L ${SX(F+1.5)} ${SY(ax+tIn-gap-3.4)} Z`});
+    P.seals.forEach((s,i)=>{
+      const xx=F+2.2+i*3.4;
+      set(s,{x:SX(xx),y:SY(ax+tIn-gap),width:MM(2.2),height:MM(2*tIn-2*gap)});
+    });
+    const rodH=Math.min(9,g.d*0.45);
+    set(P.pRod,{x:SX(xB-2),y:SY(ax+rodH/2),width:MM(Math.max(4,sol.Bx-(xB-2))),height:MM(rodH)});
+    set(P.pRodHL,{x1:SX(xB),y1:SY(ax+rodH*0.22),x2:SX(sol.Bx-6),y2:SY(ax+rodH*0.22)});
+    set(P.eye,{transform:`translate(${fmt(SX(sol.Bx),2)} ${fmt(SY(ax),2)})`});
+    const openI=sim.charging?1:0;
+    set(P.intakeFlap,{x:SX(F-2.2-openI*2.4),y:SY(ax+tIn*0.5),width:MM(2.6),height:MM(tIn),
+      fill:openI?"#9be7ff":"#63b3ed",opacity:openI?".95":".6"});
+  }
+
+  /* udara terkompresi */
+  {
+    const chX0=Math.min(F,GE.xHeadIn), chX1=GE.xHeadIn;
+    const w=Math.max(0,chX1-chX0);
+    const pN=clamp((t2.p/state.Patm-1)/Math.max(1,(g.VBDC/state.V0-1)),0,1);
+    set(P.chamber,{x:SX(chX0),y:SY(ax+g.tIn-0.7),width:MM(w),height:MM(2*g.tIn-1.4),opacity:fmt(0.07+0.6*Math.pow(pN,0.55),3)});
+    set(P.chamberGlow,{x:SX(chX0),y:SY(ax+g.tIn-0.7),width:MM(w),height:MM(2*g.tIn-1.4),opacity:fmt(0.3*Math.pow(pN,1.7),3)});
+    el.particles.forEach(pt=>{
+      let u=(pt.u+0.09*Math.sin(perfT*0.0019*(1+pN*3.2)+pt.ph))%1; if(u<0)u+=1;
+      const px=chX0+w*(0.05+0.9*u);
+      const py=ax+(g.tIn-2)*pt.v*(0.95-0.3*pN);
+      set(pt.node,{cx:fmt(SX(clamp(px,chX0+0.5,chX1-0.5)),2),cy:fmt(SY(py),2),
+        r:fmt(Math.max(0.6,MM(pt.rr)*(1.3-0.6*pN)),2),opacity:fmt(0.2+0.65*pN,2)});
+    });
+    set(P.valveGlow,{opacity:sim.discharging?"0.9":"0"});
+    set(P.valveBall,{cy:SY(ax+g.tIn*0.75-0.5-(sim.discharging?4:0)),fill:sim.discharging?"#ffd166":"#f6ad55"});
+  }
+
+  set(P.pinC,{transform:`translate(${fmt(SX(sol.Cx),2)} ${fmt(SY(sol.Cy),2)})`});
+  set(P.pinB,{transform:`translate(${fmt(SX(sol.Bx),2)} ${fmt(SY(ax),2)})`});
+
+  const pMax=Math.max(15,sim.tank*1.3);
+  set(P.resFill,{opacity:fmt(clamp(0.05+0.5*(sim.tank-state.Patm)/Math.max(1,pMax-state.Patm),0,0.6),3)});
+  const na=(135+270*clamp((sim.tank-state.Patm)/Math.max(1e-6,pMax-state.Patm),0,1))*D2R;
+  set(P.needle,{x2:SX(GE.gaugeX)+Math.cos(na)*MM(GE.gaugeR*0.66),y2:SY(ax)-Math.sin(na)*MM(GE.gaugeR*0.66)});
+
+  if(view.dims) drawDimensions(g,GE,sol,th,F); else set(P.dimG,{opacity:"0"});
+  drawLabels(g,GE,sol,th,F,psi);
+  updateReadouts(g,sol,t2,th);
+  updateChartMarker(t2,sol);
+}
+
+function drawDimensions(g,GE,sol,th,F){
+  const P=el.P, ax=g.ax; clr(P.dimG); set(P.dimG,{opacity:"1"});
+  const yTop=ax+g.tOut;
+  const rArc=Math.max(26,g.rc*0.4);
+  P.dimG.appendChild(mk("path",{
+    d:`M ${SX(-rArc*Math.cos(g.oc))} ${SY(rArc*Math.sin(g.oc))} A ${MM(rArc)} ${MM(rArc)} 0 ${g.thMax>Math.PI?1:0} 1 ${SX(-rArc*Math.cos(g.thMax-g.oc))} ${SY(-rArc*Math.sin(g.thMax-g.oc))}`,
+    fill:"none",stroke:"#2f4a63","stroke-width":"1.1","stroke-dasharray":"2 4"}));
+  if(th>0.01) P.dimG.appendChild(mk("path",{
+    d:`M ${SX(-rArc*Math.cos(g.oc))} ${SY(rArc*Math.sin(g.oc))} A ${MM(rArc)} ${MM(rArc)} 0 0 1 ${SX(-rArc*Math.cos(th-g.oc))} ${SY(-rArc*Math.sin(th-g.oc))}`,
+    fill:"none",stroke:"#4fd1c5","stroke-width":"1.8"}));
+  /* tick dead-center (batas zona kunci) */
+  const pd=Math.PI;                      // dead-center: C tepat di sumbu (φ=0)
+  P.dimG.appendChild(mk("line",{x1:SX((rArc-4)*Math.cos(pd)),y1:SY((rArc-4)*Math.sin(pd)),
+    x2:SX((rArc+7)*Math.cos(pd)),y2:SY((rArc+7)*Math.sin(pd)),stroke:"#fc8181","stroke-width":"1.6"}));
+  const ocl=mk("text",{x:SX(0)-MM(rArc)-6,y:SY(0)+MM(th<12*D2R?34:20),fill:"#fc8181","font-size":"9.5","text-anchor":"end",
+    "font-family":"var(--mono)","paint-order":"stroke",stroke:"#070a10","stroke-width":"3"});
+  ocl.textContent="dead-center"; P.dimG.appendChild(ocl);
+  const tx=mk("text",{x:VIEW.m+6,y:VIEW.h-14,fill:"#7fe6db","font-size":"13","font-family":"var(--mono)",
+    "text-anchor":"start","paint-order":"stroke",stroke:"#070a10","stroke-width":"3.4"});
+  tx.textContent=`θ ${fmt(th*R2D,1)}°`; P.dimG.appendChild(tx);
+
+  dimV(P.dimG,(GE.xHeadIn+GE.g.xSlot0)/2,ax-g.tIn,ax+g.tIn,`d = ${fmt(g.d,1)}`,"start");
+  const yDim=yTop+34;
+  const xA=GE.F_TDC, xB=GE.F_TDC+g.L;
+  dimH(P.dimG,Math.min(xA,xB),yDim,Math.max(xA,xB),`L = ${fmt(g.L,0)} mm (stroke)`);
+  if(clamp(sol.s,0,g.L)>1)
+    dimH(P.dimG,Math.min(xA,F),yTop+16,Math.max(xA,F),`s = ${fmt(clamp(sol.s,0,g.L),1)} mm`,"middle","#4fd1c5",true);
+  [xA,xB].forEach((x,i)=>{
+    P.dimG.appendChild(mk("line",{x1:SX(x),y1:SY(yDim-4),x2:SX(x),y2:SY(yTop+4),stroke:"#5d7395","stroke-width":".8","stroke-dasharray":"3 3",opacity:".8"}));
+    const t=mk("text",{x:SX(x)+(i?8:-8),y:SY(yDim)+4,fill:"#8fa2bd","font-size":"9.5","font-family":"var(--mono)",
+      "text-anchor":i?"start":"end","paint-order":"stroke",stroke:"#070a10","stroke-width":"3"});
+    t.textContent=i?"BDC":"TDC"; P.dimG.appendChild(t);
+  });
+  /* batas area efektif: bulkhead / awal celah lurus */
+  P.dimG.appendChild(mk("line",{x1:SX(GE.g.xSlot0),y1:SY(ax-g.tOut-14),x2:SX(GE.g.xSlot0),y2:SY(ax+g.tOut+14),stroke:"#8fa2bd","stroke-width":".9","stroke-dasharray":"5 4",opacity:".85"}));
+  /* offset handle h_g di bawah sumbu (= garis pivot) */
+  dimV(P.dimG,44,ax-state.ha,ax,"h_g","start","#8fa2bd",true);   // v8: fix NaN (g.ha tidak ada; pakai state.ha)
+}
+function dimV(parent,x,ya,yb,label,anchor,color,dashed){
+  const c=color||"#93a6bf";
+  if(Math.abs(MM(yb-ya))<9) return;
+  parent.appendChild(mk("line",{x1:SX(x),y1:SY(ya),x2:SX(x),y2:SY(yb),stroke:c,"stroke-width":"1","stroke-dasharray":dashed?"4 3":"none",opacity:".9"}));
+  [ya,yb].forEach(y=>parent.appendChild(mk("line",{x1:SX(x-3),y1:SY(y),x2:SX(x+3),y2:SY(y),stroke:c,"stroke-width":"1.3"})));
+  const t=mk("text",{x:SX(x)+7,y:(SY(ya)+SY(yb))/2+4,fill:c,"font-size":"11","font-family":"var(--mono)",
+    "text-anchor":anchor||"start","paint-order":"stroke",stroke:"#070a10","stroke-width":"3.4"});
+  t.textContent=label; parent.appendChild(t);
+}
+function dimH(parent,xa,y,xb,label,anchor,color,dashed){
+  const c=color||"#93a6bf";
+  if(Math.abs(MM(xb-xa))<16) return;
+  parent.appendChild(mk("line",{x1:SX(xa),y1:SY(y),x2:SX(xb),y2:SY(y),stroke:c,"stroke-width":"1","stroke-dasharray":dashed?"4 3":"none",opacity:".9"}));
+  [xa,xb].forEach(x=>parent.appendChild(mk("line",{x1:SX(x),y1:SY(y-3.4),x2:SX(x),y2:SY(y+3.4),stroke:c,"stroke-width":"1.3"})));
+  const t=mk("text",{x:(SX(xa)+SX(xb))/2,y:SY(y)-6,fill:c,"font-size":"11","font-family":"var(--mono)",
+    "text-anchor":anchor||"middle","paint-order":"stroke",stroke:"#070a10","stroke-width":"3.4"});
+  t.textContent=label; parent.appendChild(t);
+}
+
+function drawLabels(g,GE,sol,th,F,psi){
+  if(!view.labels){ el.labels.forEach(l=>l.grp.setAttribute("opacity","0")); return; }
+  const psiR=psi*D2R, ax=g.ax;
+  const lp=(x,y)=>[x*Math.cos(psiR)-y*Math.sin(psiR), x*Math.sin(psiR)+y*Math.cos(psiR)];
+  const cm2=Math.cos(g.oc-Math.PI), sm2=Math.sin(g.oc-Math.PI);
+  const lvPt=lp(cm2*(-GE.leverTip*0.55)-sm2*(-GE.hDrop), sm2*(-GE.leverTip*0.55)+cm2*(-GE.hDrop));
+  const lvRowMax=SY(0)+MM(g.tOut)+64;
+  const nx=-Math.sin(psiR), ny=Math.cos(psiR);
+  const anch={
+    tube:  {x:(GE.xHeadIn+GE.g.xSlot0)/2,y:ax+g.tOut,dx:0,dy:-10,a:"middle"},
+    head:  {x:(GE.xHeadOut+GE.xHeadIn)/2,y:ax+g.tOut+2,fx:153,fy:124,a:"start"},
+    res:   {x:(GE.resRear+GE.resFront)/2,y:ax+GE.resR,fx:96,fy:52,a:"start"},
+    piston:{x:F+g.pisLen*0.42,y:ax-g.tOut,dx:-6,dy:18,a:"end"},
+    prod:  {x:sol.Bx+12,y:ax,dx:0,dy:-16,a:"start"},
+    link:  {x:(sol.Cx+sol.Bx)/2,y:(sol.Cy+sol.By)/2,dx:0,dy:(th<12*D2R?27:(th<90*D2R?-20:34)),a:"middle"},
+    lever: {x:lvPt[0]+26*nx,y:Math.min(lvPt[1]+26*ny,lvRowMax),dx:8,dy:10,a:"start"},
+    O:     {x:0,y:0,fx:SX(0)-MM(30),fy:SY(0)-MM(g.tOut)-10,a:"end"},
+    slot:  {x:GE.g.xSlot0,y:ax+g.tOut,dx:-6,dy:18,a:"end"},
+    /* label C: saat hampir tertutup (θ<12°) C berada di atas sumbu (over-center);
+       taruh label di bawah sumbu agar tidak bertabrakan dengan label bore/rod */
+    C:     (th<12*D2R||sol.Cy>g.tOut+2)?{x:sol.Cx,y:sol.Cy,dx:-14,dy:22,a:"end"}:{x:sol.Cx,y:sol.Cy,dx:-14,dy:-20,a:"end"},
+    B:     {x:sol.Bx,y:ax,dx:-8,dy:26,a:"end"}
+  };
+  el.labels.forEach(l=>{
+    const A=anch[l.def.mode]; if(!A){ l.grp.setAttribute("opacity","0"); return; }
+    const axp=SX(A.x), ayp=SY(A.y);
+    let fx=(A.fx!==undefined?A.fx:axp+A.dx), fy=(A.fy!==undefined?A.fy:ayp+A.dy), an=A.a;
+    if(A.fx===undefined){
+      const tw=l.def.txt.length*6.35;
+      if(an==="start"&&fx+tw>VIEW.w-8) an="end";
+      if(an==="end"&&fx-tw<8) an="start";
+      if(an==="middle"){ if(fx-tw/2<8){an="start";fx=Math.max(8,fx);} else if(fx+tw/2>VIEW.w-8){an="end";fx=Math.min(VIEW.w-8,fx);} }
+      fx=clamp(fx,8,VIEW.w-8); fy=clamp(fy,14,VIEW.h-8);
+    }
+    set(l.grp,{opacity:".96"});
+    set(l.line,{x1:axp,y1:ayp,x2:fx,y2:fy});
+    set(l.dot,{cx:axp,cy:ayp});
+    set(l.txt,{x:fx+(an==="start"?4:(an==="end"?-4:0)),y:fy+(A.dy<0&&A.fy===undefined?-4:12),"text-anchor":an});
+  });
+}
+
+function updateReadouts(g,sol,t2,th){
+  const pct=100*th/g.thMax;
+  $("#ro-theta").textContent=fmt(th*R2D,1);
+  $("#ro-theta-s").textContent=`${fmt(pct,1)} % · ψ=${fmt(180+th*R2D,1)}° · ${cur.locked?"OVER-CENTER lock":"bebas (spring)"}`;
+  $("#tagTheta").textContent=`θ = ${fmt(th*R2D,1)}°`;
+  $("#ro-pos").textContent=fmt(sol.Bx,1);
+  $("#ro-pos-s").textContent=`x pin B dari pivot · s = ${fmt(clamp(sol.s,0,g.L),1)} mm dari TDC`;
+  $("#ro-swept").textContent=fmt(g.Vs,2);
+  $("#ro-swept-s").textContent=`π/4·${fmt(g.d,1)}²·${fmt(g.L,0)}/1000 · A_c=${fmt(g.Ac,1)} mm²`;
+  $("#ro-disp").textContent=fmt(t2.Vdisp,2);
+  $("#ro-disp-s").textContent=`V ruang = ${fmt(t2.Vch,2)} cc · s = ${fmt(clamp(sol.s,0,g.L),1)} mm`;
+  $("#ro-ratio").textContent=fmt(t2.ratio,2);
+  $("#ro-ratio-s").textContent=`(V₀+V_s)/V = ${fmt(g.VBDC,2)}/${fmt(t2.Vch,2)} cc`;
+  $("#ro-p").textContent=fmt(t2.p,2);
+  $("#ro-p-s").textContent=`p₀·R_c = ${fmt(state.Patm,3)} × ${fmt(t2.ratio,2)}`;
+  $("#roP").classList.toggle("lit",t2.p>state.Patm*1.25);
+  $("#roP").classList.toggle("hot",t2.p>state.Patm*6);
+  $("#ro-tank").textContent=fmt(sim.tank,2);
+  $("#ro-tank-s").textContent=`${fmt(sim.tank/state.Patm,2)}× atm · V_t = ${fmt(state.Vt,0)} cc`;
+  $("#ro-n").textContent=sim.pumps;
+  $("#ro-n-s").textContent=sim.pumps?`+${fmt(sim.tank-state.Patm,2)} bar dari pompaan`:"belum ada langkah penuh";
+  $("#tagStatus").textContent=cur.blocked?"TERKUNCI — batas mekanik"
+    :sim.spring?"spring return → terbuka"
+    :cur.locked?"OVER-CENTER · tuas terkunci"
+    :anim.running?`memompa · ${fmt(state.rpm,0)} langkah/menit`
+    :sim.charging?"katup hisap terbuka"
+    :sim.discharging?"membuang ke tabung"
+    :`bukaan ${fmt(pct,0)} %`;
+}
+
+function validate(g){
+  const w=[];
+  if(g.autoL2) w.push(["bad",`L₂ (${fmt(state.L2,0)} mm) terlalu pendek untuk stroke ${fmt(g.L,0)} mm — dinaikkan otomatis menjadi <b>${g.autoL2} mm</b>.`]);
+  const ratio=g.L2/g.rc;
+  if(ratio<1.3) w.push(["bad",`L₂/r_c = ${fmt(ratio,2)} — batang terlalu pendek, gaya samping sangat besar.`]);
+  else if(ratio<2.0) w.push(["warn",`L₂/r_c = ${fmt(ratio,2)} — di bawah rasio ideal 2.0; gaya samping tinggi.`]);
+  const q=g.rc*Math.sin(g.thMax-g.oc);
+  const beta=Math.abs(Math.atan(q/Math.sqrt(Math.max(1e-6,g.L2*g.L2-q*q))))*R2D;
+  if(beta>42) w.push(["warn",`Sudut batang maksimum β = ${fmt(beta,1)}° — besar; panjangkan L₂.`]);
+  if(g.thFeas<g.tho-1e-6&&g.thFeas===g.thFeasP) w.push(["warn",`θmax dibatasi <b>${fmt(g.thFeas*R2D,1)}°</b>: muka piston akan melewati pivot.`]);
+  else if(g.thFeas<g.tho-1e-6&&g.thFeas===g.thFeasE) w.push(["warn",`θmax dibatasi <b>${fmt(g.thFeas*R2D,1)}°</b>: mata batang menabrak tutup pivot.`]);
+  else if(g.thFeas<180*D2R-1e-9&&g.thFeas<g.tho-1e-6) w.push(["warn",`θmax dibatasi ${fmt(g.thFeas*R2D,1)}° oleh L₂ (diskriminan = 0).`]);
+  if(state.llev<g.rc) w.push(["warn",`Pin engkol di luar panjang tuas — tuas digambar memanjang otomatis.`]);
+  if(g.VBDC/state.V0>45) w.push(["warn",`Rasio kompresi ${fmt(g.VBDC/state.V0,1)}:1 sangat tinggi — seal cepat aus/bocor.`]);
+  if(g.rodVis<g.eyeR+5) w.push(["warn",`As piston ${fmt(g.rodVis,0)} mm lebih pendek dari boss mata batang (butuh ≥ ${fmt(g.eyeR+5,0)} mm).`]);
+  if(g.xSlot0>-16) w.push(["warn",`Celah lurus hampir habis (awal celah x=${fmt(g.xSlot0,0)} mm) — perpanjang as piston atau L₂.`]);
+  if(state.ha<=g.tOut+g.ht+2) w.push(["warn",`Offset handle h_g = ${fmt(state.ha,0)} mm terlalu kecil — lengan “___” menyentuh tabung saat terlipat.`]);
+  if(Math.abs(g.strokeActual-g.L)>0.5) w.push(["bad",`Stroke aktual ${fmt(g.strokeActual,1)} mm ≠ target ${fmt(g.L,0)} mm — kombinasi tidak feasible.`]);
+  $("#warnBox").innerHTML=w.length
+    ? w.map(([k,t])=>`<p class="hint" style="color:${k==="bad"?"var(--bad)":"var(--warn)"}">⚠ ${t}</p>`).join("")
+    : `<p class="hint" style="color:var(--good)">✔ Geometri valid — tidak ada pelanggaran batas mekanik.</p>`;
+  $("#infoBox").innerHTML=[
+    `r_c (jari-jari engkol, biseksi) = <b>${fmt(g.rc,2)} mm</b> &nbsp;·&nbsp; L₂/r_c = <b>${fmt(ratio,2)}</b>`,
+    `margin over-center: C di atas sumbu saat θ=0 = r_c·sin θ_oc = <b>${fmt(g.h2,2)} mm</b> &nbsp;·&nbsp; zona kunci θ ∈ [0 … ${fmt(g.oc*R2D,1)}°] (O,C,B segaris saat θ=θ_oc)`,
+    `θmax = ${fmt(state.tho,1)}° &nbsp;·&nbsp; batas fisik = <b>${g.thFeas>=150*D2R-1e-9? "tidak mengikat (L₂ ≥ r_c)": fmt(g.thFeas*R2D,2)+"° (diskriminan L₂)"}</b>`,
+    `area efektif (terseal) kepala→awal celah = <b>${fmt(g.xSlot0-geo.xHeadIn,0)}</b> mm &nbsp;·&nbsp; celah/slot = <b>${fmt(-g.xSlot0,0)}</b> mm s.d. pivot`,
+    `B_x(0°) = <b>${fmt(g.xTDC,2)}</b> mm (TDC) &nbsp;·&nbsp; B_x(θmax) = <b>${fmt(g.xBDC,2)}</b> mm (BDC)`,
+    `Stroke tercapai = <b>${fmt(g.strokeActual,3)} mm</b> (target ${fmt(g.L,0)} mm)`,
+    `As piston (belakang piston → pin B) = <b>${fmt(g.rodVis,0)} mm</b> (parameter user) &nbsp;·&nbsp; volume mati kepala V₀ = ${fmt(state.V0,1)} cc ≙ ${fmt(g.clearance,2)} mm`,
+    `rantai terkunci: (piston ${fmt(g.pisLen,0)} + as ${fmt(g.rodVis,0)}) + L₂ ${fmt(g.L2,0)} + pin→pivot ${fmt(g.rc,1)} = <b>${fmt(geo.stackLen,0)} mm</b> = panjang pipa kepala→pivot <b>${fmt(-geo.xHeadIn,0)} mm</b> ✔`,
+    `saat θmax: muka piston → pivot = <b>${fmt(-(g.xBDC-g.rodVis-g.pisLen),0)} mm</b> · awal celah x = <b>${fmt(g.xSlot0,0)}</b> · tabung total ≈ <b>${fmt(-geo.xHeadIn,0)} mm</b>`,
+    `A_c = ${fmt(g.Ac,2)} mm² = ${fmt(g.ccPerMm,4)} cc/mm &nbsp;·&nbsp; V_sapu = <b>${fmt(g.Vs,2)} cc</b>`,
+    `Rasio kompresi maks = <b>${fmt(g.VBDC/state.V0,2)} : 1</b> &nbsp;·&nbsp; p 1 langkah = <b>${fmt(state.Patm*g.VBDC/state.V0,1)} bar</b>`,
+    `β max = <b>${fmt(beta,1)}°</b> &nbsp;·&nbsp; tabung ≈ <b>${fmt(state.Vt/g.Vs,1)} langkah</b> per kelipatan V_t`
+  ].join("<br>");
+}
+
+/* ============================================================================
+   KURVA INDIKATOR
+   ============================================================================ */
+const chart=$("#chart");
+const CB={x0:54,y0:26,x1:624,y1:198};
+let ch={};
+function buildChart(){
+  clr(chart);
+  const g=G;
+  const V0=state.V0,V1=g.VBDC,Pmax=state.Patm*V1/V0;
+  const cx=V=>lerp(CB.x0,CB.x1,clamp((V-V0)/(V1-V0),0,1));
+  const ct=t=>lerp(CB.x0,CB.x1,clamp(t/g.thMax,0,1));
+  const cy=p=>lerp(CB.y1,CB.y0,clamp(p/Pmax,0,1));
+  ch={cx,ct,cy,Pmax,g};
+  chart.appendChild(mk("rect",{x:CB.x0,y:CB.y0,width:CB.x1-CB.x0,height:CB.y1-CB.y0,fill:"#0a111b",stroke:"#22304a"}));
+  for(let i=0;i<=5;i++){
+    const y=lerp(CB.y1,CB.y0,i/5),p=Pmax*i/5;
+    chart.appendChild(mk("line",{x1:CB.x0,y1:y,x2:CB.x1,y2:y,stroke:"#1b2739","stroke-width":"1"}));
+    const t=mk("text",{x:CB.x0-6,y:y+3.5,fill:"#61748f","font-size":"9.5","font-family":"var(--mono)","text-anchor":"end"});
+    t.textContent=fmt(p,p<10?1:0); chart.appendChild(t);
+  }
+  for(let i=0;i<=6;i++){
+    const x=lerp(CB.x0,CB.x1,i/6);
+    chart.appendChild(mk("line",{x1:x,y1:CB.y0,x2:x,y2:CB.y1,stroke:"#141f2e","stroke-width":"1"}));
+    const tv=mk("text",{x,y:CB.y1+13,fill:"#61748f","font-size":"9","font-family":"var(--mono)","text-anchor":"middle"});
+    tv.textContent=fmt(lerp(V0,V1,i/6),1); chart.appendChild(tv);
+    const ts=mk("text",{x,y:CB.y1+25,fill:"#4a5c76","font-size":"8.5","font-family":"var(--mono)","text-anchor":"middle"});
+    ts.textContent=fmt(g.thMax*R2D*i/6,0)+"°"; chart.appendChild(ts);
+  }
+  let d1="";
+  for(let i=0;i<=160;i++){const V=lerp(V0,V1,i/160),p=state.Patm*V1/V; d1+=(i?"L":"M")+fmt(cx(V),1)+" "+fmt(cy(p),1)+" ";}
+  chart.appendChild(mk("path",{d:d1,fill:"none",stroke:"#f6ad55","stroke-width":"2.1"}));
+  let d2="";
+  for(let i=0;i<=160;i++){
+    const th=g.thMax*i/160,so=solve(g,th); if(!so) continue;
+    const V=state.V0+g.ccPerMm*clamp(so.s,0,g.L),p=state.Patm*V1/V;
+    d2+=(d2?"L":"M")+fmt(ct(th),1)+" "+fmt(cy(p),1)+" ";
+  }
+  chart.appendChild(mk("path",{d:d2,fill:"none",stroke:"#4fd1c5","stroke-width":"1.5","stroke-dasharray":"5 3"}));
+  ch.tankLine=mk("line",{x1:CB.x0,y1:0,x2:CB.x1,y2:0,stroke:"#63b3ed","stroke-width":"1.3","stroke-dasharray":"2 3",opacity:".85"});
+  chart.appendChild(ch.tankLine);
+  ch.tankTxt=mk("text",{x:CB.x1-4,y:0,fill:"#63b3ed","font-size":"9.5","font-family":"var(--mono)","text-anchor":"end"});
+  chart.appendChild(ch.tankTxt);
+  ch.mk1=mk("circle",{r:"4.6",fill:"#f6ad55",stroke:"#0a111b","stroke-width":"1.5"});
+  ch.mk2=mk("circle",{r:"3.8",fill:"#4fd1c5",stroke:"#0a111b","stroke-width":"1.3"});
+  chart.appendChild(ch.mk1); chart.appendChild(ch.mk2);
+  [["#f6ad55","p–V (isotermal)",0],["#4fd1c5","p–θ (sudut tuas)",1],["#63b3ed","tekanan tabung",2]].forEach(([c,t,i])=>{
+    const x=CB.x0+4+i*152;
+    chart.appendChild(mk("line",{x1:x,y1:CB.y0-11,x2:x+17,y2:CB.y0-11,stroke:c,"stroke-width":"2.2","stroke-dasharray":i===1?"5 3":"none"}));
+    const tt=mk("text",{x:x+22,y:CB.y0-7.5,fill:"#8fa2bd","font-size":"9.5","font-family":"var(--mono)"});
+    tt.textContent=t; chart.appendChild(tt);
+  });
+  const yl=mk("text",{x:15,y:(CB.y0+CB.y1)/2,fill:"#8fa2bd","font-size":"10","font-family":"var(--mono)","text-anchor":"middle",transform:`rotate(-90 15 ${(CB.y0+CB.y1)/2})`});
+  yl.textContent="tekanan p [bar]"; chart.appendChild(yl);
+  const xl=mk("text",{x:(CB.x0+CB.x1)/2,y:CB.y1+40,fill:"#8fa2bd","font-size":"10","font-family":"var(--mono)","text-anchor":"middle"});
+  xl.textContent="volume ruang pompa V [cc]  ·  sudut tuas θ [derajat]"; chart.appendChild(xl);
+}
+function updateChartMarker(t2,sol){
+  if(!ch.mk1) return;
+  set(ch.mk1,{cx:ch.cx(t2.Vch),cy:ch.cy(t2.p)});
+  set(ch.mk2,{cx:ch.ct(currentTheta()),cy:ch.cy(t2.p)});
+  const y=ch.cy(sim.tank),vis=sim.tank<=ch.Pmax;
+  set(ch.tankLine,{y1:y,y2:y,opacity:vis?".85":"0"});
+  set(ch.tankTxt,{y:clamp(y-5,CB.y0+11,CB.y1-3),opacity:vis?"1":"0"});
+  ch.tankTxt.textContent=`p_tabung = ${fmt(sim.tank,2)} bar`;
+}
+
+/* ============================================================================
+   FASE 2 — UI
+   ============================================================================ */
+const inputs={};
+function buildUI(){
+  const hosts={geom:$("#geomCtl"),lever:$("#leverCtl"),thermo:$("#thermoCtl")};
+  PARAMS.forEach(p=>{
+    const wrap=document.createElement("div"); wrap.className="ctl";
+    wrap.innerHTML=
+      `<div class="ctl-h"><label for="in-${p.id}">${p.label} <span class="sym">(${p.sym})</span></label>
+         <span class="num"><input id="num-${p.id}" type="number" min="${p.min}" max="${p.max}" step="${p.step}"><span>${p.unit}</span></span>
+       </div>
+       <input id="in-${p.id}" type="range" min="${p.min}" max="${p.max}" step="${p.step}">
+       <p class="hint">${p.hint}</p>`;
+    hosts[p.group].appendChild(wrap);
+    const rg=wrap.querySelector("input[type=range]"),nm=wrap.querySelector("input[type=number]");
+    inputs[p.id]={range:rg,num:nm,def:p};
+    rg.value=state[p.id]; nm.value=state[p.id];
+    const commit=src=>{
+      let v=parseFloat(src.value); if(isNaN(v)) v=p.def;
+      v=clamp(v,p.min,p.max);
+      state[p.id]=v; rg.value=v; nm.value=v;
+      onParamsChanged();
+    };
+    rg.addEventListener("input",()=>commit(rg));
+    nm.addEventListener("change",()=>commit(nm));
+    nm.addEventListener("blur",()=>commit(nm));
+  });
+
+  const box=$("#leverCtl");
+  const seg=document.createElement("div"); seg.className="seg";
+  seg.innerHTML=`<button data-v="0">0% TERTUTUP</button><button data-v="50">50%</button><button data-v="100">100% TERBUKA</button>`;
+  box.appendChild(seg);
+  seg.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>setThetaPct(parseFloat(b.dataset.v))));
+  const pos=document.createElement("div"); pos.className="ctl";
+  pos.innerHTML=
+    `<div class="ctl-h"><label for="in-theta">Posisi Tuas Pompa</label>
+       <span class="num"><input id="num-theta" type="number" min="0" max="100" step="0.5"><span>%</span></span></div>
+     <input id="in-theta" class="pump" type="range" min="0" max="100" step="0.1" value="0">
+    <div style="margin-top:7px"><button id="btnSpring" class="btn" type="button" title="Lepas tuas: jika di zona kunci tuas tetap tertutup, jika tidak akan spring terbuka">Lepas tuas (uji pegas retour)</button></div>
+     <p class="hint" id="hintTheta">—</p>`;
+  ($("#thetaBar")||box).appendChild(pos);   // v7: slider tuas di atas diagram
+  inputs.thetaPct={range:$("#in-theta"),num:$("#num-theta")};
+  const commitT=src=>{
+    let v=parseFloat(src.value); if(isNaN(v)) v=0;
+    sim.spring=false;
+    state.thetaPct=clamp(v,0,100);
+    inputs.thetaPct.range.value=state.thetaPct;
+    inputs.thetaPct.num.value=fmt(state.thetaPct,1);
+    stopAnim(); simUpdate(); render();
+  };
+  inputs.thetaPct.range.addEventListener("input",()=>commitT(inputs.thetaPct.range));
+  inputs.thetaPct.num.addEventListener("change",()=>commitT(inputs.thetaPct.num));
+
+  $("#viewCtl").innerHTML=`<div class="checks">
+      <label class="chk"><input type="checkbox" id="ckDims" checked> Dimensi &amp; busur sudut</label>
+      <label class="chk"><input type="checkbox" id="ckLabels" checked> Label komponen</label>
+      <label class="chk"><input type="checkbox" id="ckGhost" checked> Siluet batas langkah</label>
+      <label class="chk"><input type="checkbox" id="ckTrace" checked> Lintasan pin engkol</label>
+    </div>
+    <p class="hint" style="margin-top:9px">Tuas diatur hanya lewat <b>slider/angka</b> di atas (← → = halus, spasi = animasi, tombol "Lepas tuas" = uji pegas retour &amp; kunci over-center). Di gambar: <b>seret di mana saja = geser (pan)</b>, roda mouse = zoom di kursor, dobel-klik = reset — seperti dokumen PDF interaktif.</p>`;
+  $("#ckDims").addEventListener("change",ev=>{view.dims=ev.target.checked; render();});
+  $("#ckLabels").addEventListener("change",ev=>{view.labels=ev.target.checked; render();});
+  $("#ckGhost").addEventListener("change",ev=>{view.ghost=ev.target.checked; if(el.P.ghost) el.P.ghost.setAttribute("opacity",view.ghost?".6":"0");});
+  $("#ckTrace").addEventListener("change",ev=>{view.trace=ev.target.checked; if(el.P.traceArc) el.P.traceArc.setAttribute("opacity",view.trace?".5":"0");});
+
+  $("#btnAnim").addEventListener("click",toggleAnim);
+  $("#btnReset").addEventListener("click",()=>{resetSim(); render();});
+  const zoomAt=(px,py,f)=>{ const z=clamp(state.zoom*f,0.4,4);
+    const c={x:(px-state.panX)/state.zoom, y:(py-state.panY)/state.zoom};
+    state.panX=px-z*c.x; state.panY=py-z*c.y; state.zoom=z;
+    applyPan(); updateTagScale(); };
+  $("#btnZoomIn").addEventListener("click",()=>zoomAt(VIEW.w/2,VIEW.h/2,1.18));
+  $("#btnZoomOut").addEventListener("click",()=>zoomAt(VIEW.w/2,VIEW.h/2,1/1.18));
+  $("#btnZoomFit").addEventListener("click",()=>{state.zoom=1; state.panX=0; state.panY=0; applyPan(); updateTagScale();});
+  $("#btnSpring").addEventListener("click",()=>{stopAnim(); springOpen();});
+  $("#presetSel").addEventListener("change",ev=>{
+    const p=PRESETS[ev.target.value]; if(!p) return;
+    Object.assign(state,p);
+    PARAMS.forEach(q=>{inputs[q.id].range.value=state[q.id]; inputs[q.id].num.value=state[q.id];});
+    resetSim(); onParamsChanged();
+    flash(`Preset "${ev.target.selectedOptions[0].text}" dimuat.`);
+  });
+  $("#btnExport").addEventListener("click",()=>{
+    const o={}; PARAMS.forEach(p=>o[p.id]=state[p.id]); o.thetaPct=state.thetaPct;
+    const blob=new Blob([JSON.stringify(o,null,2)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download="konfigurasi-pompa-senapan.json"; a.click(); URL.revokeObjectURL(a.href);
+    flash("Konfigurasi diunduh sebagai JSON.");
+  });
+  $("#btnImport").addEventListener("click",()=>{
+    const inp=document.createElement("input"); inp.type="file"; inp.accept=".json,application/json";
+    inp.onchange=()=>{const f=inp.files[0]; if(!f) return;
+      const rd=new FileReader();
+      rd.onload=()=>{try{
+          const o=JSON.parse(rd.result);
+          PARAMS.forEach(p=>{if(typeof o[p.id]==="number") state[p.id]=clamp(o[p.id],p.min,p.max);});
+          if(typeof o.thetaPct==="number") state.thetaPct=clamp(o.thetaPct,0,100);
+          PARAMS.forEach(p=>{inputs[p.id].range.value=state[p.id]; inputs[p.id].num.value=state[p.id];});
+          resetSim(); onParamsChanged(); flash("Konfigurasi JSON dimuat.");
+        }catch(err){flash("File JSON tidak valid.","bad");}};
+      rd.readAsText(f);};
+    inp.click();
+  });
+
+  svg.addEventListener("keydown",ev=>{
+    const st=ev.shiftKey?0.2:1.5;
+    if(ev.key==="ArrowRight"||ev.key==="ArrowUp"){setThetaPct(state.thetaPct+st); ev.preventDefault();}
+    else if(ev.key==="ArrowLeft"||ev.key==="ArrowDown"){setThetaPct(state.thetaPct-st); ev.preventDefault();}
+    else if(ev.key===" "){toggleAnim(); ev.preventDefault();}
+  });
+}
+function flash(msg,kind){
+  const n=$("#cfgHint"); n.textContent=msg; n.style.color=kind==="bad"?"var(--bad)":"var(--good)";
+  clearTimeout(flash._t);
+  flash._t=setTimeout(()=>{n.textContent="Konfigurasi tersimpan otomatis di browser (localStorage)."; n.style.color="";},2800);
+}
+function setThetaPct(v){
+  sim.spring=false;
+  state.thetaPct=clamp(v,0,100);
+  inputs.thetaPct.range.value=state.thetaPct;
+  inputs.thetaPct.num.value=fmt(state.thetaPct,1);
+  stopAnim(); simUpdate(); render();
+}
+function resetSim(){
+  sim.tank=state.Patm; sim.pumps=0;
+  sim.atTop=sim.atBot=sim.discharging=sim.charging=sim.armed=false;
+}
+
+/* ============================================================================
+   KATUP & AKUMULASI TEKANAN
+   ============================================================================ */
+let dischargeTimer=null;
+function simUpdate(){
+  const g=G,th=currentTheta();
+  const sol=solve(g,th); if(!sol) return;
+  const atTop=state.thetaPct<=0.05, atBot=state.thetaPct>=99.95;
+  sim.charging=atBot&&!sim.atBot;
+  if(sim.charging){
+    sim.armed=true;
+    clearTimeout(simUpdate._c); simUpdate._c=setTimeout(()=>{sim.charging=false; render();},320);
+  }
+  sim.discharging=false;
+  if(atTop&&!sim.atTop&&sim.armed){
+    const t=thermo(g,sol);
+    if(t.p>sim.tank+1e-6){
+      sim.tank=(sim.tank*state.Vt+t.p*state.V0)/(state.Vt+state.V0);
+      sim.pumps++; sim.armed=false; sim.discharging=true;
+      clearTimeout(dischargeTimer);
+      dischargeTimer=setTimeout(()=>{sim.discharging=false; render();},380);
+    }
+  }
+  sim.atTop=atTop; sim.atBot=atBot;
+}
+
+/* ============================================================================
+   ANIMASI + PEGAS RETOUR
+   ============================================================================ */
+const anim={running:false,u:0,dir:1,last:0};
+let perfT=0;
+function toggleAnim(){anim.running?stopAnim():startAnim();}
+function startAnim(){
+  sim.spring=false;
+  anim.running=true; anim.last=performance.now();
+  anim.u=state.thetaPct/100;
+  anim.dir=anim.u>0.5?-1:1;
+  const b=$("#btnAnim");
+  b.innerHTML="&#10074;&#10074; Hentikan"; b.classList.remove("pri"); b.classList.add("dgr");
+  requestAnimationFrame(tick);
+}
+function stopAnim(){
+  if(!anim.running) return;
+  anim.running=false;
+  const b=$("#btnAnim");
+  b.innerHTML="&#9654; Animasi Pompa"; b.classList.add("pri"); b.classList.remove("dgr");
+  render();
+}
+function tick(now){
+  if(!anim.running) return;
+  const dt=Math.min(0.06,(now-anim.last)/1000); anim.last=now; perfT=now;
+  const cyc=state.rpm/60/2;
+  anim.u+=anim.dir*dt*cyc;
+  if(anim.u>=1){anim.u=1; anim.dir=-1;}
+  if(anim.u<=0){anim.u=0; anim.dir=1;}
+  state.thetaPct=(0.5-0.5*Math.cos(Math.PI*anim.u))*100;
+  inputs.thetaPct.range.value=state.thetaPct;
+  inputs.thetaPct.num.value=fmt(state.thetaPct,0);
+  simUpdate(); render();
+  requestAnimationFrame(tick);
+}
+/* pegas retour: lepas tuas di luar zona over-center → spring terbuka */
+function springOpen(){
+  const u0=state.thetaPct/100;
+  if(u0>=0.999||sim.locked) return;
+  sim.spring=true;
+  const t0=performance.now(), dur=380+320*(1-u0);
+  (function step(now){
+    if(!sim.spring) return;
+    const k=clamp((now-t0)/dur,0,1), e2=1-Math.pow(1-k,3);
+    state.thetaPct=(u0+(1-u0)*e2)*100;
+    inputs.thetaPct.range.value=state.thetaPct;
+    inputs.thetaPct.num.value=fmt(state.thetaPct,0);
+    simUpdate(); render();
+    if(k<1) requestAnimationFrame(step);
+    else {sim.spring=false; simUpdate(); render();}
+  })(t0);
+}
+
+/* ============================================================================
+   RENDER PIPELINE
+   ============================================================================ */
+function rebuild(){
+  G=derive();
+  if(G.autoL2&&inputs.L2){
+    state.L2=G.autoL2;
+    inputs.L2.range.value=state.L2; inputs.L2.num.value=state.L2;
+  }
+  geo=computeGeo(G);
+  computeLayout();
+  applyPan();
+  svg.setAttribute("viewBox",`0 0 ${VIEW.w} ${VIEW.h}`);
+  updateTagScale();
+  buildStatic(); buildGeometry(); buildChart(); validate(G);
+  render(); saveCfg();
+}
+function onParamsChanged(){resetSim(); rebuild();}
+function render(){updateFrame();}
+
+/* ============================================================================
+   INTERAKSI SERET + PEGAS
+   ============================================================================ */
+(function panZoomSetup(){
+  /* v6 — interaksi ala dokumen PDF: seret DI MANA SAJA = pan (semua isi ikut,
+     termasuk label & HUD), roda mouse = zoom berpusat di kursor, dobel-klik = reset.
+     Tuas TIDAK lagi diseret di gambar — hanya lewat slider UI. */
+  let panning=false, pan0=null, panX0=0, panY0=0;
+  const toUser=ev=>{
+    const m=svg.getScreenCTM&&svg.getScreenCTM(); if(!m||!svg.createSVGPoint) return {x:0,y:0};
+    const pt=svg.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
+    return pt.matrixTransform(m.inverse());          // koordinat user viewBox (px svg)
+  };
+  svg.addEventListener("pointerdown",ev=>{
+    if(ev.button!==0) return;
+    panning=true; pan0=toUser(ev); panX0=state.panX; panY0=state.panY;
+    try{svg.setPointerCapture(ev.pointerId);}catch(e){}
+    svg.style.cursor="grabbing"; ev.preventDefault();
+  });
+  svg.addEventListener("pointermove",ev=>{
+    if(!panning||!pan0) return;
+    const p=toUser(ev);
+    state.panX=panX0+(p.x-pan0.x); state.panY=panY0+(p.y-pan0.y);
+    applyPan(); ev.preventDefault();
+  });
+  const end=()=>{
+    if(!panning) return;
+    panning=false; pan0=null; svg.style.cursor="";
+    saveCfg();
+  };
+  svg.addEventListener("pointerup",end);
+  svg.addEventListener("pointercancel",end);
+  svg.addEventListener("pointerleave",end);
+  /* roda mouse = zoom berpusat di posisi kursor (titik yg ditunjuk tetap di tempat) */
+  svg.addEventListener("wheel",ev=>{
+    ev.preventDefault();
+    const p=toUser(ev);
+    /* v7: zoom = scale pada worldG → SEMUA isi (garis, teks, label, HUD) ikut membesar.
+       titik konten di bawah kursor: c=(p-pan)/zoom ; pan baru agar c tetap di p */
+    const z=clamp(state.zoom*(ev.deltaY<0?1.15:1/1.15),0.4,4);
+    const c={x:(p.x-state.panX)/state.zoom, y:(p.y-state.panY)/state.zoom};
+    state.panX=p.x-z*c.x; state.panY=p.y-z*c.y; state.zoom=z;
+    applyPan(); updateTagScale();
+  },{passive:false});
+  svg.addEventListener("dblclick",ev=>{ev.preventDefault(); state.zoom=1; state.panX=0; state.panY=0; applyPan(); updateTagScale();});
+})();
+
+/* ============================================================================
+   PERSISTENSI
+   ============================================================================ */
+const LS_KEY="pompaSenapanAngin.v8";
+function saveCfg(){
+  try{
+    const o={}; PARAMS.forEach(p=>o[p.id]=state[p.id]);
+    o.thetaPct=state.thetaPct; o.zoom=state.zoom; o.panX=state.panX; o.panY=state.panY;
+    localStorage.setItem(LS_KEY,JSON.stringify(o));
+  }catch(e){}
+}
+function loadCfg(){
+  try{
+    const raw=localStorage.getItem(LS_KEY); if(!raw) return;
+    const o=JSON.parse(raw);
+    PARAMS.forEach(p=>{if(typeof o[p.id]==="number") state[p.id]=clamp(o[p.id],p.min,p.max);});
+    if(typeof o.thetaPct==="number") state.thetaPct=clamp(o.thetaPct,0,100);
+    if(typeof o.zoom==="number") state.zoom=clamp(o.zoom,.5,3);
+    if(typeof o.panX==="number") state.panX=clamp(o.panX,-2000,2000);
+    if(typeof o.panY==="number") state.panY=clamp(o.panY,-2000,2000);
+  }catch(e){}
+}
+
+/* ============================================================================
+   BOOTSTRAP
+   ============================================================================ */
+loadCfg();
+buildUI();
+PARAMS.forEach(p=>{inputs[p.id].range.value=state[p.id]; inputs[p.id].num.value=state[p.id];});
+inputs.thetaPct.range.value=state.thetaPct;
+inputs.thetaPct.num.value=fmt(state.thetaPct,1);
+rebuild();
+setInterval(()=>{if(!anim.running&&!sim.spring){perfT=performance.now(); updateFrame();}},70);
+setInterval(()=>{
+  const g=G,th=currentTheta()*R2D;
+  $("#hintTheta").textContent=
+    `θ = ${fmt(th,1)}° · zona kunci over-center 0…${fmt(g.oc*R2D,1)}° · r_c = ${fmt(g.rc,1)} mm · slot @ ${fmt(g.xSlot0,0)} mm · L₂ = ${fmt(g.L2,0)} mm`;
+},150);
+
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a37ac32f98c86d18',t:'MTc4ODgzNzA1MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
