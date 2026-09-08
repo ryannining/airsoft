@@ -191,7 +191,7 @@ footer{padding:13px 18px 22px;color:var(--dim);font-size:11px;font-family:var(--
             <option value="hpc">Kompresi Tinggi (d12 / L120)</option>
           </select>
           <div class="btn-row" style="margin-top:8px">
-            <button class="btn" id="btnExport">&#8681; Export JSON</button>
+            <button class="btn" id="btnExportJson">&#8681; Export JSON</button>
             <button class="btn" id="btnImport">&#8682; Import JSON</button>
           </div>
           <p class="hint" id="cfgHint">Konfigurasi tersimpan otomatis di browser (localStorage).</p>
@@ -211,6 +211,7 @@ footer{padding:13px 18px 22px;color:var(--dim);font-size:11px;font-family:var(--
           <button class="mini" id="btnZoomOut">&minus;</button>
           <button class="mini" id="btnZoomFit">FIT</button>
           <button class="mini" id="btnZoomIn">+</button>
+          <button class="mini" id="btnSvg" title="Ekspor tampilan saat ini ke file SVG yang bisa diedit: satu grup per jenis part, label & dimensi terpisah">&#10515; SVG</button>
         </div>
         <svg id="svg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet" tabindex="0"
              aria-label="Simulasi mekanisme tuas dan piston pompa senapan angin"></svg>
@@ -291,7 +292,7 @@ footer{padding:13px 18px 22px;color:var(--dim);font-size:11px;font-family:var(--
     </main>
   </div>
 
-  <footer>Seret di mana saja pada gambar = geser tampilan (pan) &middot; roda mouse = zoom di kursor &middot; dobel-klik = reset &middot; tuas diatur lewat slider &larr; &rarr; (Shift = halus) &middot; spasi = animasi &middot; semua koordinat joint dihitung ulang tiap frame dari &theta;</footer>
+  <footer>Seret di mana saja pada gambar = geser tampilan (pan) &middot; roda mouse = zoom di kursor &middot; dobel-klik = reset &middot; tuas diatur lewat slider &larr; &rarr; (Shift = halus) &middot; spasi = animasi &middot; tombol "&#10515; SVG" = ekspor tampilan saat ini (grup per part, label terpisah) &middot; semua koordinat joint dihitung ulang tiap frame dari &theta;</footer>
 </div>
 
 <script>
@@ -378,7 +379,7 @@ const PRESETS = {
   hpc:     {d:12, L:120, L2:160, rod:18, ha:30, oc:6, tho:180, llev:280, V0:0.4, Vt:45,  Patm:1.013, rpm:100}
 };
 
-const state = Object.assign({thetaPct:0, zoom:1, panX:0, panY:0}, PRESETS.std);
+const state = Object.assign({thetaPct:0, zoom:1, panX:0, panY:0, exportMm:true}, PRESETS.std);
 const view  = {dims:true, labels:true, ghost:true, trace:true};
 
 const sim = {tank:state.Patm, pumps:0, atTop:false, atBot:false,
@@ -535,7 +536,7 @@ function computeLayout(){
    ============================================================================ */
 const svg=$("#svg");
 const LAYER_NAMES=["ghost","reservoir","frame","tube","head","air","piston","rod","lever","pins","dim","labels"];
-const layers={}; LAYER_NAMES.forEach(n=>layers[n]=mk("g",{"data-layer":n}));
+const layers={}; LAYER_NAMES.forEach(n=>layers[n]=mk("g",{id:"grup-"+n,"data-layer":n}));  // v9: id grup per jenis part untuk ekspor yang mudah diedit
 let worldG=null;   // v6: grup dunia tempat semua layer bergantung → target transform pan
 function applyPan(){ if(worldG) worldG.setAttribute("transform",`translate(${state.panX} ${state.panY}) scale(${state.zoom})`); }
 function updateTagScale(){ const t=$("#tagScale"); if(t) t.textContent=`1 mm ≈ ${fmt(layout.K*state.zoom,2)} px · zoom ${fmt(state.zoom*100,0)}%`; }
@@ -1198,12 +1199,14 @@ function buildUI(){
       <label class="chk"><input type="checkbox" id="ckLabels" checked> Label komponen</label>
       <label class="chk"><input type="checkbox" id="ckGhost" checked> Siluet batas langkah</label>
       <label class="chk"><input type="checkbox" id="ckTrace" checked> Lintasan pin engkol</label>
+      <label class="chk"><input type="checkbox" id="ckExportMm" checked> Ekspor SVG 1:1 (satuan mm)</label>
     </div>
     <p class="hint" style="margin-top:9px">Tuas diatur hanya lewat <b>slider/angka</b> di atas (← → = halus, spasi = animasi, tombol "Lepas tuas" = uji pegas retour &amp; kunci over-center). Di gambar: <b>seret di mana saja = geser (pan)</b>, roda mouse = zoom di kursor, dobel-klik = reset — seperti dokumen PDF interaktif.</p>`;
   $("#ckDims").addEventListener("change",ev=>{view.dims=ev.target.checked; render();});
   $("#ckLabels").addEventListener("change",ev=>{view.labels=ev.target.checked; render();});
   $("#ckGhost").addEventListener("change",ev=>{view.ghost=ev.target.checked; if(el.P.ghost) el.P.ghost.setAttribute("opacity",view.ghost?".6":"0");});
   $("#ckTrace").addEventListener("change",ev=>{view.trace=ev.target.checked; if(el.P.traceArc) el.P.traceArc.setAttribute("opacity",view.trace?".5":"0");});
+  $("#ckExportMm").addEventListener("change",ev=>{state.exportMm=ev.target.checked; saveCfg();});
 
   $("#btnAnim").addEventListener("click",toggleAnim);
   $("#btnReset").addEventListener("click",()=>{resetSim(); render();});
@@ -1215,6 +1218,14 @@ function buildUI(){
   $("#btnZoomOut").addEventListener("click",()=>zoomAt(VIEW.w/2,VIEW.h/2,1/1.18));
   $("#btnZoomFit").addEventListener("click",()=>{state.zoom=1; state.panX=0; state.panY=0; applyPan(); updateTagScale();});
   $("#btnSpring").addEventListener("click",()=>{stopAnim(); springOpen();});
+  $("#btnSvg").addEventListener("click",()=>{
+    const str=exportSVG();
+    const blob=new Blob([str],{type:"image/svg+xml;charset=utf-8"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download=exportName();
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  });
   $("#presetSel").addEventListener("change",ev=>{
     const p=PRESETS[ev.target.value]; if(!p) return;
     Object.assign(state,p);
@@ -1222,7 +1233,7 @@ function buildUI(){
     resetSim(); onParamsChanged();
     flash(`Preset "${ev.target.selectedOptions[0].text}" dimuat.`);
   });
-  $("#btnExport").addEventListener("click",()=>{
+  $("#btnExportJson").addEventListener("click",()=>{
     const o={}; PARAMS.forEach(p=>o[p.id]=state[p.id]); o.thetaPct=state.thetaPct;
     const blob=new Blob([JSON.stringify(o,null,2)],{type:"application/json"});
     const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
@@ -1358,10 +1369,10 @@ function rebuild(){
   }
   geo=computeGeo(G);
   computeLayout();
-  applyPan();
   svg.setAttribute("viewBox",`0 0 ${VIEW.w} ${VIEW.h}`);
   updateTagScale();
   buildStatic(); buildGeometry(); buildChart(); validate(G);
+  applyPan();   // v9: SETELAH buildStatic (worldG dibuat di sana) agar pan/zoom tidak hilang saat rebuild
   render(); saveCfg();
 }
 function onParamsChanged(){resetSim(); rebuild();}
@@ -1415,13 +1426,152 @@ function render(){updateFrame();}
 })();
 
 /* ============================================================================
+   v9 — EKSPOR SVG (file berdiri sendiri, mudah diedit)
+   Dua mode (dipilih lewat checkbox "Ekspor SVG 1:1" di panel Tampilan):
+   • 1:1 (mm) — default. Ukuran SEBENARNYA: 1 satuan SVG = 1 mm. Kunci pengukuran
+     di CAD/Inkscape (atur unit dokumen → mm, lalu ukur langsung). Tidak memakai
+     pan/zoom; posisi saat ini (θ) tetap diekspor. Koordinat shape berada dalam
+     satuan mm (sumbu Y dunia: + ke atas → ditangani viewBox).
+   • fit (px) — versi lama: mengikuti tampilan layar (pan/zoom + fitting ke
+     viewBox 0..1000 × 0..560), koordinat dalam piksel tampilan.
+   Struktur bersama (kedua mode):
+   • SATU <g id="grup-*"> per jenis part (ghost, reservoir, frame, tube, head,
+     air, piston, rod, lever, pins) yang hanya berisi SHAPE/geometri bagian.
+   • SEMUA teks/label dikumpulkan di <g id="grup-labels">, dimensi & busur sudut
+     di <g id="grup-dim"> — keduanya terpisah dari shape.
+   • Semua var(--…) CSS di-resolve ke nilai literal agar SVG tetap mandiri.
+   ============================================================================ */
+const FONT_MONO_EXPORT="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace";
+/* nilai variabel :root → di-resolve saat ekspor (SVG mandiri) */
+const CSS_VARS={
+  "--mono":FONT_MONO_EXPORT,
+  "--bg":"#070a10","--panel":"#101825","--panel2":"#151f2e","--line":"#1f2c3f","--line2":"#2b3d57",
+  "--text":"#e7eef8","--muted":"#8fa2bd","--dim":"#61748f","--acc":"#4fd1c5","--acc2":"#63b3ed",
+  "--warn":"#f6ad55","--bad":"#fc8181","--good":"#68d391"
+};
+/* judul tiap grup → ditulis sebagai <title> + komentar agar mudah dinavigasi di editor */
+const GROUP_TITLES={
+  ghost:"Siluet posisi langkah 0%/100% + lintasan pin C",
+  reservoir:"Tabung reservoir udara + manometer",
+  frame:"Rangka & dudukan pivot",
+  tube:"Tabung pompa (bore terseal + channel slot)",
+  head:"Kepala silinder + katup buang & transfer",
+  air:"Udara terkompresi / partikel",
+  piston:"Piston + seal + batang piston (rod)",
+  rod:"Batang penghubung L₂",
+  lever:"Tuas pompa (handle + siku / + pin engkol C)",
+  pins:"Pin pivot O · pin engkol C · pin ujung batang B",
+  dim:"Dimensi & busur sudut",
+  labels:"Label komponen"
+};
+function resolveCSSVars(str){
+  return str.replace(/var\(\s*(--[a-zA-Z0-9-]+)\s*(?:,\s*([^)]*))?\)/g,(m,name,fb)=>{
+    return (name in CSS_VARS) ? CSS_VARS[name] : (fb ? fb.trim() : m);
+  });
+}
+/* bagian persiapan bersama: clone, hapus latar grid px, <title> + komentar tiap grup,
+   dan pindahkan SEMUA <text> ke grup "labels" (pisahkan label dari shape). */
+function prepareExportBase(){
+  const clone=svg.cloneNode(true);
+  clone.removeAttribute("tabindex");
+  /* buang latar grid px (rect luar worldG, fill=url(#gridBg)) — diganti per mode */
+  clone.querySelectorAll('rect[fill="url(#gridBg)"]').forEach(r=>{ if(r.parentNode) r.parentNode.removeChild(r); });
+  /* tiap grup per part: <title> untuk tooltip/nama layer + komentar navigasi */
+  clone.querySelectorAll("g[data-layer]").forEach(gL=>{
+    const layer=gL.getAttribute("data-layer");
+    const t=mk("title");
+    t.textContent=GROUP_TITLES[layer]||("grup "+layer);
+    gL.insertBefore(t,gL.firstChild);
+    gL.insertBefore(gL.ownerDocument.createComment(" ── grup per part: "+layer+" · "+(GROUP_TITLES[layer]||"")+" ── "), gL.firstChild);
+  });
+  /* PISAHKAN LABEL DARI SHAPE: pindahkan SEMUA <text> yang masih berada di grup shape
+     (mis. unit "bar" di manometer, badge "OVER-CENTER") ke grup "labels" supaya label &
+     shape benar-benar terpisah dan mudah di-toggle/dipindah di editor. Koordinat teks
+     sudah absolut (px viewBox) dan grup asal tak bertransformasi, jadi posisinya tidak
+     berubah; opacity grup induk dipertahankan. */
+  const labG=clone.querySelector('g[data-layer="labels"]');
+  if(labG){
+    clone.querySelectorAll("text").forEach(t=>{
+      let a=t.parentNode, layer=null, op=null;
+      while(a&&a!==clone&&a.getAttribute){
+        const dl=a.getAttribute("data-layer");
+        if(dl){ layer=dl; break; }
+        const ao=a.getAttribute("opacity");
+        if(ao!==null&&ao!==undefined&&op===null) op=ao;
+        a=a.parentNode;
+      }
+      if(layer&&layer!=="labels"&&layer!=="dim"){
+        if(op!==null) t.setAttribute("opacity",op);   // pertahankan visibilitas badge/teks
+        labG.appendChild(t);                          // re-parent (koordinat absolut → posisi tetap)
+      }
+    });
+  }
+  return clone;
+}
+function exportHead(mode,note){
+  const th=(G.thMax*state.thetaPct/100)*R2D;
+  let s=`<?xml version="1.0" encoding="UTF-8"?>\n`
+   +`<!-- Diekspor dari Simulator Pompa Senapan Angin · θ=${fmt(th,1)}° · BUKA TEMPLATE INI DI CAD/Inkscape\n`
+   +`     =============== MOde: ${mode} ===============\n`
+   +`     STRUKTUR — SATU <g id="grup-*"> PER BAGIAN (title = nama bagian), hanya berisi SHAPE:\n`
+   +`     grup-{ghost|reservoir|frame|tube|head|air|piston|rod|lever|pins}.\n`
+   +`     SEMUA teks/label dikumpulkan di <g id="grup-labels"> (label komponen + teks manometer + badge),\n`
+   +`     dimensi & busur sudut di <g id="grup-dim"> — keduanya terpisah dari shape, bisa di-toggle/hapus.\n`
+   +`     ${note} -->\n`;
+  return s;
+}
+/* MODE 1:1 mm — 1 satuan SVG = 1 mm (ukuran sebenarnya). */
+function exportSVGmm(){
+  const K=layout.K, OX=layout.OX, OY=layout.OY, box=layout.box;
+  const clone=prepareExportBase();
+  if(K>0){
+    const s=1/K;                        // px→mm : hilangkan skala fit (layout.K)
+    /* matriks pemulih mm → shape menjadi koordinat dunia (mm), sumbu Y dunia + ke atas.
+       Rumus: world(x,y) dirender di px = (OX+x·K, OY−y·K). Inversnya → (X, −Y) = mm. */
+    const wg=clone.querySelector('g[id="worldG"]');
+    if(wg) wg.setAttribute("transform", `matrix(${fmt(s,7)} 0 0 ${fmt(s,7)} ${fmt(-OX/K,7)} ${fmt(-OY/K,7)})`);
+  }
+  const W=box.x1-box.x0, H=box.y1-box.y0;
+  /* latar mm (ruang root = mm) — menggantikan latar px yang tadi dibuang */
+  clone.insertBefore(mk("rect",{x:fmt(box.x0,3),y:fmt(-box.y1,3),width:fmt(W,3),height:fmt(H,3),fill:"#0a111b"}), clone.firstChild);
+  clone.setAttribute("width", fmt(W,3)+"mm");
+  clone.setAttribute("height", fmt(H,3)+"mm");
+  clone.setAttribute("viewBox", `${fmt(box.x0,3)} ${fmt(-box.y1,3)} ${fmt(W,3)} ${fmt(H,3)}`);
+  clone.setAttribute("preserveAspectRatio","xMidYMid meet");
+  let str=resolveCSSVars(new XMLSerializer().serializeToString(clone));
+  return exportHead("1:1 (mm)",
+    `     UKURAN SEBENARNYA — 1 satuan SVG = 1 mm; lebar ${fmt(W,1)} mm × tinggi ${fmt(H,1)} mm.\n`
+   +`     Atur unit dokumen → mm lalu ukur langkah L, diameter d, dll. langsung.\n`
+   +`     Mode ini TIDAK memakai pan/zoom layar; yang diekspor posisi saat ini.`)+str;
+}
+/* MODE FIT (px) — mengikuti tampilan layar + pan/zoom (perilaku lama). */
+function exportSVGpx(){
+  const clone=prepareExportBase();
+  clone.insertBefore(mk("rect",{x:0,y:0,width:VIEW.w,height:VIEW.h,fill:"#0a111b"}), clone.firstChild);
+  clone.setAttribute("width",String(VIEW.w));
+  clone.setAttribute("height",String(VIEW.h));
+  let str=resolveCSSVars(new XMLSerializer().serializeToString(clone));
+  return exportHead("fit (px)",
+    `     Transform pan/zoom tampilan ada di <g id="worldG">; hapus atribut transform-nya\n`
+   +`     untuk tampilan fit murni (koordinat shape tetap 0..1000 × 0..560 piksel).`)+str;
+}
+function exportSVG(){
+  return state.exportMm ? exportSVGmm() : exportSVGpx();
+}
+function exportName(){
+  const th=(G.thMax*state.thetaPct/100)*R2D;
+  const suffix=state.exportMm ? `_1-1mm` : `_zoom-${fmt(state.zoom*100,0)}`;
+  return `pompa-senapan-angin_theta-${fmt(th,0)}deg${suffix}.svg`;
+}
+
+/* ============================================================================
    PERSISTENSI
    ============================================================================ */
 const LS_KEY="pompaSenapanAngin.v8";
 function saveCfg(){
   try{
     const o={}; PARAMS.forEach(p=>o[p.id]=state[p.id]);
-    o.thetaPct=state.thetaPct; o.zoom=state.zoom; o.panX=state.panX; o.panY=state.panY;
+    o.thetaPct=state.thetaPct; o.zoom=state.zoom; o.panX=state.panX; o.panY=state.panY; o.exportMm=state.exportMm;
     localStorage.setItem(LS_KEY,JSON.stringify(o));
   }catch(e){}
 }
@@ -1434,6 +1584,7 @@ function loadCfg(){
     if(typeof o.zoom==="number") state.zoom=clamp(o.zoom,.5,3);
     if(typeof o.panX==="number") state.panX=clamp(o.panX,-2000,2000);
     if(typeof o.panY==="number") state.panY=clamp(o.panY,-2000,2000);
+    if(typeof o.exportMm==="boolean") state.exportMm=o.exportMm;
   }catch(e){}
 }
 
@@ -1454,5 +1605,6 @@ setInterval(()=>{
 },150);
 
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a37ac32f98c86d18',t:'MTc4ODgzNzA1MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html> 
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a37c7412ecffea82',t:'MTc4ODg1NDc4MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+ 
