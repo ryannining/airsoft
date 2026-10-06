@@ -4240,6 +4240,14 @@ window.STANDALONE = true;
     });
   }
 
+  // posisi section default = 10 mm pada sumbu Z (bbox dunia, terpusat di 0)
+  function defaultSecT() {
+    if (!modelBox) return 0.5;
+    const span = modelBox.max.z - modelBox.min.z;
+    if (!(span > 1e-6)) return 0.5;
+    return clamp((10 - modelBox.min.z) / span, 0, 1);
+  }
+
   // nilai bidang dihitung ulang in-place dari sumbu + slider (world space)
   function secRefreshPlane() {
     if (!modelBox) return;
@@ -5440,6 +5448,8 @@ window.STANDALONE = true;
     orientGroup.add(object);
     applyOrientation();
     placeOnGround();
+    // default posisi section: 10 mm pada sumbu Z (kecuali ada setelan tersimpan)
+    if (!(settingsLoaded && settingsLoaded.section)) sec.t = defaultSecT();
 
     buildOutlines();
 
@@ -5811,7 +5821,7 @@ window.STANDALONE = true;
       keyLight: parseFloat(el.keyLevel.value) / 100,
       ambient: parseFloat(el.ambLevel.value) / 100,
       hidden: Object.keys(hiddenObjs),
-      section: { axis: sec.axis, dir: sec.dir, t: sec.t, objs: Object.keys(secObjs) }
+      section: { axis: sec.axis, dir: sec.dir, objs: Object.keys(secObjs) }
     };
   }
 
@@ -5864,7 +5874,7 @@ window.STANDALONE = true;
     if (st.section) {
       sec.axis = 2;
       sec.dir = st.section.dir < 0 ? -1 : 1;
-      sec.t = clamp(typeof st.section.t === 'number' ? st.section.t : 0.1, 0, 1);
+      sec.t = defaultSecT();              // posisi TIDAK disimpan -> selalu 10 mm saat refresh
       (st.section.objs || []).forEach(function (n) { secObjs[n] = true; });
       secRebuild();
     }
