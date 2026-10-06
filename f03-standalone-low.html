@@ -31,9 +31,8 @@
     canvas{ display:block; }
     button,input{ font-family:inherit; }
 
-    /* ---------- HUD kiri atas ---------- */
+    /* ---------- HUD kiri atas (di bawah judul) ---------- */
     #hud{
-      position:absolute; top:12px; left:12px; z-index:3;
       background:var(--panel); border:1px solid var(--line); border-radius:10px;
       padding:12px 14px; font-size:12px; line-height:1.55;
       -webkit-backdrop-filter:blur(7px); backdrop-filter:blur(7px);
@@ -50,13 +49,6 @@
       cursor:pointer; vertical-align:middle;
     }
     #hud h1 #btnHudMin:hover{ color:#fff; }
-    #hud h1 #btnLang{
-      float:right; background:var(--accent); border:0; color:#04101f;
-      border-radius:12px; padding:1px 10px; margin-left:6px;
-      font-size:11px; font-weight:700; letter-spacing:.03em; cursor:pointer;
-      box-shadow:0 2px 8px rgba(77,163,255,.35);
-    }
-    #hud h1 #btnLang:hover{ filter:brightness(1.12); }
     #hud .stats{ color:var(--muted); }
     #hud .dims{ color:var(--muted); font-variant-numeric:tabular-nums; }
     #hud .btns{ display:flex; gap:6px; margin:10px 0 8px; flex-wrap:wrap; }
@@ -96,16 +88,30 @@
              background:rgba(255,180,60,.10); border:1px solid rgba(255,180,60,.35); color:#ffcf8f; }
     #notice.show{ display:block; }
 
-    /* ---------- Judul utama ---------- */
-    #pageTitle{
-      position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:2;
-      text-align:center; pointer-events:none; user-select:none;
-      background:var(--panel); border:1px solid var(--line); border-radius:10px;
-      padding:8px 18px 9px; max-width:min(72vw, 560px);
-      -webkit-backdrop-filter:blur(7px); backdrop-filter:blur(7px);
+    /* ---------- Judul + panel settings (kolom kiri atas) ---------- */
+    #topLeft{
+      position:absolute; top:12px; left:12px; z-index:3;
+      display:flex; flex-direction:column; align-items:flex-start; gap:8px;
+      max-width:calc(100vw - 24px);
     }
-    #pageTitle b{ display:block; font-size:14.5px; letter-spacing:.02em; color:#fff; }
-    #pageTitle span{ display:block; margin-top:2px; font-size:10.5px; color:var(--muted); }
+    #pageTitle{
+      display:flex; align-items:center; gap:10px;
+      background:var(--panel); border:1px solid var(--line); border-radius:10px;
+      padding:8px 14px; max-width:calc(100vw - 150px);
+      -webkit-backdrop-filter:blur(7px); backdrop-filter:blur(7px);
+      user-select:none;
+    }
+    #pageTitle b{
+      font-size:14.5px; letter-spacing:.02em; color:#fff;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    #btnLang{
+      flex:none; background:var(--accent); border:0; color:#04101f;
+      border-radius:12px; padding:2px 10px; font-size:11px; font-weight:700;
+      letter-spacing:.03em; cursor:pointer;
+      box-shadow:0 2px 8px rgba(77,163,255,.35);
+    }
+    #btnLang:hover{ filter:brightness(1.12); }
     /* tombol link melayang (selalu terlihat): YouTube · WhatsApp · Shopee */
     #links{
       position:absolute; top:12px; right:12px; z-index:3;
@@ -128,9 +134,9 @@
       .extBtn{ padding:8px 12px; font-size:12px; }
     }
     @media (max-width:640px){
-      /* layar sempit: judul pindah ke bawah supaya tidak menabrak HUD kiri atas */
-      #pageTitle{ top:auto; bottom:12px; padding:6px 12px 7px; }
-      #pageTitle b{ font-size:12.5px; }
+      #topLeft{ top:10px; left:10px; gap:6px; }
+      #pageTitle{ padding:7px 10px; max-width:calc(100vw - 128px); }
+      #pageTitle b{ font-size:12px; }
     }
 
     /* ---------- Panel hirarki objek ---------- */
@@ -314,9 +320,9 @@
 
     /* ---------- Transport bar: chips + timeline (bottom-center) ---------- */
     #transportBar{
-      position:absolute; left:50%; bottom:12px; transform:translateX(-50%);
+      position:absolute; left:50%; bottom:6px; transform:translateX(-50%);
       z-index:4; display:none;
-      width:min(720px, calc(100vw - 24px));
+      width:min(720px, calc(100vw - 12px));
       background:var(--panel); border:1px solid var(--line); border-radius:12px;
       padding:8px 12px 10px;
       -webkit-backdrop-filter:blur(7px); backdrop-filter:blur(7px);
@@ -375,11 +381,6 @@
       position:absolute; top:0; bottom:0; left:0%; width:2px;
       background:var(--accent); transform:translateX(-1px);
     }
-    #timelineLabels{ position:relative; height:14px; margin-top:2px; }
-    #timelineLabels .tl{
-      position:absolute; top:0; font-size:9px; color:var(--dim);
-      transform:translateX(-50%); white-space:nowrap; pointer-events:none;
-    }
 
     /* ---------- Overlay teks step @t,T ---------- */
     #textOverlay{
@@ -420,7 +421,7 @@
     @media (max-width:640px){
       body.editor-on #hud{ left:12px; }         /* drawer overlay penuh di layar sempit */
       #scriptPane{ width:min(340px,88vw); z-index:7; }
-      #transportBar{ bottom:64px; padding:7px 9px 9px; }
+      #transportBar{ bottom:6px; padding:7px 9px 9px; }
       #textOverlay{ top:11%; font-size:14px; }
       #actionList{ max-height:60px; }
       #status{ display:none; }
@@ -3279,8 +3280,13 @@
 </head>
 <body>
 
+  <div id="topLeft">
+    <div id="pageTitle">
+      <b>F03-Airsoft</b>
+      <button id="btnLang" title="English / Bahasa Indonesia">🌐 ID</button>
+    </div>
   <div id="hud" class="min">
-    <h1><button id="btnHudMin" title="BESARKAN panel setting">▸</button>F03 · OBJ Viewer<button id="btnLang" title="English / Bahasa Indonesia">🌐 ID</button></h1>
+    <h1><button id="btnHudMin" title="BESARKAN panel setting">▸</button><span id="hudTitle">Settings</span></h1>
     <div class="stats" id="stats">Memuat model…</div>
     <div class="dims" id="dims"></div>
     <div class="btns">
@@ -3354,6 +3360,7 @@
     </p>
     <button id="btnReset" title="Hapus setelan tersimpan & kembali ke default">⟲ Reset setelan</button>
   </div>
+  </div>
 
   <aside id="parts">
     <header>
@@ -3386,11 +3393,6 @@
       <div id="svgInfo"></div>
     </div>
   </aside>
-
-  <div id="pageTitle">
-    <b>F03 · Multi-Pump 6mm BB Blaster</b>
-    <span>DIY 3D-print · 8 grup · 67 part · interactive assembly viewer</span>
-  </div>
 
   <div id="links">
     <a class="extBtn" id="ytBtn" href="https://www.youtube.com/@ryanwidisaputra6784" target="_blank" rel="noopener" title="Kanal YouTube — cara kerja &amp; perbaikan">▶ YouTube</a>
@@ -3427,7 +3429,6 @@
       <div id="timelineProgress"></div>
       <div id="timelineCursor"></div>
     </div>
-    <div id="timelineLabels"></div>
   </div>
 
   <!-- ==== Overlay teks (step @t,T,teks) ==== -->
@@ -3671,7 +3672,7 @@ window.STANDALONE = true;
   // =========================================================
   const I18N = {
     en: {
-      langTitle: 'English / Bahasa Indonesia', langBtn: 'ID',
+      langTitle: 'English / Bahasa Indonesia', langBtn: 'ID', hudTitle: 'Settings',
       hudMinTitle: 'Expand settings panel', statsLoading: 'Loading model…',
       fit: '⤢ Fit', fitTitle: 'Reframe model (F)',
       grid: '▦ Grid', gridTitle: 'Grid plane (G)',
@@ -3720,7 +3721,7 @@ window.STANDALONE = true;
       dims: 'Length <b>{x}</b> × Width <b>{z}</b> × Height <b>{y}</b> mm<br>Grid base {step} mm/div · radius {r} mm'
     },
     id: {
-      langTitle: 'English / Bahasa Indonesia', langBtn: 'EN',
+      langTitle: 'English / Bahasa Indonesia', langBtn: 'EN', hudTitle: 'Pengaturan',
       hudMinTitle: 'BESARKAN panel setting', statsLoading: 'Memuat model…',
       fit: '⤢ Fit', fitTitle: 'Frame ulang model (F)',
       grid: '▦ Grid', gridTitle: 'Grid plane (G)',
@@ -3832,7 +3833,7 @@ window.STANDALONE = true;
     setTitle('#btnSecFlip', 'secFlipTitle');
     setText('#btnSecResetAll', 'secResetAll'); setTitle('#btnSecResetAll', 'secResetAllTitle');
     setHtml('.note', 'noteHtml');
-    setHtml('#pageTitle span', 'pageSubtitle');
+    setText('#hudTitle', 'hudTitle');
     setHtml('#overlay .box > div:first-child', 'loadingHtml');
     setTitle('#ytBtn', 'ytTitle'); setTitle('#waBtn', 'waTitle'); setTitle('#shopeeBtn', 'shopeeTitle');
     setText('#btnPause', 'pause'); setTitle('#btnPause', 'pauseTitle');
