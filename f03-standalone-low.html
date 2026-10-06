@@ -67,9 +67,9 @@
       background:#14171c; border:1px solid var(--line); border-radius:4px;
       padding:0 4px; font-size:10px; font-family:ui-monospace,monospace;
     }
-    #specRow, #edgeRow, #gradRow, #cavWRow, #bgRow, #keyRow, #ambRow, #expRow{ display:none; align-items:center; gap:8px; margin:2px 0 6px; color:var(--muted); font-size:11px; }
-    #specRow.show, #edgeRow.show, #gradRow.show, #cavWRow.show, #bgRow.show, #keyRow.show, #ambRow.show, #expRow.show{ display:flex; }
-    #expRow input[type=range]{ flex:1; min-width:0; accent-color:var(--accent); }
+    #specRow, #edgeRow, #gradRow, #cavWRow, #bgRow, #keyRow, #ambRow, #expRow, #secPosRow{ display:none; align-items:center; gap:8px; margin:2px 0 6px; color:var(--muted); font-size:11px; }
+    #specRow.show, #edgeRow.show, #gradRow.show, #cavWRow.show, #bgRow.show, #keyRow.show, #ambRow.show, #expRow.show, #secPosRow.show{ display:flex; }
+    #expRow input[type=range], #secPosRow input[type=range]{ flex:1; min-width:0; accent-color:var(--accent); }
     #expVal{ min-width:30px; text-align:right; font-variant-numeric:tabular-nums; }
     #btnReset{ width:100%; margin-top:9px; background:#14171c; color:var(--dim); border:1px solid var(--line);
                border-radius:6px; padding:4px 8px; font-size:10.5px; cursor:pointer; }
@@ -3328,6 +3328,11 @@
     <div class="btns" style="margin-top:8px">
       <button id="btnSecMaster" title="Aktif/matikan SEMUA section cut sekaligus (praktis saat mode explode)">✂ Section: OFF</button>
     </div>
+    <div id="secPosRow">
+      <span title="Posisi bidang section (sumbu Z, mm)">Section</span>
+      <input id="secPos" type="range" min="0" max="100" step="0.1" value="10">
+      <span id="secVal">—</span>
+    </div>
     <div id="expRow" class="show">
       <span>Explode</span>
       <input id="expLevel" type="range" min="0" max="100" step="1" value="0">
@@ -3365,11 +3370,6 @@
           <button id="btnSecFlip" disabled title="Balik sisi yang dibuang (⇄)">⇄</button>
         </div>
         <div id="secRow">
-          <div class="srow">
-            <span class="slbl">Posisi</span>
-            <input id="secPos" type="range" min="0" max="100" step="0.1" value="10">
-            <span id="secVal">—</span>
-          </div>
           <div class="srow">
             <button id="btnSecResetAll" title="Matikan section pada SEMUA objek sekaligus">⟲ Reset semua section: OFF</button>
           </div>
@@ -3616,6 +3616,7 @@ window.STANDALONE = true;
     btnSection: document.getElementById('btnSection'),
     btnSecFlip: document.getElementById('btnSecFlip'),
     secRow: document.getElementById('secRow'),
+    secPosRow: document.getElementById('secPosRow'),
     secPos: document.getElementById('secPos'),
     btnSecResetAll: document.getElementById('btnSecResetAll'),
     secVal: document.getElementById('secVal'),
@@ -4488,6 +4489,7 @@ window.STANDALONE = true;
     el.btnSection.style.borderColor = selOn ? 'var(--accent)' : '';
     const any = Object.keys(secObjs).length > 0;
     el.secRow.style.display = (any && secEnabled) ? 'block' : 'none';
+    el.secPosRow.classList.toggle('show', !!(any && secEnabled));
     el.btnSecFlip.disabled = !any || !secEnabled;
     el.secPos.value = (sec.t * 100).toFixed(1);
     if (any) secRefreshPlane();
