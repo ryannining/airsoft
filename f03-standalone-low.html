@@ -3258,13 +3258,13 @@
     </div>
     <div id="keyRow" class="show">
       <span>Cahaya utama</span>
-      <input id="keyLevel" type="range" min="0" max="220" step="5" value="105">
-      <span id="keyVal">1.05</span>
+      <input id="keyLevel" type="range" min="0" max="220" step="5" value="110">
+      <span id="keyVal">1.10</span>
     </div>
     <div id="ambRow" class="show">
       <span>Ambient</span>
-      <input id="ambLevel" type="range" min="0" max="120" step="5" value="30">
-      <span id="ambVal">0.30</span>
+      <input id="ambLevel" type="range" min="0" max="120" step="5" value="40">
+      <span id="ambVal">0.40</span>
     </div>
     <div id="bgRow" class="show">
       <span>Latar</span>
@@ -3281,8 +3281,8 @@
     </div>
     <div id="specRow" class="show">
       <span>Kilau</span>
-      <input id="specLevel" type="range" min="0" max="100" step="5" value="50">
-      <span id="specVal">50%</span>
+      <input id="specLevel" type="range" min="0" max="100" step="5" value="5">
+      <span id="specVal">5%</span>
     </div>
     <div id="gradRow">
       <span title="Kekuatan efek cavity">Cavity</span>
@@ -3296,9 +3296,8 @@
       <span id="cavWVal">30%</span>
     </div>
     <div id="notice"></div>
-    <label><input type="checkbox" id="chkAuto" checked> Auto-orientasi (Z-up → Y-up)</label>
     <div class="btns" style="margin-top:8px">
-      <button id="btnSecMaster" title="Aktif/matikan SEMUA section cut sekaligus (praktis saat mode explode)">✂ Section: ON</button>
+      <button id="btnSecMaster" title="Aktif/matikan SEMUA section cut sekaligus (praktis saat mode explode)">✂ Section: OFF</button>
     </div>
     <div id="expRow" class="show">
       <span>Explode</span>
@@ -3338,17 +3337,9 @@
         </div>
         <div id="secRow">
           <div class="srow">
-            <span class="slbl">Sumbu</span>
-            <select id="secAxis">
-              <option value="0">X</option>
-              <option value="1">Y</option>
-              <option value="2" selected>Z</option>
-            </select>
-            <span id="secVal">—</span>
-          </div>
-          <div class="srow">
             <span class="slbl">Posisi</span>
-            <input id="secPos" type="range" min="0" max="100" step="0.1" value="50">
+            <input id="secPos" type="range" min="0" max="100" step="0.1" value="10">
+            <span id="secVal">—</span>
           </div>
           <div class="srow">
             <button id="btnSecResetAll" title="Matikan section pada SEMUA objek sekaligus">⟲ Reset semua section: OFF</button>
@@ -3484,11 +3475,11 @@ window.STANDALONE = true;
   // =========================================================
   // Ambient/hemisphere ditekan supaya bentuk & gradasi lebih terbaca
   // (cahaya rata berlebihan bikin objek terlihat flat).
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.30);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.40);
   scene.add(ambientLight);
   scene.add(new THREE.HemisphereLight(0xffffff, 0x1c2026, 0.38));
 
-  const keyLight = new THREE.DirectionalLight(0xffffff, 1.05);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.10);
   keyLight.position.set(1, 1.5, 0.9);
   scene.add(keyLight);
 
@@ -3575,7 +3566,6 @@ window.STANDALONE = true;
     btnCam: document.getElementById('btnCam'),
     btnToon: document.getElementById('btnToon'),
     btnParts: document.getElementById('btnParts'),
-    chkAuto: document.getElementById('chkAuto'),
     expLevel: document.getElementById('expLevel'),
     expVal: document.getElementById('expVal'),
     keyRow: document.getElementById('keyRow'),
@@ -3591,7 +3581,6 @@ window.STANDALONE = true;
     btnSection: document.getElementById('btnSection'),
     btnSecFlip: document.getElementById('btnSecFlip'),
     secRow: document.getElementById('secRow'),
-    secAxis: document.getElementById('secAxis'),
     secPos: document.getElementById('secPos'),
     btnSecResetAll: document.getElementById('btnSecResetAll'),
     secVal: document.getElementById('secVal'),
@@ -3718,7 +3707,7 @@ window.STANDALONE = true;
   const hlCache = new Map();
 
   // --- kilau (specular) untuk semua material; warna gelap dapat lebih kuat ---
-  const specCtl = { level: 0.5 };          // 0..1 dari slider "Kilau"
+  const specCtl = { level: 0.05 };         // 0..1 dari slider "Kilau"
   const specShininess = function () { return 22 + specCtl.level * 78; };
   // boost per material: makin gelap makin kuat supaya tidak flat
   function specBoostOf(mat) {
@@ -4220,11 +4209,11 @@ window.STANDALONE = true;
   //     1 geometri stencil (snapshot world space), +1 cap. Rebuild dipanggil
   //     saat visibility/orientasi berubah (geometri gabungan ikut berubah).
   // axis default Z (sesuai tampilan sumbu di grid, hasil uji)
-  const sec = { axis: 2, dir: 1, t: 0.5, darken: 0.72 };
+  const sec = { axis: 2, dir: 1, t: 0.1, darken: 0.72 };
   // section PER OBJEK: kunci = uid unik (part-0, part-1, …) — BUKAN nama,
   // karena banyak objek di f03.obj namanya sama.
   const secObjs = {};
-  let secEnabled = true;               // master switch: matikan SEMUA section cut
+  let secEnabled = false;              // master switch: matikan SEMUA section cut
   function secKey(p) { return p.userData.uid || p.name; }
 
   const secPlane = new THREE.Plane();
@@ -4458,7 +4447,6 @@ window.STANDALONE = true;
     el.secRow.style.display = (any && secEnabled) ? 'block' : 'none';
     el.btnSecFlip.disabled = !any || !secEnabled;
     el.secPos.value = (sec.t * 100).toFixed(1);
-    el.secAxis.value = String(sec.axis);
     if (any) secRefreshPlane();
   }
 
@@ -4551,14 +4539,16 @@ window.STANDALONE = true;
       el.bgSel.value = settingsLoaded.bg;
       setBackground(settingsLoaded.bg);
     } else {
-      setBackground('black');
+      el.bgSel.value = 'studio';
+      setBackground('studio');
     }
     if (settingsLoaded.keyLight != null) el.keyLevel.value = Math.round(settingsLoaded.keyLight * 100);
     if (settingsLoaded.ambient != null) el.ambLevel.value = Math.round(settingsLoaded.ambient * 100);
     if (settingsLoaded.grad) { el.gradSteps.value = settingsLoaded.grad; }
     if (settingsLoaded.spec != null) el.specLevel.value = Math.round(settingsLoaded.spec * 100);
   } else {
-    setBackground('black');
+    el.bgSel.value = 'studio';
+    setBackground('studio');
   }
   el.specVal.textContent = el.specLevel.value + '%';
   el.gradVal.textContent = el.gradSteps.value;
@@ -5447,10 +5437,6 @@ window.STANDALONE = true;
     rebuildCavityNormals();
 
     axesInfo = detectAxes(rawBox.getSize(new THREE.Vector3()));
-    if (settingsLoaded && settingsLoaded.autoOrient === false) {
-      autoOrient = false;
-      el.chkAuto.checked = false;
-    }
     orientGroup.add(object);
     applyOrientation();
     placeOnGround();
@@ -5845,7 +5831,7 @@ window.STANDALONE = true;
   function applySettingsAfterLoad(st, afterFit) {
     restoring = true;
 
-    specCtl.level = clamp(st.spec == null ? 0.5 : st.spec, 0, 1);
+    specCtl.level = clamp(st.spec == null ? 0.05 : st.spec, 0, 1);
     el.specLevel.value = Math.round(specCtl.level * 100);
 
     const grad = st.grad == null ? 70 : st.grad;
@@ -5876,9 +5862,9 @@ window.STANDALONE = true;
     updateVisibleUI();
 
     if (st.section) {
-      sec.axis = [0, 1, 2].indexOf(st.section.axis) >= 0 ? st.section.axis : 2;
+      sec.axis = 2;
       sec.dir = st.section.dir < 0 ? -1 : 1;
-      sec.t = clamp(typeof st.section.t === 'number' ? st.section.t : 0.5, 0, 1);
+      sec.t = clamp(typeof st.section.t === 'number' ? st.section.t : 0.1, 0, 1);
       (st.section.objs || []).forEach(function (n) { secObjs[n] = true; });
       secRebuild();
     }
@@ -6006,28 +5992,10 @@ window.STANDALONE = true;
     secUpdate();
     persist();
   });
-  el.secAxis.addEventListener('change', function () {
-    sec.axis = parseInt(el.secAxis.value, 10) || 0;
-    secRefreshPlane();
-    secUpdate();
-    persist();
-  });
   el.secPos.addEventListener('input', function () {
     sec.t = clamp(parseFloat(el.secPos.value) / 100, 0, 1);
     secRefreshPlane();
     secUpdate();
-    persist();
-  });
-
-  el.chkAuto.addEventListener('change', function () {
-    if (!axesInfo) return;
-    autoOrient = el.chkAuto.checked;
-    applyOrientation();
-    placeOnGround();
-    secRebuild();                         // orientasi berubah -> geometri stencil (world space) usang
-    buildGrid();
-    updateSelBox();
-    fitView(ISO_DIR);
     persist();
   });
 
