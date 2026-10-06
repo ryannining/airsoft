@@ -98,6 +98,27 @@
     }
     #pageTitle b{ display:block; font-size:14.5px; letter-spacing:.02em; color:#fff; }
     #pageTitle span{ display:block; margin-top:2px; font-size:10.5px; color:var(--muted); }
+    /* tombol link melayang (selalu terlihat): YouTube · WhatsApp · Shopee */
+    #links{
+      position:absolute; top:12px; right:12px; z-index:3;
+      display:flex; flex-direction:column; gap:8px; align-items:flex-end;
+    }
+    .extBtn{
+      display:inline-flex; align-items:center; gap:7px;
+      padding:9px 15px; border-radius:22px;
+      color:#fff; text-decoration:none;
+      font-size:13px; font-weight:700; letter-spacing:.01em;
+      box-shadow:0 3px 14px rgba(0,0,0,.35);
+      user-select:none;
+    }
+    .extBtn:hover{ filter:brightness(1.12); }
+    #ytBtn{ background:#ff0033; }
+    #waBtn{ background:#25d366; }
+    #shopeeBtn{ background:#ee4d2d; }
+    @media (max-width:640px){
+      #links{ top:10px; right:10px; gap:6px; }
+      .extBtn{ padding:8px 12px; font-size:12px; }
+    }
     @media (max-width:640px){
       /* layar sempit: judul pindah ke bawah supaya tidak menabrak HUD kiri atas */
       #pageTitle{ top:auto; bottom:12px; padding:6px 12px 7px; }
@@ -3363,6 +3384,12 @@
     <span>DIY 3D-print · 8 grup · 67 part · interactive assembly viewer</span>
   </div>
 
+  <div id="links">
+    <a class="extBtn" id="ytBtn" href="https://www.youtube.com/@ryanwidisaputra6784" target="_blank" rel="noopener" title="Kanal YouTube — cara kerja &amp; perbaikan">▶ YouTube</a>
+    <a class="extBtn" id="waBtn" href="https://wa.me/6283838461040" target="_blank" rel="noopener" title="Chat WhatsApp — tanya &amp; perbaikan">✆ WhatsApp</a>
+    <a class="extBtn" id="shopeeBtn" href="https://www.shopee.co.id/niningkn" target="_blank" rel="noopener" title="Toko Shopee">🛒 Shopee</a>
+  </div>
+
   <div id="overlay">
     <div class="box">
       <div>Memuat <b>f03.obj</b> …</div>
@@ -5804,7 +5831,9 @@ window.STANDALONE = true;
     }
     if (pick) {
       selectPart(pick, true);
-      openParts(true);
+      // layar sentuh: jangan auto-buka panel objek (cukup pilih) — panel hanya
+      // dibuka lewat tombol "☰ Objek" supaya tidak menutupi tampilan di HP.
+      if (e.pointerType !== 'touch' && window.innerWidth > 640) openParts(true);
     } else {
       selectPart(null, false);
     }
