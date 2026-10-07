@@ -129,6 +129,8 @@
     #ytBtn{ background:#ff0033; }
     #waBtn{ background:#25d366; }
     #shopeeBtn{ background:#ee4d2d; }
+    #etsyBtn{ background:#f1641e; }
+    #cultsBtn{ background:#0aa3c2; }
     @media (max-width:640px){
       #links{ top:10px; right:10px; gap:6px; }
       .extBtn{ padding:8px 12px; font-size:12px; }
@@ -3398,6 +3400,8 @@
     <a class="extBtn" id="ytBtn" href="https://www.youtube.com/@ryanwidisaputra6784" target="_blank" rel="noopener" title="Kanal YouTube — cara kerja &amp; perbaikan">▶ YouTube</a>
     <a class="extBtn" id="waBtn" href="https://wa.me/6283838461040" target="_blank" rel="noopener" title="Chat WhatsApp — tanya &amp; perbaikan">✆ WhatsApp</a>
     <a class="extBtn" id="shopeeBtn" href="https://www.shopee.co.id/niningkn" target="_blank" rel="noopener" title="Toko Shopee">🛒 Shopee</a>
+    <a class="extBtn" id="etsyBtn" href="https://www.etsy.com/listing/4590148313/educational-interactive-air-pump-valve" target="_blank" rel="noopener" title="Beli produk lengkap (download STL) — Etsy">🛍 Etsy</a>
+    <a class="extBtn" id="cultsBtn" href="https://cults3d.com/en/3d-model/various/high-performance-multipump-bb-airsoft" target="_blank" rel="noopener" title="Beli produk lengkap (download STL) — Cults3D">🧩 Cults3D</a>
   </div>
 
   <div id="overlay">
@@ -3710,6 +3714,7 @@ window.STANDALONE = true;
       loadingHtml: 'Loading <b>f03.obj</b> …',
       ytTitle: 'YouTube channel — how it works & repairs',
       waTitle: 'WhatsApp chat — questions & repairs', shopeeTitle: 'Shopee store',
+      etsyTitle: 'Full product + STL download — Etsy', cultsTitle: 'Full product + STL download — Cults3D',
       pause: '⏸ Pause', pauseTitle: 'Pause / resume animation',
       stop: '⏹ Stop', stopTitle: 'Stop animation & return to start',
       loop: 'Loop', loopTitle: 'Repeat action', speed: 'Speed', lastActionTitle: 'Last action',
@@ -3759,6 +3764,7 @@ window.STANDALONE = true;
       loadingHtml: 'Memuat <b>f03.obj</b> …',
       ytTitle: 'Kanal YouTube — cara kerja & perbaikan',
       waTitle: 'Chat WhatsApp — tanya & perbaikan', shopeeTitle: 'Toko Shopee',
+      etsyTitle: 'Beli produk lengkap (download STL) — Etsy', cultsTitle: 'Beli produk lengkap (download STL) — Cults3D',
       pause: '⏸ Jeda', pauseTitle: 'Jeda / lanjutkan animasi',
       stop: '⏹ Stop', stopTitle: 'Hentikan animasi & kembalikan ke posisi awal',
       loop: 'Loop', loopTitle: 'Ulangi aksi terus', speed: 'Speed', lastActionTitle: 'Aksi terakhir',
@@ -3836,6 +3842,7 @@ window.STANDALONE = true;
     setText('#hudTitle', 'hudTitle');
     setHtml('#overlay .box > div:first-child', 'loadingHtml');
     setTitle('#ytBtn', 'ytTitle'); setTitle('#waBtn', 'waTitle'); setTitle('#shopeeBtn', 'shopeeTitle');
+    setTitle('#etsyBtn', 'etsyTitle'); setTitle('#cultsBtn', 'cultsTitle');
     setText('#btnPause', 'pause'); setTitle('#btnPause', 'pauseTitle');
     setText('#btnStop', 'stop'); setTitle('#btnStop', 'stopTitle');
     setText('.tp-toggle span', 'loop'); setTitle('.tp-toggle', 'loopTitle');
