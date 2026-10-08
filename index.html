@@ -642,8 +642,162 @@
   <!-- ==== Overlay teks (step @t,T,teks) ==== -->
   <div id="textOverlay"></div>
 
-  <script src="models.js"></script>
-<script>
+  <script>
+window.MODELS = {
+  "0": {
+    "id": "f03",
+    "label": "F03 · Multi-Pump",
+    "title": "F03-Airsoft",
+    "subtitle": "DIY 3D-print · 8 grup · 67 part · interactive assembly viewer",
+    "objLow": "models/f03/f03low.obj",
+    "mtlLow": "models/f03/f03low.mtl",
+    "animKey": "action_script_3d_f03",
+    "settingsKey": "viewerf03.settings.v2",
+    "groupDir": {
+      "G01": [
+        0,
+        0,
+        0
+      ],
+      "G02": [
+        0,
+        0.3,
+        0
+      ],
+      "G03": [
+        -0.5,
+        0.3,
+        0
+      ],
+      "G04": [
+        0.5,
+        0,
+        0
+      ],
+      "G05": [
+        -3,
+        0,
+        0
+      ],
+      "G06": [
+        -1.5,
+        0,
+        0
+      ],
+      "G07": [
+        0,
+        -0.3,
+        0
+      ],
+      "G08": [
+        0,
+        -0.3,
+        0
+      ]
+    },
+    "groupLabels": {
+      "en": {
+        "G00": "Others",
+        "G01": "Main body",
+        "G02": "Air transfer · magazine · loader",
+        "G03": "Barrel · sight · rail",
+        "G04": "Dumping valve",
+        "G05": "Pump internals (moving)",
+        "G06": "Pump body",
+        "G07": "Grip",
+        "G08": "Stock"
+      },
+      "id": {
+        "G00": "Lainnya",
+        "G01": "Body utama",
+        "G02": "Transfer angin · magasin · loader",
+        "G03": "Laras · visir · rail",
+        "G04": "Valve dumping",
+        "G05": "Daleman pompa (bergerak)",
+        "G06": "Body pompa",
+        "G07": "Grip",
+        "G08": "Popor"
+      }
+    }
+  },
+  "1": {
+    "id": "f04",
+    "label": "F04 · Multi-Pump",
+    "title": "F04-Airsoft",
+    "subtitle": "DIY 3D-print · 8 grup · 67 part · interactive assembly viewer",
+    "objLow": "models/f04/f04low.obj",
+    "mtlLow": "models/f04/f04low.mtl",
+    "animKey": "action_script_3d_f04",
+    "settingsKey": "viewerf04.settings.v2",
+    "groupDir": {
+      "G01": [
+        0,
+        0,
+        0
+      ],
+      "G02": [
+        0,
+        0.3,
+        0
+      ],
+      "G03": [
+        -0.5,
+        0.3,
+        0
+      ],
+      "G04": [
+        0.5,
+        0,
+        0
+      ],
+      "G05": [
+        -3,
+        0,
+        0
+      ],
+      "G06": [
+        -1.5,
+        0,
+        0
+      ],
+      "G07": [
+        0,
+        -0.3,
+        0
+      ],
+      "G08": [
+        0,
+        -0.3,
+        0
+      ]
+    },
+    "groupLabels": {
+      "en": {
+        "G00": "Others",
+        "G01": "Main body",
+        "G02": "Air transfer · magazine · loader",
+        "G03": "Barrel · sight · rail",
+        "G04": "Dumping valve",
+        "G05": "Pump internals (moving)",
+        "G06": "Pump body",
+        "G07": "Grip",
+        "G08": "Stock"
+      },
+      "id": {
+        "G00": "Lainnya",
+        "G01": "Body utama",
+        "G02": "Transfer angin · magasin · loader",
+        "G03": "Laras · visir · rail",
+        "G04": "Valve dumping",
+        "G05": "Daleman pompa (bergerak)",
+        "G06": "Body pompa",
+        "G07": "Grip",
+        "G08": "Popor"
+      }
+    }
+  }
+};
+window.NO_API = true;
 window.EMBEDDED_SCRIPTS = {"f03":"\n\n# === Contoh animasi F03 (3D) ===\n# G01..G08 = grup (ikut semua anaknya) · selain itu = objek individu\n# Duplikat nama (mis. BB) ikut bersama-sama. Prefer nama lengkap.\nG11=G05,-21\nG12=40,47,42,41,48\nG13=43,44,45,46\nG15=G05,G06\nG16=G01,-38,-39,-37\n\n>Menembak,Shoot cycle\n# posisikan semua ke kondisi awal\n@0-10,G04,X+20 \n# begin\n@10,S,G01,on\n@10,S,G02,on\n\n@10,T,Dorong Valve maju,Push Valve forward\n@10-500,G04,X0 \n@700,T,Pompa angin sampai valve mundur,Pump until the valve out\n@700-1500,G11,X-350\n@1500-2200,G11,X0\n@2200-2900,G11,X-350\n@2900-3800,G11,X0\n@3800+500,G12,X+20\n@4800+300,CF,G01_picu,200\n@5300,T,Tekan picu,Pull the trigger\n@5200,P,3000\n@5200+300,CF,G04,600\n@5500+600,G01_picu,R25,3,13\n@6100+100,36,Y-5\n\n@6200+200,G13,X20\n@6400+100,68,X-300\n@6500,T,Angin keluar,Air rush out\n\n\n@8000,T,Selesai\n>Loading BB,BB load\n@0,T,Posisi vertikal supaya BB jatuh,Vertical position\n@0+1000,67,RX6,0,-120\n@+50+1000,64,X30\n@+150+1000,67,RX0\n@+-1000+1000,64,Z-13;Y+2\n+Menembak\n\n>Melepas pompa,Pull out pump\n@10,S,G16,on\n@10,T,Cabut 2 paku,Pull 2 steel pin\n@500+1000,38,Z+35\n@+0+1000,39,Z+35\n@+10,T,Tarik pompa keluar,Pull out pump body\n@+500+2000,G15,X-400\n@+500,P,3000\n@+10,T,Masukkan pompa,Push pump body in\n@+500+2000,G15,X0\n@+10,T,Pasang 2 paku, Set up 2 pin\n@+500+1000,38,Z0\n@+0+1000,39,Z0\n\n>Melepas valve dumping,Pull out valve\n@10,S,G16,on\n@10,S,G02,on\n@10,T,Cabut paku valve,Pull out 1 pin\n@+500+1000,37,Z+35\n@+10,T,Tekan dan tahan picu, Press hold trigger\n@+10+500,7,R25\n@+10+300,36,Y-10\n@+10,T,Tarik valve keluar,Pull out the valve\n@+10+2000,G04,X+200\n@+10,P,3000\n@+10,T,Tekan dan tahan picu,Press hold trigger\n@+10+2000,G04,X0\n@+500+1000,37,Z0\n\n\n","f04":"\n\n# === Contoh animasi F03 (3D) ===\n# G01..G08 = grup (ikut semua anaknya) · selain itu = objek individu\n# Duplikat nama (mis. BB) ikut bersama-sama. Prefer nama lengkap.\nG11=G05,-35\nG13=21,22,23,48\nG15=G05,G06\nG12=G05,G06,9\nG14=G05,G06,G04\n\nG16=G01,-3,-45,-46\n\n>Menembak,Shoot cycle# posisikan semua ke kondisi awal\n@0-10,G04,X20\n@0-10,G15,X20\n@10,P,1000\n# begin\n@10,S,G01,on\n@10,S,G02,on\n\n@10,T,Dorong Pompa maju,Push Pump inward\n@10-500,G04,X0\n@10-500,G15,X0\n@700,T,Pompa angin sampai pompa mundur,Pump until the pump out\n@700-1500,G11,X+350\n@1500-2200,G11,X0\n@2200-2900,G11,X+350\n@2900-3800,G11,X0\n@3800+500,G12,X+20\n\n#@+10+300,CF,25,200\n@+10,T,Tekan picu,Pull the trigger\n@+10,P,1000\n#@+10+300,CF,G04,600\n@+10+600,54,R25,3,13\n@+10+100,24,Y-5\n\n@+10+200,G13,X20\n@+10+100,4,X-300\n@+10,T,Angin keluar,Air rush out\n@8000,T,Selesai\n\n>Loading BB,BB load\n@0+10,4,O0\n@0,T,Posisi vertikal supaya BB jatuh,Vertical position\n@0+1000,16,RX6,0,-120\n@+50+1000,8,X30\n@+150+1000,16,RX0\n@+-1000+1000,8,Z-13;Y+2\n+Menembak\n\n>Melepas pompa,Pull out pump\n@10,S,G16,on\n@10,T,Cabut 2 paku,Pull 2 steel pin\n@500+1000,10,Z+35\n@+0+1000,26,Z+35\n@10,T,Tekan dan tahan picu,Pull and hold trigger\n@+10+600,54,R25,3,13\n@+10+100,24,Y-5\n\n@+10,T,Tarik pompa keluar,Pull out pump body\n@+500+2000,G14,X+400\n\n@+500,P,3000\n@+10,T,Masukkan pompa,Push pump body in\n@+500+2000,G14,X0\n@+10,T,Pasang 2 paku, Set up 2 pin\n@+500+1000,10,Z0\n@+0+1000,26,Z0\n\n\n"};
 </script>
 <script>
@@ -3763,7 +3917,1471 @@ window.EMBEDDED_SCRIPTS = {"f03":"\n\n# === Contoh animasi F03 (3D) ===\n# G01..
   };
 })();
 </script>
-<script src="actionPlayer.js"></script>
-<script src="editor.js"></script>
+<script>
+/* ============================================
+   Action Player 3D - serial timeline with absolute start/end per step
+   Port dari interaktif/actionPlayer.js (2D SVG) -> three.js.
+
+   Perbedaan inti dengan versi 2D:
+   - Target script: "G01".."G08" (toleran G2/G00) = GRUP, selain itu
+     objek individu (nama lengkap / gname). Resolusi via window.__f03.
+   - Transform diterapkan ke wrapper node (groupNode / animNode) lewat
+     matrix langsung (matrixAutoUpdate = false):
+         L = P0^-1 . M_world . P0
+     dengan P0 = matrixWorld root OBJ. Konjugasi ke P0 (bukan parent
+     saat ini) menghasilkan komposisi gaya-SVG:
+         world = M_grup . M_individu . rest
+     sehingga transform grup MELINGKUPI transform anak.
+   - M_world (ruang display/dunia, sesuai konvensi GROUP_DIR):
+         M = T(t). T(p). Rz(r). S . T(-p)
+     t = X,Y,Z (mm dunia), p = pivot (pusat bbox dunia + offset px,py),
+     R = rotasi sekitar sumbu Z dunia (bidang samping), S = scale.
+   - Opacity (O) -> material.opacity + userData.animOpacity
+     (materialFor di index.html membawanya ke material sorot/toon).
+   - Reset mengembalikan semua wrapper ke identity + opacity asli.
+   ============================================ */
+
+class ActionPlayer {
+  constructor() {
+    this.actions = new Map();        // name -> { name, steps, duration }
+    this.pivotCache = new Map();     // objId -> {x,y} offset pivot (dari R/P)
+    this.targetPivots = new Map();   // objId -> THREE.Vector3 (pusat bbox dunia, di-capture saat play)
+    this.currentAction = null;
+    this.running = false;
+    this.rafId = null;
+    this.startTime = 0;
+    this.onProgress = null;
+    this.onComplete = null;
+    this.onActionStart = null;
+    this.onTextChange = null;
+    this.loop = false;
+    this._playScaled = null;
+
+    // scratch matrices (dipakai ulang tiap frame, hindari GC)
+    const T = window.__f03 ? window.__f03.THREE : THREE;
+    this._M = new T.Matrix4();
+    this._L = new T.Matrix4();
+    this._T1 = new T.Matrix4();
+    this._T2 = new T.Matrix4();
+    this._R = new T.Matrix4();
+    this._RX = new T.Matrix4();
+    this._RY = new T.Matrix4();
+    this._S = new T.Matrix4();
+    this._P0inv = new T.Matrix4();
+    this._box = new T.Box3();
+    this._center = new T.Vector3();
+    this._Matrix4 = T.Matrix4;
+    this._Lmap = new Map();            // objId -> Matrix4 (L persisten, hindari GC)
+    this._Vector3 = T.Vector3;
+    // env playback (aksi S/CF + jeda P)
+    this._env = null;                  // snapshot section + kamera saat play
+    this._envActive = false;           // snapshot masih "kotor" (belum direstore)
+    this._secSteps = []; this._secInit = null; this._secSig = null;
+    this._camSteps = [];
+    this._pauses = []; this._pauseIdx = 0;
+    this.paused = false; this.pauseAt = 0; this._pauseResumeTimer = null;
+    this.onPauseState = null;          // (paused, autoMs) -> UI tombol
+  }
+
+  /* Parse script -> actions Map. Grammar sama dengan 2D, ditambah
+     sumbu Z (translate) dan SZ (scale). */
+  parseScript(text) {
+    this.actions = new Map();
+    this.pivotCache = new Map();
+    const lines = text.split('\n');
+    let current = null;
+    let lineNo = 0;
+    // Waktu relatif: "@+N" = N ms setelah akhir baris script sebelumnya.
+    let prevEnd = 0;          // akhir waktu baris sebelumnya (per aksi)
+    let serialCursor = 0;     // kursor serial (cermin logika finalize)
+
+    // --- definisi grup custom ("G11=G04,-20,-21,22") ---
+    // diproses DULU dan berurutan file, jadi boleh ditulis di mana saja
+    // sebelum dipakai. Barisnya dilewati oleh loop parser di bawah.
+    const defRe = /^(G\d+)\s*=\s*(.+)$/i;
+    const defLines = new Set();
+    const defs = [];
+    for (let i = 0; i < lines.length; i++) {
+      const dm = defRe.exec(lines[i].trim());
+      if (!dm) continue;
+      defLines.add(i + 1);
+      defs.push({
+        name: dm[1],
+        tokens: dm[2].split(',').map(function (s) { return s.trim(); }).filter(Boolean),
+        lineNo: i + 1
+      });
+    }
+    if (window.__f03 && window.__f03.defineCustomGroups) {
+      const derr = window.__f03.defineCustomGroups(defs);
+      if (derr) return derr;                 // { error: 'Line N: ...' }
+    }
+
+    const startNewAction = (name, isComposition, nameEn) => {
+      finalize();
+      current = { name, nameEn: nameEn || null, steps: [], isComposition, refs: isComposition ? [] : null };
+      prevEnd = 0;
+      serialCursor = 0;
+    };
+    const finalize = () => {
+      if (!current) return;
+      const steps = current.steps;
+
+      // 1) resolve step animasi (serial & range) -> start/end + from/to
+      const curVal = new Map();
+      let serialCursor = 0;
+      for (const s of steps) {
+        if (s.isText || s.isSection || s.isCam || s.isPause) continue;
+        const objId = s.objId;
+        let start, end;
+        if (s.range) {
+          start = s.range[0];
+          end = s.range[1];
+          serialCursor = Math.max(serialCursor, end);
+        } else {
+          start = serialCursor;
+          end = serialCursor + s.dur;
+          serialCursor = end;
+        }
+        const from = curVal.has(objId) ? { ...curVal.get(objId) } :
+          { x: 0, y: 0, z: 0, r: 0, rx: 0, ry: 0, sx: 1, sy: 1, sz: 1 };
+        const to = { ...from };
+        if (s.target.X !== undefined) to.x = s.target.X;
+        if (s.target.Y !== undefined) to.y = s.target.Y;
+        if (s.target.Z !== undefined) to.z = s.target.Z;
+        if (s.target.R !== undefined) to.r = s.target.R;
+        if (s.target.RX !== undefined) to.rx = s.target.RX;
+        if (s.target.RY !== undefined) to.ry = s.target.RY;
+        if (s.target.SX !== undefined) to.sx = s.target.SX;
+        if (s.target.SY !== undefined) to.sy = s.target.SY;
+        if (s.target.SZ !== undefined) to.sz = s.target.SZ;
+        if (s.target.O !== undefined) to.o = s.target.O;
+        s.start = start; s.end = end; s.from = from; s.to = to;
+        curVal.set(objId, to);
+      }
+
+      // 2) total durasi (untuk end teks terakhir) = max akhir animasi & mulai teks
+      let totalDuration = 0;
+      for (const s of steps) {
+        if (s.isText) totalDuration = Math.max(totalDuration, s.start);
+        else totalDuration = Math.max(totalDuration, s.end);
+      }
+
+      // 3) teks: end = mulai teks berikutnya atau totalDuration + grace
+      const textSteps = steps.filter(s => s.isText);
+      for (let i = 0; i < textSteps.length; i++) {
+        if (textSteps[i].end === -1) {
+          const next = textSteps[i + 1];
+          textSteps[i].end = next ? next.start : totalDuration + 1000;
+        }
+      }
+
+      const duration = steps.length ? Math.max(...steps.map(s => s.end)) : 0;
+      this.actions.set(current.name, {
+        name: current.name, nameEn: current.nameEn || null, steps, duration,
+        isComposition: !!current.isComposition, refs: current.refs || []
+      });
+    };
+
+    for (const raw of lines) {
+      lineNo++;
+      const line = raw.trim();
+      if (!line || line.startsWith('#')) continue;
+      if (defLines.has(lineNo)) continue;      // baris definisi grup (pre-scan)
+
+      if (line.startsWith('>')) {
+        // Judul aksi boleh 2 bahasa: ">namaIND,namaENG"
+        const hs = line.slice(1).split(',').map(s => s.trim());
+        startNewAction(hs[0] || '', false, hs.length > 1 ? hs.slice(1).join(',').trim() : null);
+        continue;
+      }
+      if (line.startsWith('+')) {
+        const ref = line.slice(1).trim();
+        if (current && !current.isComposition && current.steps.length === 0) {
+          // pola ">nama" lalu "+ref" langsung -> jadikan aksi compose
+          current.isComposition = true;
+          current.refs = [];
+        }
+        if (current && current.isComposition) {
+          current.refs.push(ref);
+        } else {
+          // "+ref" setelah aksi berisi step -> compose: aksi sebelumnya + ref.
+          // Dibuat sebagai aksi BARU (tak menimpa aksi lain) supaya "+Menembak"
+          // di ekor sebuah aksi tidak menghapus aksi "Menembak" yang asli.
+          const prev = current ? current.name : null;
+          const base = prev ? (prev + ' + ' + ref) : ref;
+          startNewAction(base, true);
+          let n = 2;
+          while (this.actions.has(current.name)) current.name = base + ' (' + (n++) + ')';
+          current.refs = prev ? [prev, ref] : [ref];
+        }
+        continue;
+      }
+
+      if (!line.startsWith('@')) {
+        return { error: `Line ${lineNo}: expected '@' or '>' or '+'\n  ${line}` };
+      }
+
+      if (!current || current.isComposition) {
+        if (!current) {
+          startNewAction('unnamed_' + lineNo, false);
+        } else {
+          return { error: `Line ${lineNo}: cannot add steps to composition '${current.name}' (use > to start new action)\n  ${line}` };
+        }
+      }
+
+      const body = line.slice(1).trim();
+      const parts = body.split(',').map(s => s.trim());
+      if (parts.length < 2) {
+        return { error: `Line ${lineNo}: format '@time,obj,key+val,...'\n  ${line}` };
+      }
+      let timeStr = parts[0];
+      let relInstant = false;      // "@+N" polos -> set langsung (durasi 0)
+
+      // Waktu relatif: "@[+]N" -> absolut (akhir baris sebelumnya + N), N boleh
+      // negatif (mis. "@+-1000+1000"); sisanya di belakang (+100 / -200 / +100+100)
+      // diterjemahkan seperti biasa. Tanpa sisanya = set nilai langsung.
+      if (timeStr.charAt(0) === '+') {
+        const rm = /^\+(-?\d+)/.exec(timeStr);
+        if (!rm) {
+          return { error: `Line ${lineNo}: invalid relative time '${timeStr}'\n  ${line}` };
+        }
+        const rest = timeStr.slice(rm[0].length);
+        timeStr = String(prevEnd + parseInt(rm[1], 10)) + rest;
+        relInstant = rest === '';
+      }
+
+      // Teks overlay: @t,T,teks  atau  @t,T,teksIND,teksENG
+      // (hindari koma di dalam teks — koma = pemisah bahasa)
+      if (parts[1] === 'T') {
+        const segs = parts.slice(2).map(s => s.trim());
+        const textId = segs[0] || '';
+        const textEn = segs.length > 1 ? segs.slice(1).join(',').trim() : null;
+        if (!textId) {
+          return { error: `Line ${lineNo}: empty text after 'T'\n  ${line}` };
+        }
+        let tStart, tEnd;
+        if (timeStr.includes('-')) {
+          const segs2 = timeStr.split('-').map(s => parseInt(s.trim()));
+          tStart = segs2[0]; tEnd = segs2[1];
+        } else {
+          tStart = parseInt(timeStr);
+          tEnd = -1;  // sentinel: diganti di finalize
+        }
+        prevEnd = (tEnd === -1) ? tStart : tEnd;
+        current.steps.push({ objId: 'TEXT', text: textId, textEn, start: tStart, end: tEnd, isText: true, lineNo });
+        continue;
+      }
+
+      // Section view per objek: @waktu,S,grup/objek,on|off
+      // waktu = ms absolut (sama dengan teks); on -> objek itu di-section
+      if (parts[1] === 'S') {
+        if (parts.length < 4) {
+          return { error: `Line ${lineNo}: format '@waktu,S,grup/objek,on|off'\n  ${line}` };
+        }
+        const starget = parts[2];
+        const son = /^(on|1)$/i.test(parts[3]);
+        if (!son && !/^(off|0)$/i.test(parts[3])) {
+          return { error: `Line ${lineNo}: state section harus on/off (dapat '${parts[3]}')\n  ${line}` };
+        }
+        const sAt = parseInt(timeStr.split(/[-+]/)[0]);
+        if (isNaN(sAt) || sAt < 0) {
+          return { error: `Line ${lineNo}: invalid time '${timeStr}'\n  ${line}` };
+        }
+        prevEnd = sAt;
+        current.steps.push({ objId: 'SECTION', target: starget, on: son, start: sAt, end: sAt, isSection: true, lineNo });
+        continue;
+      }
+
+      // Camera focus (pan ke objek): @waktu,CF,grup/objek,jarak
+      // @a-b / @a+d = pan mulus; @waktu polos = snap. jarak = jarak kamera
+      // ke pusat objek (mm); arah pandang dikunci -> panning tanpa rotasi.
+      if (parts[1] === 'CF') {
+        if (parts.length < 4) {
+          return { error: `Line ${lineNo}: format '@waktu,CF,grup/objek,jarak'\n  ${line}` };
+        }
+        const ctarget = parts[2];
+        const cdist = parseFloat(parts[3]);
+        if (isNaN(cdist) || cdist <= 0) {
+          return { error: `Line ${lineNo}: jarak CF tidak valid '${parts[3]}'\n  ${line}` };
+        }
+        let cStart, cEnd;
+        if (timeStr.includes('-')) {
+          const segs = timeStr.split('-').map(s => parseInt(s.trim()));
+          cStart = segs[0]; cEnd = segs[1];
+        } else if (timeStr.includes('+')) {
+          const segs = timeStr.split('+').map(s => parseInt(s.trim()));
+          cStart = segs[0]; cEnd = segs[0] + segs[1];
+        } else {
+          cStart = cEnd = parseInt(timeStr);
+        }
+        if (isNaN(cStart) || isNaN(cEnd) || cEnd < cStart || cStart < 0) {
+          return { error: `Line ${lineNo}: invalid time '${timeStr}'\n  ${line}` };
+        }
+        prevEnd = cEnd;
+        current.steps.push({ objId: 'CAM', target: ctarget, dist: cdist, start: cStart, end: cEnd, isCam: true, lineNo });
+        continue;
+      }
+
+      // Jeda script: @waktu,P[,auto_ms] — auto kosong = tunggu user klik
+      // Lanjut; isi 1000 = auto-resume setelah 1000ms.
+      if (parts[1] === 'P') {
+        const pAt = parseInt(timeStr.split(/[-+]/)[0]);
+        if (isNaN(pAt) || pAt < 0) {
+          return { error: `Line ${lineNo}: invalid time '${timeStr}'\n  ${line}` };
+        }
+        let pAuto = 0;
+        if (parts.length > 2 && parts[2] !== '') {
+          pAuto = parseInt(parts[2]);
+          if (isNaN(pAuto) || pAuto < 0) {
+            return { error: `Line ${lineNo}: auto-resume P tidak valid '${parts[2]}'\n  ${line}` };
+          }
+        }
+        prevEnd = pAt;
+        current.steps.push({ objId: 'PAUSE', start: pAt, end: pAt, autoMs: pAuto, isPause: true, lineNo });
+        continue;
+      }
+
+      // Waktu: @dur | @start-end | @start+offset | @+N (set langsung)
+      let dur = 0, range = null;
+      if (relInstant) {
+        const b = parseInt(timeStr, 10);
+        if (isNaN(b) || b < 0) {
+          return { error: `Line ${lineNo}: waktu relatif di luar rentang ('${parts[0]}' -> ${b}ms)\n  ${line}` };
+        }
+        range = [b, b];              // durasi 0: set nilai langsung, tanpa animasi
+      } else if (timeStr.includes('-')) {
+        const segs = timeStr.split('-').map(s => parseInt(s.trim()));
+        if (segs.length !== 2 || isNaN(segs[0]) || isNaN(segs[1]) || segs[1] <= segs[0]) {
+          return { error: `Line ${lineNo}: invalid range '${timeStr}'\n  ${line}` };
+        }
+        range = segs;
+      } else if (timeStr.includes('+')) {
+        const segs = timeStr.split('+').map(s => parseInt(s.trim()));
+        if (segs.length !== 2 || isNaN(segs[0]) || isNaN(segs[1]) || segs[1] <= 0) {
+          return { error: `Line ${lineNo}: invalid offset '${timeStr}'\n  ${line}` };
+        }
+        range = [segs[0], segs[0] + segs[1]];
+      } else {
+        dur = parseInt(timeStr);
+        if (isNaN(dur) || dur <= 0) {
+          return { error: `Line ${lineNo}: invalid time '${timeStr}'\n  ${line}` };
+        }
+      }
+      // Simpan akhir baris ini sebagai acuan "@+N" untuk baris berikutnya.
+      if (range) {
+        prevEnd = range[1];
+        serialCursor = Math.max(serialCursor, range[1]);
+      } else {
+        serialCursor += dur;
+        prevEnd = serialCursor;
+      }
+      const objId = parts[1];
+      const restStr = parts.slice(2).join(',');
+      const restParts = restStr.split(';');   // pisah banyak param
+      const target = {};
+      let pivot = null;
+      for (const part of restParts) {
+        const trimmed = part.trim();
+        if (!trimmed) continue;
+        // Format pivot: P±x,±y (juga di-cache utk R berikutnya pada objek sama)
+        const pm = trimmed.match(/^P([+\-]?)([\d.]+),([+\-]?)([\d.]+)$/);
+        if (pm) {
+          pivot = { x: parseFloat((pm[1] || '') + pm[2]), y: parseFloat((pm[3] || '') + pm[4]) };
+          this.pivotCache.set(objId, pivot);
+          continue;
+        }
+        // Axis: X,Y,Z,R,RX,RY,O,SX,SY,SZ (+ pivot opsional utk R/RX/RY: R<val>,<px>,<py>)
+        const m = trimmed.match(/^([XYZRO]|SX|SY|SZ|RX|RY)([+\-]?)([\d.]+)(?:,([+\-]?)([\d.]+)(?:,([+\-]?)([\d.]+))?)?$/);
+        if (!m) {
+          return { error: `Line ${lineNo}: bad param '${trimmed}'\n  ${line}` };
+        }
+        const axis = m[1];
+        const sign = m[2];
+        const val = parseFloat(m[3]);
+        target[axis] = sign === '-' ? -val : val;
+        if ((axis === 'R' || axis === 'RX' || axis === 'RY') && m[4] !== undefined) {
+          pivot = { x: parseFloat((m[4] || '') + m[5]), y: parseFloat((m[6] || '') + m[7]) };
+          this.pivotCache.set(objId, pivot);
+        }
+      }
+      // Rotasi tanpa pivot -> pakai pivot terakhir yang di-cache utk objId ini
+      if ((target.R !== undefined || target.RX !== undefined || target.RY !== undefined) &&
+          !pivot && this.pivotCache.has(objId)) {
+        pivot = this.pivotCache.get(objId);
+      }
+      current.steps.push({ objId, target, dur, range, pivot, lineNo });
+    }
+    finalize();
+
+    // Resolve compositions: expand +refs jadi step inline (shift waktu)
+    // Ref boleh memakai nama IND atau nama ENG.
+    const findAction = (ref) => {
+      if (this.actions.has(ref)) return this.actions.get(ref);
+      for (const a of this.actions.values()) if (a.nameEn === ref) return a;
+      // ref boleh ditulis "namaID,namaEN" (mis. copy langsung dari judul aksi)
+      const first = String(ref).split(',')[0].trim();
+      if (first && first !== ref) {
+        if (this.actions.has(first)) return this.actions.get(first);
+        for (const a of this.actions.values()) if (a.nameEn === first) return a;
+      }
+      return null;
+    };
+    for (const [name, action] of this.actions) {
+      if (action.isComposition) {
+        const composed = [];
+        let cursor = 0;
+        for (const ref of action.refs) {
+          if (ref === name) continue;              // skip self-reference
+          const refAction = findAction(ref);
+          if (!refAction) {
+            return { error: `Composition '${name}': action '${ref}' not found` };
+          }
+          for (const step of refAction.steps) {
+            composed.push({ ...step, start: step.start + cursor, end: step.end + cursor, from: { ...step.from }, to: { ...step.to } });
+          }
+          cursor = Math.max(cursor + refAction.duration, composed.length ? composed[composed.length - 1].end : 0);
+        }
+        action.steps = composed;
+        action.isComposition = false;
+        action.refs = null;
+        action.duration = Math.max(0, ...composed.map(s => s.end));
+      }
+    }
+
+    return { actions: this.actions };
+  }
+
+  /* Capture pivot (pusat bbox dunia) utk setiap objId dalam action.
+     Dipanggil dari play() SETELAH reset, sehingga selalu dari state rest. */
+  capturePivots(action) {
+    const F = window.__f03;
+    this.targetPivots = new Map();
+    if (!F || !F.ready() || !action) return;
+    F.rootWorld();  // segarkan matrixWorld rantai parent
+    const seen = new Set();
+    for (const step of action.steps) {
+      if (step.isText || step.isSection || step.isPause) continue;
+      const objId = step.isCam ? step.target : step.objId;
+      if (!objId || seen.has(objId)) continue;
+      seen.add(objId);
+      const tgt = F.resolveTarget(objId);
+      if (!tgt) continue;
+      this._box.makeEmpty();
+      for (const n of tgt.nodes) {
+        const b = new F.THREE.Box3().setFromObject(n);
+        if (!b.isEmpty()) this._box.union(b);
+      }
+      if (!this._box.isEmpty()) {
+        this.targetPivots.set(objId, this._box.getCenter(new F.THREE.Vector3()));
+      }
+    }
+  }
+
+  pivotOf(objId) {
+    return this.targetPivots.get(objId) || null;
+  }
+
+  /* Kembalikan semua wrapper + material ke keadaan awal (tanpa stop). */
+  resetVisual() {
+    const F = window.__f03;
+    if (!F) return;
+    F.resetAnimNodes();
+    const parts = F.getParts();
+    for (const m of parts) {
+      if (m.userData.animOpacity === undefined) continue;
+      delete m.userData.animOpacity;
+      const base = m.userData.baseMaterial;
+      const bo = m.userData.baseOpacity !== undefined ? m.userData.baseOpacity : 1;
+      const bt = !!m.userData.baseTransparent;
+      if (base) { base.opacity = bo; base.transparent = bt; }
+      if (m.material && m.material !== base) { m.material.opacity = bo; m.material.transparent = bt; }
+    }
+    if (this.onTextChange) this.onTextChange(null, false);
+  }
+
+  reset() {
+    this.stop();
+    this.restoreEnv();
+    this._envActive = false;
+    this.resetVisual();
+  }
+
+  /* ---- env: section + kamera utk aksi S/CF (snapshot & restore) ---- */
+  restoreEnv() {
+    const F = window.__f03;
+    if (!F || !this._env || !F.restoreEnv) return;
+    F.restoreEnv(this._env);
+  }
+
+  // Rencana pan kamera per step CF: from -> to dihitung SAAT step mulai
+  // (arah pandang = kamera saat itu -> panning tanpa rotasi, kamera bebas
+  // digeser user sebelum CF). Pusat objek dari pivot capture.
+  prepareCam(action) {
+    this._camSteps = [];
+    const F = window.__f03;
+    if (!F || !action || !F.getCam) return;
+    this._camSteps = action.steps.filter(function (s) { return s.isCam; })
+      .sort(function (a, b) { return a.start - b.start; })
+      .map(function (s) {
+        return { start: s.start, end: s.end, dist: s.dist, target: s.target, _from: null, _to: null };
+      });
+  }
+
+  _armCam(s) {
+    const F = window.__f03;
+    const init = F.getCam();
+    const V = this._Vector3;
+    const dir = new V().fromArray(init.pos).sub(new V().fromArray(init.tgt));
+    if (dir.lengthSq() < 1e-9) dir.set(0, 0, 1);
+    dir.normalize();
+    const c = this.pivotOf(s.target);
+    s._from = init;
+    s._to = c ? {
+      pos: [c.x + dir.x * s.dist, c.y + dir.y * s.dist, c.z + dir.z * s.dist],
+      tgt: [c.x, c.y, c.z]
+    } : init;
+  }
+
+  applyCam(t) {
+    const F = window.__f03;
+    if (!F || !this._camSteps.length || !F.setCam) return;
+    const first = this._camSteps[0];
+    if (t < first.start) {
+      // belum waktunya CF: kamera TIDAK disentuh (user bebas geser/putar),
+      // rencana pan di-reset supaya di-arm ulang dari posisi terbaru
+      for (const s of this._camSteps) { s._from = null; s._to = null; }
+      return;
+    }
+    // kamera HANYA dikendalikan selama range CF (snap: satu frame saat masuk);
+    // di luar itu kontrol dilepas lagi ke user.
+    let state = null;
+    for (const s of this._camSteps) {
+      if (t < s.start) break;
+      const armed = !!s._to;
+      if (!armed) this._armCam(s);
+      if (s.end <= s.start) {
+        if (!armed) state = s._to;       // snap: jepret sekali, lalu lepas
+        continue;
+      }
+      if (t >= s.end) continue;          // range selesai -> kamera lepas
+      const f = (t - s.start) / (s.end - s.start);
+      state = {
+        pos: [s._from.pos[0] + (s._to.pos[0] - s._from.pos[0]) * f,
+              s._from.pos[1] + (s._to.pos[1] - s._from.pos[1]) * f,
+              s._from.pos[2] + (s._to.pos[2] - s._from.pos[2]) * f],
+        tgt: [s._from.tgt[0] + (s._to.tgt[0] - s._from.tgt[0]) * f,
+              s._from.tgt[1] + (s._to.tgt[1] - s._from.tgt[1]) * f,
+              s._from.tgt[2] + (s._to.tgt[2] - s._from.tgt[2]) * f]
+      };
+      break;
+    }
+    if (state) F.setCam(state.pos, state.tgt);
+  }
+
+  // State section per waktu: snapshot awal lalu step S berurutan sampai t.
+  // Di-apply hanya saat berubah (rebuild stencil tidak murah).
+  applySec(t) {
+    const F = window.__f03;
+    if (!F || !this._secSteps.length || !F.setSecState) return;
+    const state = { master: this._secInit.master, objs: Object.assign({}, this._secInit.objs) };
+    for (const s of this._secSteps) {
+      if (s.start > t) break;
+      const tgt = F.resolveTarget(s.target);
+      if (!tgt) continue;
+      tgt.meshes.forEach(function (m) {
+        const k = m.userData.uid || m.name;
+        if (s.on) { state.objs[k] = true; state.master = true; }
+        else delete state.objs[k];
+      });
+    }
+    const sig = JSON.stringify(state);
+    if (sig === this._secSig) return;
+    this._secSig = sig;
+    F.setSecState(state);
+  }
+
+  /* ---- jeda playback: tombol Pause/Stop + step P di script ---- */
+  checkPauses(elapsed) {
+    const list = this._pauses;
+    if (!list || this._pauseIdx >= list.length) return;
+    const p = list[this._pauseIdx];
+    if (p.start > elapsed) return;
+    this._pauseIdx++;
+    this.pausePlay(elapsed, p.autoMs || 0);
+  }
+
+  pausePlay(elapsed, autoMs) {
+    if (!this.running) return;
+    this.paused = true;
+    this.pauseAt = elapsed;
+    if (this._pauseResumeTimer) {
+      clearTimeout(this._pauseResumeTimer);
+      this._pauseResumeTimer = null;
+    }
+    if (autoMs > 0) {
+      const self = this;
+      this._pauseResumeTimer = setTimeout(function () {
+        self._pauseResumeTimer = null;
+        self.resumePlay();
+      }, autoMs);
+    }
+    if (this.onPauseState) this.onPauseState(true, autoMs || 0);
+  }
+
+  resumePlay() {
+    if (!this.running || !this.paused) return;
+    if (this._pauseResumeTimer) {
+      clearTimeout(this._pauseResumeTimer);
+      this._pauseResumeTimer = null;
+    }
+    this.paused = false;
+    this.startTime = performance.now() - this.pauseAt;
+    if (this.onPauseState) this.onPauseState(false, 0);
+  }
+
+  togglePause() {
+    if (!this.running) return;
+    if (this.paused) this.resumePlay();
+    else this.pausePlay(performance.now() - this.startTime, 0);
+  }
+
+  /* Geser posisi playback (seek) — timeline. SELALU mem-pause, dan tetap
+     bisa dipakai saat sudah paused (menggeser lagi). */
+  seek(t) {
+    if (!this.running) return;
+    const action = this._playScaled || this.actions.get(this.currentAction);
+    if (!action || !action.duration) return;
+    t = Math.max(0, Math.min(action.duration, t));
+    this.paused = true;
+    this.pauseAt = t;
+    if (this._pauseResumeTimer) {
+      clearTimeout(this._pauseResumeTimer);
+      this._pauseResumeTimer = null;
+    }
+    // state yang bergantung urutan waktu di-reset supaya seek maju/mundur benar
+    this._secSig = null;
+    if (this._camSteps) this._camSteps.forEach(function (s) { s._from = null; s._to = null; });
+    this._pauseIdx = 0;
+    if (this._pauses) {
+      while (this._pauseIdx < this._pauses.length && this._pauses[this._pauseIdx].start <= t) this._pauseIdx++;
+    }
+    this.applyState(action, t);
+    if (this.onProgress) this.onProgress(t / action.duration, t, action.duration);
+    if (this.onPauseState) this.onPauseState(true, 0);
+  }
+
+  setMeshOpacity(m, o) {
+    m.userData.animOpacity = o;
+    const bt = !!m.userData.baseTransparent;
+    const transparent = o < 0.999 || bt;
+    const base = m.userData.baseMaterial;
+    if (base) { base.opacity = o; base.transparent = transparent; }
+    if (m.material && m.material !== base) { m.material.opacity = o; m.material.transparent = transparent; }
+  }
+
+  /* Terapkan state animasi pada waktu t (ms). */
+  applyState(action, t) {
+    const F = window.__f03;
+    if (!F || !action) return;
+
+    // --- teks overlay (pilih bahasa: IND/ENG) ---
+    let activeText = null;
+    const wantId = (typeof window !== 'undefined' && window.__lang === 'id');
+    for (const step of action.steps) {
+      if (step.isText && t >= step.start && t < step.end) {
+        activeText = (step.textEn == null) ? step.text : (wantId ? step.text : step.textEn);
+      }
+    }
+    if (this.onTextChange) this.onTextChange(activeText, activeText !== null);
+
+    // --- aksi state: section (S) & camera focus (CF) ---
+    this.applySec(t);
+    this.applyCam(t);
+
+    // --- kelompokkan step per objId (non-teks) ---
+    const byObj = new Map();
+    for (const step of action.steps) {
+      if (step.isText || step.isSection || step.isCam || step.isPause) continue;
+      if (!byObj.has(step.objId)) byObj.set(step.objId, []);
+      byObj.get(step.objId).push(step);
+    }
+    if (!byObj.size) return;
+
+    // P0 = matrixWorld root OBJ (segarkan parent chain sekali per frame)
+    const P0 = F.rootWorld();
+    if (!P0) return;
+    this._P0inv.copy(P0).invert();
+
+    // pass 1: hitung L per objId. Grup bawaan langsung ditulis ke node
+    // pembungkus (parent); individu & grup custom dikumpul per mesh dulu,
+    // karena transform keduanya harus berkomposisi di animNode yang sama
+    // (grup custom membungkus individu — ekuivalen grup bawaan via parent).
+    const pend = new Map();            // mesh -> [{ ord, L }]
+    const ensure = function (m) {
+      let a = pend.get(m);
+      if (!a) { a = []; pend.set(m, a); }
+      return a;
+    };
+
+    for (const [objId, steps] of byObj) {
+      // step aktif = terakhir yang start <= t
+      let active = null;
+      for (const step of steps) {
+        if (step.start <= t) active = step;
+        else break;
+      }
+
+      const tgt = F.resolveTarget(objId);
+      if (!tgt) continue;
+
+      if (!active) {
+        // belum ada step -> kembali ke rest (identity)
+        if (tgt.kind === 'group') {
+          for (const n of tgt.nodes) {
+            n.matrix.identity();
+            n.matrixWorldNeedsUpdate = true;
+          }
+        } else {
+          tgt.meshes.forEach(ensure);   // tandai disentuh -> identity di pass 2
+        }
+        continue;
+      }
+
+      // interpolasi from -> to
+      const f = active.from, to = active.to;
+      let x = f.x, y = f.y, z = f.z, r = f.r, rx = f.rx || 0, ry = f.ry || 0;
+      let sx = f.sx, sy = f.sy, sz = f.sz, o = f.o;
+      if (t >= active.end) {
+        x = to.x; y = to.y; z = to.z; r = to.r; rx = to.rx || 0; ry = to.ry || 0;
+        sx = to.sx; sy = to.sy; sz = to.sz;
+        if (to.o !== undefined) o = to.o;
+      } else if (t > active.start) {
+        const frac = (t - active.start) / (active.end - active.start);
+        x = f.x + (to.x - f.x) * frac;
+        y = f.y + (to.y - f.y) * frac;
+        z = f.z + (to.z - f.z) * frac;
+        r = f.r + (to.r - f.r) * frac;
+        rx = (f.rx || 0) + ((to.rx || 0) - (f.rx || 0)) * frac;
+        ry = (f.ry || 0) + ((to.ry || 0) - (f.ry || 0)) * frac;
+        sx = f.sx + (to.sx - f.sx) * frac;
+        sy = f.sy + (to.sy - f.sy) * frac;
+        sz = f.sz + (to.sz - f.sz) * frac;
+        if (f.o !== undefined || to.o !== undefined) {
+          const of = f.o !== undefined ? f.o : 1;
+          const ot = to.o !== undefined ? to.o : of;
+          o = of + (ot - of) * frac;
+        }
+      }
+
+      // pivot = pusat bbox dunia + offset step
+      const pv = this.pivotOf(objId);
+      const so = active.pivot;
+      const px = (pv ? pv.x : 0) + (so ? so.x : 0);
+      const py = (pv ? pv.y : 0) + (so ? so.y : 0);
+      const pz = pv ? pv.z : 0;
+
+      // M = T(t) . T(p) . (Rz.Ry.Rx) . S . T(-p)   (ruang dunia/display)
+      this._M.makeTranslation(x, y, z);
+      this._T1.makeTranslation(px, py, pz);
+      this._RX.makeRotationX(rx * Math.PI / 180);
+      this._RY.makeRotationY(ry * Math.PI / 180);
+      this._R.makeRotationZ(r * Math.PI / 180);
+      this._R.multiply(this._RY).multiply(this._RX);     // Rx dulu, lalu Ry, lalu Rz
+      this._S.makeScale(sx, sy, sz);
+      this._T2.makeTranslation(-px, -py, -pz);
+      this._M.multiply(this._T1).multiply(this._R).multiply(this._S).multiply(this._T2);
+
+      // L = P0^-1 . M . P0  -> komposisi grup x individu gaya-SVG
+      this._L.multiplyMatrices(this._P0inv, this._M).multiply(P0);
+
+      // opacity (hanya kalau pernah disebut utk objId ini)
+      if (active.to.o !== undefined || active.from.o !== undefined) {
+        const oo = o !== undefined ? o : 1;
+        for (const m of tgt.meshes) this.setMeshOpacity(m, oo);
+      }
+
+      if (tgt.kind === 'group') {
+        for (const n of tgt.nodes) {
+          n.matrix.copy(this._L);
+          n.matrixWorldNeedsUpdate = true;
+        }
+      } else {
+        let Lm = this._Lmap.get(objId);
+        if (!Lm) { Lm = new this._Matrix4(); this._Lmap.set(objId, Lm); }
+        Lm.copy(this._L);
+        const ord = tgt.kind === 'custom' ? tgt.ord : Number.MAX_SAFE_INTEGER;
+        tgt.meshes.forEach(function (m) { ensure(m).push({ ord: ord, L: Lm }); });
+      }
+    }
+
+    // pass 2: animNode = perkalian kontribusi (luar -> dalam)
+    pend.forEach(function (contribs, m) {
+      const an = F.getAnimNode(m);
+      if (!an) return;
+      if (contribs.length) {
+        contribs.sort(function (a, b) { return a.ord - b.ord; });
+        an.matrix.copy(contribs[0].L);
+        for (let i = 1; i < contribs.length; i++) an.matrix.multiply(contribs[i].L);
+      } else {
+        an.matrix.identity();
+      }
+      an.matrixWorldNeedsUpdate = true;
+    });
+
+    // segarkan subtree wrapper dulu (matrixAutoUpdate=false) baru baca selBox
+    F.refreshTree();
+    F.updateSelBox();
+  }
+
+  /* Putar aksi. name -> action; pakai _playScaled kalau ada (dari editor). */
+  play(name) {
+    const action = this._playScaled || this.actions.get(name);
+    if (!action) {
+      console.warn('Action not found:', name);
+      return;
+    }
+    if (!action.steps.length || action.duration <= 0) {
+      console.warn('Action kosong:', name);
+      return;
+    }
+    this.stop();
+    // run sebelumnya terputus di tengah (env masih kotor) -> bersihkan dulu;
+    // kalau sudah selesai normal, JANGAN restore — biarkan posisi kamera /
+    // section pilihan user antar-play apa adanya jadi baseline run ini.
+    if (this._envActive) this.restoreEnv();
+    this.resetVisual();          // pastikan rest sebelum capture pivot
+    const F = window.__f03;
+    this._env = F && F.captureEnv ? F.captureEnv() : null;
+    this._envActive = !!this._env;
+    this._secInit = this._env
+      ? { master: this._env.sec.master, objs: Object.assign({}, this._env.sec.objs) }
+      : { master: true, objs: {} };
+    this._secSteps = action.steps.filter(function (s) { return s.isSection; })
+      .sort(function (a, b) { return a.start - b.start; });
+    this._secSig = null;
+    this._camSteps = [];
+    this._pauses = action.steps.filter(function (s) { return s.isPause; })
+      .sort(function (a, b) { return a.start - b.start; });
+    this._pauseIdx = 0;
+    this.paused = false;
+    this.pauseAt = 0;
+    if (this._pauseResumeTimer) { clearTimeout(this._pauseResumeTimer); this._pauseResumeTimer = null; }
+    this.capturePivots(action);
+    this.prepareCam(action);
+    this.currentAction = name;
+    if (this.onActionStart) this.onActionStart(name, action);
+    this.running = true;
+    this.startTime = performance.now();
+    const tick = (now) => {
+      if (!this.running) return;
+      if (!this.paused) this.checkPauses(now - this.startTime);
+      const elapsed = this.paused ? this.pauseAt : now - this.startTime;
+      if (elapsed >= action.duration) {
+        this.applyState(action, action.duration);
+        if (this.onProgress) this.onProgress(1, action.duration, action.duration);
+        this.restoreEnv();       // section + kamera -> kondisi awal sebelum play
+        if (this.onComplete) this.onComplete(name);
+        if (this.loop) {
+          this.resetVisual();     // reset TANPA stop supaya loop benar2 berputar
+          this._pauseIdx = 0;
+          this.startTime = now;
+        } else {
+          this._envActive = false;
+          this.running = false;
+          return;
+        }
+      } else {
+        this.applyState(action, elapsed);
+        if (this.onProgress) this.onProgress(elapsed / action.duration, elapsed, action.duration);
+      }
+      this.rafId = requestAnimationFrame(tick);
+    };
+    this.rafId = requestAnimationFrame(tick);
+  }
+
+  stop() {
+    this.running = false;
+    this.paused = false;
+    if (this._pauseResumeTimer) { clearTimeout(this._pauseResumeTimer); this._pauseResumeTimer = null; }
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    this.rafId = null;
+  }
+}
+
+window.ActionPlayer = ActionPlayer;
+
+</script>
+<script>
+/* ============================================
+   Editor UI 3D - port dari interaktif/script.js (2D)
+   Chips aksi, timeline, loop/speed, mode editor, save/load
+   (server API dengan fallback localStorage), modal +Aksi,
+   dblclick objek -> sisip nama ke script.
+
+   File hasil build-standalone TANPA panel editor: markup
+   #scriptPane/#modal/#btnEditor di-strip saat compile, sehingga
+   HAS_PANEL=false dan semua wiring panel dilewati — yang tersisa
+   player murni (chips + timeline + loop/speed).
+   ============================================ */
+
+const $ = (id) => document.getElementById(id);
+
+// --- panel editor: NULL di file standalone (markup di-strip build) ---
+const scriptArea = $('scriptArea');
+const applyBtn = $('applyBtn');
+const addActionBtn = $('addActionBtn');
+const saveBtn = $('saveBtn');
+const consoleOut = $('consoleOut');
+const modeBtn = $('btnEditor');
+const closeScriptBtn = $('btnCloseScript');
+const modal = $('modal');
+const HAS_PANEL = !!(scriptArea && applyBtn && modeBtn);
+
+// --- player: selalu ada (transport bar) ---
+const actionList = $('actionList');
+const loopToggle = $('loopToggle');
+const pauseBtn = $('btnPause');
+const stopBtn = $('btnStop');
+const speedSlider = $('speedSlider');
+const speedValue = $('speedValue');
+const textOverlay = $('textOverlay');
+const statusEl = $('status');
+const timelineProgress = $('timelineProgress');
+const timelineCursor = $('timelineCursor');
+const timelineLabels = $('timelineLabels');
+const lastActionLabel = $('lastActionLabel');
+const timelineBar = $('timelineBar');
+const testBox = $('testBox');
+const testArea = $('testScript');
+const testPlayBtn = $('testPlay');
+const testCloseBtn = $('testClose');
+const testToggleBtn = $('btnTest');
+
+const MODEL_CFG = window.MODEL || {};
+const MODEL_ID = window.MODEL_ID || MODEL_CFG.id || 'f03';
+const STORE_KEY = 'action_script_3d_' + MODEL_ID;
+const API_URL = '/airsoft-order/api/data/' + (MODEL_CFG.animKey || 'action_script_3d');
+
+let player = null;
+let actions = new Map();          // name -> { steps, duration }
+let currentSpeed = 1;
+let lastActionName = null;
+let editorOn = false;
+
+const DEFAULT_SCRIPT = `# === Contoh animasi F03 (3D) ===
+# G01..G08 = grup (ikut semua anaknya) · angka = objek per ID · selain itu nama
+# Duplikat nama (mis. BB) ikut bersama-sama. dblclick baris list -> sisip ID.
+# ID = angka di kanan nama objek pada list (mulai 1, urut saat load).
+# Grup custom — boleh di mana saja sebelum dipakai; token diproses berurutan:
+#   G11=G04,-20,-21,22  = mulai member G04, hapus ID 20 & 21, tambah ID 22
+#   pakai juga -G05 (kurangi member grup) atau N / -N (tambah/hapus objek ID N)
+# Judul aksi: >nama  atau  >Nama Indonesia,Nama English (koma = pemisah bahasa)
+# Compose: blok ">Nama" kosong lalu +aksi1 / +aksi2, ATAU "+aksi" di ekor aksi =
+#   gabung aksi itu + ref (mis. aksi "Loading BB" ditutup dgn +Menembak)
+# Param gerak: X,Y,Z geser (mm) · R putar Z, RX putar X, RY putar Y (±deg) · O opacity · SX,SY,SZ scale
+#   (pivot rotasi default = pusat objek; bisa digeser dgn ,px,py di belakang nilai contoh RX45,0,-10)
+# Aksi state & kamera (waktu = ms absolut · @a-b / @a+d = gerak mulus):
+#   Waktu relatif: @+N = N ms setelah akhir baris sebelumnya (N boleh negatif,
+#     mis. @+-1000+1000). @1000-2000 lalu @+100+200 -> @2100+200 — enak utk menyisipkan step.
+#     Tanpa durasi (@+-1000,obj,X5) = set nilai langsung, tanpa animasi
+#   @0,T,Teks Indonesia,Teks English  overlay teks 2 bahasa (koma = pemisah bahasa)
+#   @7000,S,G04,on         section ON utk semua objek G04 (on/off)
+#   @5000+1200,CF,G05,300  pan kamera ke G05, jarak 300mm (tanpa durasi = snap)
+#   @4000,P                jeda — tunggu klik ▶ Lanjut (@4000,P,1000 = auto 1s)
+# CF hanya mengendalikan kamera SELAMA rangenya (snap: satu saat) — setelah
+# itu kontrol kamera lepas lagi. Selesai aksi (tiap putaran loop): section &
+# kamera kembali ke kondisi awal sebelum play.
+
+>contoh: geser daleman pompa,Example: move pump internals
+@0,T,Daleman pompa maju keluar,Pump internals moving out
+@0+800,G05,X-40
+@800+800,G05,X0
+
+>contoh: putar picu
+@0-400,G01_picu,R-15
+@400-800,G01_picu,R0
+@0,T,Picu diputar
+
+>contoh: sembunyikan magasin
+@0+600,G02_magasin,O0
+@600+600,G02_magasin,O1
+
+>contoh: grup custom (G04 minus objek 20,21 plus 22)
+G11=G04,-20,-21,22
+@0+800,G11,X+40
+@800+800,G11,X0
+
+>contoh: compose (gabung dua aksi)
++contoh: geser daleman pompa
++contoh: putar picu
+`;
+
+function log(msg, cls = 'log-info') {
+  const t = new Date().toTimeString().slice(0, 8);
+  if (consoleOut) {
+    consoleOut.innerHTML += `<span class="${cls}">[${t}] ${msg}</span>\n`;
+    consoleOut.parentElement.scrollTop = consoleOut.parentElement.scrollHeight;
+  } else {
+    console.log(`[${t}] ${msg}`);
+  }
+}
+
+function __L(k, fb) { return window.__t ? window.__t(k) : fb; }
+function __TF(k, vars, fb) { return window.__tf ? window.__tf(k, vars) : fb; }
+/* Label aksi sesuai bahasa aktif (judul boleh 2 bahasa: >namaIND,namaENG) */
+function actionLabel(a) {
+  if (!a) return '';
+  return (window.__lang === 'id' || !a.nameEn) ? a.name : a.nameEn;
+}
+function setStatus(s) { if (statusEl) statusEl.textContent = s; }
+
+/* ---------- Simpan / muat script ---------- */
+async function saveScript() {
+  if (!scriptArea) return;
+  const payload = { script: scriptArea.value, savedAt: Date.now() };
+  try {
+    const r = await fetch(API_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    log('Script tersimpan ke server', 'log-ok');
+    setStatus(__L('statusSaved', 'Saved'));
+  } catch (e) {
+    // Fallback: localStorage (mis. dibuka tanpa server / API gagal)
+    try {
+      localStorage.setItem(STORE_KEY, scriptArea.value);
+      log('Server gagal (' + e.message + ') — script tersimpan di localStorage', 'log-info');
+      setStatus(__L('statusSavedLocal', 'Saved (lokal)'));
+    } catch (e2) {
+      log('Gagal simpan: ' + e2.message, 'log-err');
+    }
+  }
+}
+
+async function loadScript() {
+  // Situs statis hasil build (window.NO_API): pakai skrip tersemat saja —
+  // tanpa fetch API server, tanpa localStorage (pengunjung bisa punya sisa
+  // skrip lama yang tidak sesuai).
+  const staticOnly = !!window.NO_API;
+  // file:// (dobel-klik) tidak bisa fetch -> langsung pakai script tersemat
+  if (!staticOnly && location.protocol !== 'file:') {
+    try {
+      const r = await fetch(API_URL, { cache: 'no-store' });
+      if (r.ok) {
+        const j = await r.json();
+        if (j && j.data && typeof j.data.script === 'string') {
+          log('Script dimuat dari server', 'log-ok');
+          return j.data.script;
+        }
+      }
+    } catch (e) { /* server tidak ada — lanjut fallback */ }
+  }
+  if (!staticOnly) {
+    try {
+      const saved = localStorage.getItem(STORE_KEY);
+      if (saved) { log('Script dimuat dari localStorage', 'log-info'); return saved; }
+    } catch (e) { /* ignore */ }
+  }
+  // Situs hasil build: skrip per-model disematkan (tak perlu API server).
+  const embs = window.EMBEDDED_SCRIPTS;
+  if (embs) {
+    let s = embs[MODEL_ID];
+    if (typeof s !== 'string' || !s) {
+      // toleran kalau id tak cocok: coba id dari window.MODEL, atau kalau
+      // hanya ada satu entri di EMBEDDED_SCRIPTS pakai itu.
+      if (MODEL_CFG && MODEL_CFG.id && typeof embs[MODEL_CFG.id] === 'string') s = embs[MODEL_CFG.id];
+      else { const ks = Object.keys(embs); if (ks.length === 1) s = embs[ks[0]]; }
+    }
+    if (typeof s === 'string' && s) {
+      log('Script bawaan situs (disematkan saat compile)', 'log-info');
+      return s;
+    }
+  }
+  // File standalone (dibagikan ke pembeli): satu skrip disematkan.
+  if (typeof window.EMBEDDED_SCRIPT === 'string' && window.EMBEDDED_SCRIPT) {
+    log('Script bawaan file (disematkan saat compile)', 'log-info');
+    return window.EMBEDDED_SCRIPT;
+  }
+  if (staticOnly) {
+    console.warn('[viewer] skrip tersemat tidak ketemu — MODEL_ID=' + JSON.stringify(MODEL_ID) +
+      ' MODEL.id=' + JSON.stringify(MODEL_CFG && MODEL_CFG.id) +
+      ' EMBEDDED_SCRIPTS keys=' + JSON.stringify(window.EMBEDDED_SCRIPTS ? Object.keys(window.EMBEDDED_SCRIPTS) : null) +
+      ' → jatuh ke skrip contoh');
+  }
+  log('Script contoh dimuat', 'log-info');
+  return DEFAULT_SCRIPT;
+}
+
+/* ---------- Apply / validasi / daftar chip ---------- */
+function applyScript(textOverride) {
+  if (!player || !window.__f03 || !window.__f03.ready()) {
+    log('Model belum siap — tunggu pemuatan selesai', 'log-err');
+    return;
+  }
+  const text = textOverride !== undefined
+    ? textOverride
+    : (scriptArea ? scriptArea.value : '');
+  player.stop();
+  const result = player.parseScript(text);
+  if (result.error) {
+    log('Parse error: ' + result.error, 'log-err');
+    setStatus(__L('statusParseErr', 'Parse error'));
+    return;
+  }
+  actions = player.actions;
+
+  // validasi semua target ada
+  const missing = [];
+  const seen = new Set();
+  for (const a of actions.values()) {
+    for (const s of a.steps) {
+      const ref = (s.isSection || s.isCam) ? s.target : s.objId;
+      if (s.isText || s.isPause || seen.has(ref)) continue;
+      seen.add(ref);
+      if (!window.__f03.resolveTarget(ref)) missing.push(ref);
+    }
+  }
+  if (missing.length) log('Objek hilang: ' + missing.join(', '), 'log-err');
+
+  log(`Loaded ${actions.size} aksi: ${[...actions.keys()].join(', ')}`, 'log-ok');
+  setStatus(__TF('actions', { n: actions.size }, actions.size + ' aksi'));
+  renderActionList();
+}
+
+function renderActionList() {
+  if (!actionList) return;
+  actionList.innerHTML = '';
+  for (const [name, action] of actions) {
+    const chip = document.createElement('span');
+    chip.className = 'action-chip';
+    chip.dataset.name = name;
+    const label = document.createElement('span');
+    label.className = 'chip-label';
+    label.textContent = '▶ ' + actionLabel(action);
+    const count = document.createElement('span');
+    count.className = 'step-count';
+    count.textContent = action.steps.length;
+    chip.appendChild(label);
+    chip.appendChild(count);
+    chip.title = `Durasi: ${action.duration}ms, ${action.steps.length} steps\nKlik untuk run`;
+    chip.addEventListener('click', () => playAction(name));
+    actionList.appendChild(chip);
+  }
+  document.body.classList.toggle('has-actions', actions.size > 0);
+  if (actions.size === 0) {
+    actionList.innerHTML = '<span class="hint-inline">Tidak ada aksi — klik Terapkan di panel script.</span>';
+  }
+}
+window.__refreshActions = renderActionList;
+
+/* Scale semua waktu step (untuk slider speed) — port dari 2D */
+function scaleActionTime(action, factor) {
+  return {
+    name: action.name,
+    nameEn: action.nameEn,
+    duration: action.duration * factor,
+    steps: action.steps.map(s => ({
+      ...s,
+      start: s.start * factor,
+      end: s.end * factor,
+      from: s.from ? { ...s.from } : s.from,
+      to: s.to ? { ...s.to } : s.to,
+      text: s.text,
+      isText: s.isText
+    }))
+  };
+}
+
+function renderTimeline(action) {
+  if (!timelineLabels) return;
+  timelineLabels.innerHTML = '';
+  const total = action.duration || 1;
+  const times = [...new Set(action.steps.map(s => s.start))];
+  let shown = 0;
+  for (const t of times) {
+    if (shown >= 12) break;                    // batasi agar tidak menumpuk
+    const step = action.steps.find(s => s.start === t);
+    const lbl = document.createElement('span');
+    lbl.className = 'tl';
+    lbl.style.left = Math.min(97, (t / total) * 100).toFixed(1) + '%';
+    lbl.textContent = `[${Math.round(t)}] ${step.isText ? 'T' : step.isSection ? 'S' : step.isCam ? 'CF' : step.isPause ? 'P' : step.objId}`;
+    timelineLabels.appendChild(lbl);
+    shown++;
+  }
+}
+
+/* Tombol Pause/Stop — dipanggil juga oleh player lewat onPauseState */
+function transportUI(paused, autoMs) {
+  pauseBtn.textContent = paused ? '▶ Lanjut' : '⏸ Jeda';
+  pauseBtn.classList.toggle('on', paused);
+  if (paused) setStatus(autoMs > 0 ? __TF('statusPausedAuto', { ms: autoMs }, `Jeda otomatis ${autoMs}ms`) : __L('statusPaused', 'Jeda — klik ▶ Lanjut'));
+}
+
+function playAction(name) {
+  if (!player) return;
+  if (actions.size === 0) {
+    log('Belum ada aksi — klik Terapkan dulu', 'log-err');
+    return;
+  }
+  let action = actions.get(name);
+  if (!action) {
+    // fuzzy match
+    for (const [k, a] of actions) {
+      if (k.startsWith(name) || k.includes(name) || (a.nameEn && a.nameEn.includes(name))) {
+        action = a; name = k; break;
+      }
+    }
+  }
+  if (!action) {
+    log('Aksi tidak ditemukan: ' + name, 'log-err');
+    log('Tersedia: ' + [...actions.keys()].join(', '), 'log-info');
+    return;
+  }
+  lastActionName = name;
+  if (lastActionLabel) {
+    const lbl = actionLabel(action);
+    lastActionLabel.textContent = lbl;
+    lastActionLabel.title = __L('lastActionTitle', 'Aksi terakhir') + ': ' + lbl;
+  }
+  log(`▶ ${name} (${action.duration}ms, ${action.steps.length} steps)`, 'log-info');
+  player.loop = loopToggle.checked;
+
+  const scaled = scaleActionTime(action, 1 / currentSpeed);
+  player._playScaled = scaled;
+  player.onProgress = (frac, t, total) => {
+    const pct = (frac * 100).toFixed(1);
+    if (timelineProgress) timelineProgress.style.width = pct + '%';
+    if (timelineCursor) timelineCursor.style.left = pct + '%';
+    if (!player.paused) setStatus(`${name}: ${t.toFixed(0)}ms / ${total.toFixed(0)}ms`);
+  };
+  player.onTextChange = (text) => {
+    if (!textOverlay) return;
+    if (text) {
+      textOverlay.textContent = text;
+      textOverlay.classList.add('show');
+    } else {
+      textOverlay.classList.remove('show');
+    }
+  };
+  player.onComplete = () => {
+    // section cap posisinya basi saat playback -> rebuild saat selesai
+    if (window.__f03) window.__f03.secRebuild();
+    transportUI(false, 0);
+    if (!player.loop) { pauseBtn.disabled = true; stopBtn.disabled = true; }
+  };
+  renderTimeline(scaled);
+  // tandai chip aktif
+  if (actionList) {
+    for (const c of actionList.children) c.classList.toggle('active', c.dataset.name === name);
+  }
+  transportUI(false, 0);
+  pauseBtn.disabled = false;
+  stopBtn.disabled = false;
+  player.play(name);
+}
+
+/* ---------- Test box (dev): quick parse & play 1x ---------- */
+function playTest() {
+  if (!player || !testArea) return;
+  const text = testArea.value.replace(/\r/g, '').trim();
+  if (!text) { log('Test masih kosong', 'log-err'); return; }
+
+  // Parse di player terpisah supaya aksi editor (custom group, pivotCache)
+  // tidak terganggu. defineCustomGroups dinonaktifkan sementara.
+  const F = window.__f03;
+  const savedDef = F ? F.defineCustomGroups : null;
+  if (F) F.defineCustomGroups = null;
+  const tp = new ActionPlayer();
+  const res = tp.parseScript('>test\n' + text);
+  if (F) F.defineCustomGroups = savedDef;
+  if (res && res.error) { log('Test parse error: ' + res.error, 'log-err'); return; }
+
+  const action = tp.actions.get('test');
+  if (!action || !action.steps.length) { log('Test tidak menghasilkan step', 'log-err'); return; }
+
+  // pivot dari script test digabung ke player utama -> penanda pivot ikut tampil
+  if (!player.pivotCache) player.pivotCache = new Map();
+  tp.pivotCache.forEach((v, k) => player.pivotCache.set(k, v));
+
+  player.stop();
+  player.loop = false;                     // selalu 1x
+  player._playScaled = scaleActionTime(action, 1);
+  player.onProgress = (frac, t, total) => {
+    const pct = (frac * 100).toFixed(1);
+    if (timelineProgress) timelineProgress.style.width = pct + '%';
+    if (timelineCursor) timelineCursor.style.left = pct + '%';
+    if (!player.paused) setStatus('TEST: ' + t.toFixed(0) + 'ms / ' + total.toFixed(0) + 'ms');
+  };
+  player.onTextChange = (txt) => {
+    if (!textOverlay) return;
+    if (txt) { textOverlay.textContent = txt; textOverlay.classList.add('show'); }
+    else textOverlay.classList.remove('show');
+  };
+  player.onComplete = () => {
+    if (window.__f03) window.__f03.secRebuild();
+    transportUI(false, 0);
+    pauseBtn.disabled = true;
+    stopBtn.disabled = true;
+  };
+  transportUI(false, 0);
+  pauseBtn.disabled = false;
+  stopBtn.disabled = false;
+  if (lastActionLabel) lastActionLabel.textContent = 'test';
+  log(`▶ TEST (${action.duration}ms, ${action.steps.length} steps)`, 'log-info');
+  player.play('test');
+}
+
+if (testPlayBtn) testPlayBtn.addEventListener('click', playTest);
+if (testCloseBtn) testCloseBtn.addEventListener('click', function () { testBox.style.display = 'none'; });
+if (testToggleBtn && testBox) testToggleBtn.addEventListener('click', function () {
+  testBox.style.display = (testBox.style.display === 'none') ? 'block' : 'none';
+});
+
+/* ---------- Mode editor (hanya bila panel ada) ---------- */
+function setEditor(on) {
+  if (!HAS_PANEL) return;
+  editorOn = on;
+  document.body.classList.toggle('editor-on', on);
+  if (modeBtn) modeBtn.classList.toggle('on', on);
+  if (on) scriptArea.focus();
+}
+
+/* Sisip teks ke textarea di posisi kursor (dipanggil dari index.html via bridge) */
+function insertAtCursor(text) {
+  if (!scriptArea) return;
+  const pos = scriptArea.selectionStart;
+  const before = scriptArea.value.slice(0, pos);
+  const after = scriptArea.value.slice(pos);
+  scriptArea.value = before + text + after;
+  scriptArea.focus();
+  scriptArea.selectionStart = scriptArea.selectionEnd = pos + text.length;
+}
+
+/* ---------- Wiring panel editor (dilewati di standalone) ---------- */
+function wirePanel() {
+  applyBtn.addEventListener('click', () => {
+    applyScript();
+    // mode player (editor tertutup) -> auto-play aksi pertama (paritas 2D)
+    if (!editorOn && actions.size > 0) {
+      playAction([...actions.keys()][0]);
+    }
+  });
+  saveBtn.addEventListener('click', saveScript);
+  modeBtn.addEventListener('click', () => setEditor(!editorOn));
+  closeScriptBtn.addEventListener('click', () => setEditor(false));
+
+  addActionBtn.addEventListener('click', () => {
+    modal.style.display = 'flex';
+    $('modalName').value = '';
+    $('modalName').focus();
+  });
+  $('modalCancel').addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+  $('modalOk').addEventListener('click', () => {
+    const name = $('modalName').value.trim();
+    const type = $('modalType').value;
+    if (!name) return;
+    const insertion = type === 'steps'
+      ? `\n\n>${name}\n@500,G05,X+30\n`
+      : `\n\n>${name}\n+existing_action\n`;
+    scriptArea.value = scriptArea.value.trimEnd() + insertion;
+    modal.style.display = 'none';
+    log('Aksi baru ditambahkan: ' + name, 'log-info');
+  });
+}
+
+/* ---------- Wiring player (selalu ada) ---------- */
+speedSlider.addEventListener('input', e => {
+  currentSpeed = parseFloat(e.target.value);
+  speedValue.textContent = currentSpeed + 'x';
+});
+
+// Pause / Stop: pause membekukan waktu, stop = reset penuh (rest + env awal)
+pauseBtn.addEventListener('click', () => { player.togglePause(); });
+stopBtn.addEventListener('click', () => {
+  player.reset();
+  transportUI(false, 0);
+  pauseBtn.disabled = true;
+  stopBtn.disabled = true;
+  if (timelineProgress) timelineProgress.style.width = '0%';
+  if (timelineCursor) timelineCursor.style.left = '0%';
+  setStatus(__L('statusStopped', 'Dihentikan'));
+});
+
+// timeline: klik/geser untuk seek — langsung pause, dan tetap bisa digeser
+// lagi selama paused (untuk mencari posisi).
+let scrubbing = false;
+function seekFromPointer(e) {
+  if (!player || !player.running) return;
+  const action = player._playScaled || player.actions.get(player.currentAction);
+  if (!action || !action.duration) return;
+  const bar = timelineBar.getBoundingClientRect();
+  const frac = Math.min(1, Math.max(0, (e.clientX - bar.left) / bar.width));
+  player.seek(frac * action.duration);
+}
+timelineBar.addEventListener('pointerdown', (e) => {
+  if (!player || !player.running) return;
+  scrubbing = true;
+  try { if (timelineBar.setPointerCapture) timelineBar.setPointerCapture(e.pointerId); } catch (err) {}
+  seekFromPointer(e);
+  e.preventDefault();
+});
+timelineBar.addEventListener('pointermove', (e) => { if (scrubbing) seekFromPointer(e); });
+function endScrub(e) {
+  if (!scrubbing) return;
+  scrubbing = false;
+  try { if (e && timelineBar.releasePointerCapture) timelineBar.releasePointerCapture(e.pointerId); } catch (err) {}
+}
+timelineBar.addEventListener('pointerup', endScrub);
+timelineBar.addEventListener('pointercancel', endScrub);
+
+// Ctrl+S = save + apply (hanya dgn panel); E = toggle mode editor
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+    if (!scriptArea) return;                  // standalone: biarkan perilaku default
+    e.preventDefault();
+    saveScript();
+    applyScript();
+    return;
+  }
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if (HAS_PANEL && e.key && e.key.toLowerCase() === 'e') setEditor(!editorOn);
+});
+
+/* ---------- Init ---------- */
+async function init() {
+  player = new ActionPlayer();
+  window.__player = player;             // dibaca viewer (penanda pivot rotasi)
+  player.onPauseState = transportUI;
+  if (HAS_PANEL) window.__f03.onInsertScript = insertAtCursor;
+  // default: loop OFF
+  loopToggle.checked = false;
+  player.loop = false;
+
+  const text = await loadScript();
+  if (scriptArea) scriptArea.value = text;
+
+  // tunggu model siap
+  const wait = setInterval(() => {
+    if (window.__viewerReady && window.__f03.ready()) {
+      clearInterval(wait);
+      applyScript(text);
+      if (HAS_PANEL && !window.STANDALONE) setEditor(true);
+      log(HAS_PANEL
+        ? 'Siap — klik chip aksi untuk memutar, dblclick objek di list untuk menyisip nama'
+        : 'Siap — klik chip aksi untuk memutar', 'log-ok');
+      setStatus(__L('statusReady', 'Siap'));
+    }
+  }, 150);
+}
+
+if (HAS_PANEL) wirePanel();
+init();
+
+</script>
 </body>
 </html>
