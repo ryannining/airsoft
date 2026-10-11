@@ -798,7 +798,7 @@ window.MODELS = {
   }
 };
 window.NO_API = true;
-window.EMBEDDED_SCRIPTS = {"f03":"# === DICT ===\n7=G01_picu\n21=G05_tutupstick2\n36=G01_sear_OD4\n37=G01_pasakvalve\n38=G01_pasakpompa2\n39=G01_pasakpompa1\n40=G04_Oring_OD5_ID3\n41=G04_pendorong\n42=G04_selangperedam\n43=G04_spacerAkrilik\n44=G04_spacer\n45=G04_Oring_OD16_ID10\n46=G04_Oring_OD16_ID10\n47=G04_as_OD10\n48=G04_selangNylon\n64=G2_BB_OD6\n67=G02_bbloader\n68=G2_BB_OD6\n# === END ===\n\n# === Contoh animasi F03 (3D) ===\n# G01..G08 = grup (ikut semua anaknya) · selain itu = objek individu\n# Duplikat nama (mis. BB) ikut bersama-sama. Prefer nama lengkap.\nG11=G05,-21\nG12=40,47,42,41,48\nG13=43,44,45,46\nG15=G05,G06\nG16=G01,-38,-39,-37\n\n>Menembak,Shoot cycle\n# posisikan semua ke kondisi awal\n@0-10,G04,X+20 \n# begin\n@10,S,G01,on\n@10,S,G02,on\n\n@10,T,Dorong Valve maju,Push Valve forward\n@10-500,G04,X0 \n@700,T,Pompa angin sampai valve mundur,Pump until the valve out\n@700-1500,G11,X-350\n@1500-2200,G11,X0\n@2200-2900,G11,X-350\n@2900-3800,G11,X0\n@3800+500,G12,X+20\n@4800+300,CF,G01_picu,200\n@5300,T,Tekan picu,Pull the trigger\n@5200,P,3000\n@5200+300,CF,G04,600\n@5500+600,G01_picu,R25,3,13\n@6100+100,36,Y-5\n\n@6200+200,G13,X20\n@6400+100,68,X-300\n@6500,T,Angin keluar,Air rush out\n\n\n@8000,T,Selesai\n>Loading BB,BB load\n@0,T,Posisi vertikal supaya BB jatuh,Vertical position\n@0+1000,67,RX6,0,-120\n@+50+1000,64,X30\n@+150+1000,67,RX0\n@+-1000+1000,64,Z-13;Y+2\n+Menembak\n\n>Melepas pompa,Pull out pump\n@10,S,G16,on\n@10,T,Cabut 2 paku,Pull 2 steel pin\n@500+1000,38,Z+35\n@+0+1000,39,Z+35\n@+10,T,Tarik pompa keluar,Pull out pump body\n@+500+2000,G15,X-400\n@+500,P,3000\n@+10,T,Masukkan pompa,Push pump body in\n@+500+2000,G15,X0\n@+10,T,Pasang 2 paku, Set up 2 pin\n@+500+1000,38,Z0\n@+0+1000,39,Z0\n\n>Melepas valve dumping,Pull out valve\n@10,S,G16,on\n@10,S,G02,on\n@10,T,Cabut paku valve,Pull out 1 pin\n@+500+1000,37,Z+35\n@+10,T,Tekan dan tahan picu, Press hold trigger\n@+10+500,7,R25\n@+10+300,36,Y-10\n@+10,T,Tarik valve keluar,Pull out the valve\n@+10+2000,G04,X+200\n@+10,P,3000\n@+10,T,Tekan dan tahan picu,Press hold trigger\n@+10+2000,G04,X0\n@+500+1000,37,Z0\n\n\n","f04":"# === DICT ===\n3=G03_rail\n4=G2_BB_OD6\n8=G02_BB_OD6\n9=G04_Selangperedam\n10=G01_pasakpompa\n16=G02_bbloader\n21=G04_valvepart\n22=G04_ringAkrilik\n23=G04_Oring_OD16_ID10\n24=G01_sear_OD4\n26=G01_Pasakpompa\n35=G05_tutupstick2\n45=G06_PartValve\n46=G06_mur_M5\n48=G04_Oring_OD16_ID10\n54=G01_picu\n# === END ===\n\n# === Contoh animasi F03 (3D) ===\n# G01..G08 = grup (ikut semua anaknya) · selain itu = objek individu\n# Duplikat nama (mis. BB) ikut bersama-sama. Prefer nama lengkap.\nG11=G05,-35\nG13=21,22,23,48\nG15=G05,G06\nG12=G05,G06,9\nG14=G05,G06,G04\n\nG16=G01,-10,-26,-24\n\n>Menembak,Shoot cycle\n# posisikan semua ke kondisi awal\n@0-10,G04,X20\n@0-10,G15,X20\n@10,P,1000\n# begin\n@10,S,G01,on\n@10,S,G02,on\n\n@10,T,Dorong Pompa maju,Push Pump inward\n@10-500,G04,X0\n@10-500,G15,X0\n@700,T,Pompa angin sampai pompa mundur,Pump until the pump out\n@700-1500,G11,X+350\n@1500-2200,G11,X0\n@2200-2900,G11,X+350\n@2900-3800,G11,X0\n@3800+500,G12,X+20\n\n#@+10+300,CF,25,200\n@+10,T,Tekan picu,Pull the trigger\n@+10,P,1000\n#@+10+300,CF,G04,600\n@+10+600,54,R25,3,13\n@+10+100,24,Y-5\n\n@+10+200,G13,X20\n@+10+100,4,X-300\n@+10,T,Angin keluar,Air rush out\n@8000,T,Selesai\n\n>Loading BB,BB load\n@0+10,4,O0\n@0,T,Posisi vertikal supaya BB jatuh,Vertical position\n@0+1000,16,RX6,0,-120\n@+50+1000,8,X30\n@+150+1000,16,RX0\n@+-1000+1000,8,Z-13;Y+2\n+Menembak\n\n>Melepas pompa,Pull out pump\n@10,S,G16,on\n@10,T,Cabut 2 paku,Pull 2 steel pin\n@500+1000,10,Z+35\n@+0+1000,26,Z+35\n@+10,T,Tekan dan tahan picu,Pull and hold trigger\n@+10+600,54,R25,3,13\n@+10+100,24,Y-5\n\n@+10,T,Tarik pompa keluar,Pull out pump body\n@+500+2000,G14,X+400\n\n@+500,P,3000\n@+10,T,Masukkan pompa,Push pump body in\n@+500+2000,G14,X0\n@+10,T,Pasang 2 paku, Set up 2 pin\n@+500+1000,10,Z0\n@+0+1000,26,Z0\n\n\n"};
+window.EMBEDDED_SCRIPTS = {"f03":"# === DICT ===\n7=G01_picu\n21=G05_tutupstick2\n36=G01_sear_OD4\n37=G01_pasakvalve\n38=G01_pasakpompa2\n39=G01_pasakpompa1\n40=G04_Oring_OD5_ID3\n41=G04_pendorong\n42=G04_selangperedam\n43=G04_spacerAkrilik\n44=G04_spacer\n45=G04_Oring_OD16_ID10\n46=G04_Oring_OD16_ID10\n47=G04_as_OD10\n48=G04_selangNylon\n64=G2_BB_OD6\n67=G02_bbloader\n68=G2_BB_OD6\n# === END ===\n\n# === Contoh animasi F03 (3D) ===\n# G01..G08 = grup (ikut semua anaknya) · selain itu = objek individu\n# Duplikat nama (mis. BB) ikut bersama-sama. Prefer nama lengkap.\nG11=G05,-21\nG12=40,47,42,41,48\nG13=43,44,45,46\nG15=G05,G06\nG16=G01,-38,-39,-37\nG21=23,24,25,26\n>Menembak,Shoot cycle\n# posisikan semua ke kondisi awal\n@0-10,G04,X+20 \n# begin\n@10,S,G01,on\n@10,S,G02,on\n\n@10,T,Dorong Valve maju,Push Valve forward\n@10-500,G04,X0 \n@700,T,Pompa angin sampai valve mundur,Pump until the valve out\n@700-1500,G11,X-350\n@1500-2200,G11,X0\n@2200-2900,G11,X-350\n@2900-3800,G11,X0\n@3800+500,G12,X+20\n@4800+300,CF,G01_picu,200\n@5300,T,Tekan picu,Pull the trigger\n@5200,P,3000\n@5200+300,CF,G04,600\n@5500+600,G01_picu,R25,3,13\n@6100+100,36,Y-5\n\n@6200+200,G13,X20\n@6400+100,68,X-300\n@6500,T,Angin keluar,Air rush out\n\n\n@8000,T,Selesai\n>Loading BB,BB load\n@0,T,Posisi vertikal supaya BB jatuh,Vertical position\n@0+1000,67,RX6,0,-120\n@+50+1000,64,X30\n@+150+1000,67,RX0\n@+-1000+1000,64,Z-13;Y+2\n+Menembak\n\n>Melepas pompa,Pull out pump\n@10,S,G16,on\n@10,T,Cabut 2 paku,Pull 2 steel pin\n@500+1000,38,Z+35\n@+0+1000,39,Z+35\n@+10,T,Tarik pompa keluar,Pull out pump body\n@+500+2000,G15,X-400\n@+500,P,3000\n@+10,T,Masukkan pompa,Push pump body in\n@+500+2000,G15,X0\n@+10,T,Pasang 2 paku, Set up 2 pin\n@+500+1000,38,Z0\n@+0+1000,39,Z0\n\n>Melepas valve dumping,Pull out valve\n@10,S,G16,on\n@10,S,G02,on\n@10,T,Cabut paku valve,Pull out 1 pin\n@+500+1000,37,Z+35\n@+10,T,Tekan dan tahan picu, Press hold trigger\n@+10+500,7,R25\n@+10+300,36,Y-10\n@+10,T,Tarik valve keluar,Pull out the valve\n@+10+2000,G04,X+200\n@+10,P,3000\n@+10,T,Tekan dan tahan picu,Press hold trigger\n@+10+2000,G04,X0\n@+500+1000,37,Z0\n\n>Mengatur ruang angin,Adjust air volume\n@10,S,G16,on\n@10,T,Cabut 2 paku,Pull 2 steel pin\n@500+1000,38,Z+35\n@+0+1000,39,Z+35\n@+10,T,Tarik pompa keluar,Pull out pump body\n@+500+2000,G15,X-400\n\n@+10,T,Kurangi panjang spacer\n@+10+1000,27,SX0.7\n@+-1000+1000,27,X-25\n@+-1000+1000,28,X-50\n@+-1000+1000,29,X-50\n@+500,P,3000\n@+10,T,Masukkan pompa,Push pump body in\n@+500+2000,G15,X0\n@+10,T,Pasang 2 paku, Set up 2 pin\n@+500+1000,38,Z0\n@+0+1000,39,Z0\n\n>Kalibrasi inlet valve,Calibrate inlet valve\n@10,S,G16,on\n@10,T,Cabut 2 paku,Pull 2 steel pin\n@500+1000,38,Z+35\n@+0+1000,39,Z+35\n@+10,T,Tarik pompa keluar,Pull out pump body\n@+500+2000,G15,X-400\n@+10,P,2000\n@+10+1000,CF,24,100\n\n@+10,T,Putar baut CCW/kiri,Rotate the bold CCW \n@+10+1000,23,RX5\n@+10,T,Test pompa,Try pump\n@+10,P,2000\n@+10,T,Putar baut CCW/kiri,Rotate the bold CCW\n@+10+1000,23,RX10\n@+10,T,Test pompa,Try pump\n@+10,P,2000\n@+10,T,Ulangi sampai ada rasa berat saat dipompa,Repeat until its little hard to pump\n@+10,P,5000\n","f04":"# === DICT ===\n3=G03_rail\n4=G2_BB_OD6\n8=G02_BB_OD6\n9=G04_Selangperedam\n10=G01_pasakpompa\n16=G02_bbloader\n21=G04_valvepart\n22=G04_ringAkrilik\n23=G04_Oring_OD16_ID10\n24=G01_sear_OD4\n26=G01_Pasakpompa\n35=G05_tutupstick2\n45=G06_PartValve\n46=G06_mur_M5\n48=G04_Oring_OD16_ID10\n54=G01_picu\n42=baut_JFM5\n21=pasakusus\n29=dudukanusus\n# === END ===\n\n# === Contoh animasi F03 (3D) ===\n# G01..G08 = grup (ikut semua anaknya) · selain itu = objek individu\n# Duplikat nama (mis. BB) ikut bersama-sama. Prefer nama lengkap.\nG11=G05,-35\nG13=21,22,23,48\nG15=G05,G06\nG12=G05,G06,9\nG14=G05,G06,G04\n\nG16=G01,-10,-26,-24\nG31=29,31,30,32\n>Menembak,Shoot cycle\n# posisikan semua ke kondisi awal\n@0-10,G04,X20\n@0-10,G15,X20\n@10,P,1000\n# begin\n@10,S,G01,on\n@10,S,G02,on\n\n@10,T,Dorong Pompa maju,Push Pump inward\n@10-500,G04,X0\n@10-500,G15,X0\n@700,T,Pompa angin sampai pompa mundur,Pump until the pump out\n@700-1500,G11,X+350\n@1500-2200,G11,X0\n@2200-2900,G11,X+350\n@2900-3800,G11,X0\n@3800+500,G12,X+20\n\n#@+10+300,CF,25,200\n@+10,T,Tekan picu,Pull the trigger\n@+10,P,1000\n#@+10+300,CF,G04,600\n@+10+600,54,R25,3,13\n@+10+100,24,Y-5\n\n@+10+200,G13,X20\n@+10+100,4,X-300\n@+10,T,Angin keluar,Air rush out\n@8000,T,Selesai\n\n>Loading BB,BB load\n@0+10,4,O0\n@0,T,Posisi vertikal supaya BB jatuh,Vertical position\n@0+1000,16,RX6,0,-120\n@+50+1000,8,X30\n@+150+1000,16,RX0\n@+-1000+1000,8,Z-13;Y+2\n+Menembak\n\n>Melepas pompa,Pull out pump\n@10,S,G16,on\n@10,T,Cabut 2 paku,Pull 2 steel pin\n@500+1000,10,Z+35\n@+0+1000,26,Z+35\n@+10,T,Tekan dan tahan picu,Pull and hold trigger\n@+10+600,54,R25,3,13\n@+10+100,24,Y-5\n\n@+10,T,Tarik pompa keluar,Pull out pump body\n@+500+2000,G14,X+400\n\n@+500,P,3000\n@+10,T,Masukkan pompa,Push pump body in\n@+500+2000,G14,X0\n@+10,T,Pasang 2 paku, Set up 2 pin\n@+500+1000,10,Z0\n@+0+1000,26,Z0\n\n\n>Kalibrasi inlet valve,Calibrate inlet valve\n@10,S,G16,on\n@10,T,Cabut 2 paku,Pull 2 steel pin\n@500+1000,10,Z+35\n@+0+1000,26,Z+35\n@+10,T,Tekan dan tahan picu,Pull and hold trigger\n@+10+600,54,R25,3,13\n@+10+100,24,Y-5\n\n@+10,T,Tarik pompa keluar,Pull out pump body\n@+500+2000,G14,X+400\n\n@+10,P,2000\n@+10+1000,CF,42,100\n\n@+10,T,Putar baut CCW/kiri,Rotate the bold CCW \n@+10+1000,42,RX-5\n@+10,T,Test pompa,Try pump\n@+10,P,2000\n@+10,T,Putar baut CCW/kiri,Rotate the bold CCW\n@+10+1000,42,RX-10\n@+10,T,Test pompa,Try pump\n@+10,P,2000\n@+10,T,Ulangi sampai ada rasa berat saat dipompa,Repeat until its little hard to pump\n@+10,P,5000\n\n>Mengatur ruang angin,Adjust air volume\n@10,T,Cabut pasak depan,Pull front pen\n@10+1000,21,Z+30\n@+10,T,Tarik sumbat keluar,Pull out the air plug\n@+10+2000,G31,X-400\n@+10,T,Atur panjang selang,Adjust the pipe length\n@+10,32,SX0.5\n@+10,32,X-75\n@+10,P,2000\n@+10,T,Masukkan kembali,Put back\n@+10+2000,G31,X0\n@+10+1000,21,Z0\n\n"};
 </script>
 <script>
 (function () {
@@ -2985,12 +2985,36 @@ window.EMBEDDED_SCRIPTS = {"f03":"# === DICT ===\n7=G01_picu\n21=G05_tutupstick2
   }
 
   function getCamState() {
-    return { pos: camera.position.toArray(), tgt: controls.target.toArray() };
+    // "jarak" = jarak apparent (setara perspektif); di ortho zoom diwakili
+    // orthoHalfH — konversi sama dengan setCameraMode.
+    const tan = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+    const dist = camera.isOrthographicCamera
+      ? (orthoHalfH / (orthoCamera.zoom || 1)) / tan
+      : camera.position.distanceTo(controls.target);
+    return { pos: camera.position.toArray(), tgt: controls.target.toArray(), dist: dist };
   }
 
-  function setCamState(pos, tgt) {
-    camera.position.fromArray(pos);
-    controls.target.fromArray(tgt);
+  function setCamState(pos, tgt, dist) {
+    if (camera.isOrthographicCamera) {
+      // Mode ortho: nilai "jarak" = ZOOM (ukuran frustum). Kamera cukup dipan
+      // ke target tanpa mendekat — mendekat tidak men-zoom (proyeksi ortho),
+      // malah memotong model dengan near plane.
+      const tan = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+      const v = new THREE.Vector3().fromArray(pos).sub(new THREE.Vector3().fromArray(tgt));
+      if (v.lengthSq() < 1e-12) v.set(0, 0, 1);
+      v.normalize();
+      const d = Math.max(camera.position.distanceTo(controls.target), 1e-3);
+      controls.target.fromArray(tgt);
+      camera.position.copy(controls.target).addScaledVector(v, d);
+      if (dist != null && dist > 0) {
+        orthoHalfH = dist * tan;
+        orthoCamera.zoom = 1;
+        applyOrthoFrustum();
+      }
+    } else {
+      camera.position.fromArray(pos);
+      controls.target.fromArray(tgt);
+    }
     controls.update();
     updateFrustum(true);
   }
@@ -3009,7 +3033,7 @@ window.EMBEDDED_SCRIPTS = {"f03":"# === DICT ===\n7=G01_picu\n21=G05_tutupstick2
     restoreEnv: function (snap) {
       if (!snap) return;
       setSecState(snap.sec);
-      setCamState(snap.cam.pos, snap.cam.tgt);
+      setCamState(snap.cam.pos, snap.cam.tgt, snap.cam.dist);
     },
     setSecState: setSecState,
     getCam: getCamState,
@@ -4429,6 +4453,22 @@ class ActionPlayer {
     return this.targetPivots.get(objId) || null;
   }
 
+  // Pusat bbox dunia objek dari posisi node SAAT INI (ikut transform animasi
+  // yang sedang jalan) — untuk CF supaya kamera fokus ke objek yang sudah
+  // berpindah, bukan ke posisi rest saat play mulai.
+  liveCenterOf(objId) {
+    const F = window.__f03;
+    if (!F || !F.ready()) return null;
+    const tgt = F.resolveTarget(objId);
+    if (!tgt) return null;
+    this._box.makeEmpty();
+    for (const n of tgt.nodes) {
+      const b = new F.THREE.Box3().setFromObject(n);
+      if (!b.isEmpty()) this._box.union(b);
+    }
+    return this._box.isEmpty() ? null : this._box.getCenter(new F.THREE.Vector3());
+  }
+
   /* Kembalikan semua wrapper + material ke keadaan awal (tanpa stop). */
   resetVisual() {
     const F = window.__f03;
@@ -4464,7 +4504,7 @@ class ActionPlayer {
 
   // Rencana pan kamera per step CF: from -> to dihitung SAAT step mulai
   // (arah pandang = kamera saat itu -> panning tanpa rotasi, kamera bebas
-  // digeser user sebelum CF). Pusat objek dari pivot capture.
+  // digeser user sebelum CF). Pusat objek dari posisi terkini (liveCenterOf).
   prepareCam(action) {
     this._camSteps = [];
     const F = window.__f03;
@@ -4483,12 +4523,23 @@ class ActionPlayer {
     const dir = new V().fromArray(init.pos).sub(new V().fromArray(init.tgt));
     if (dir.lengthSq() < 1e-9) dir.set(0, 0, 1);
     dir.normalize();
-    const c = this.pivotOf(s.target);
+    s._dir = dir;
     s._from = init;
-    s._to = c ? {
-      pos: [c.x + dir.x * s.dist, c.y + dir.y * s.dist, c.z + dir.z * s.dist],
-      tgt: [c.x, c.y, c.z]
-    } : init;
+    s._to = this._camTo(s) || init;
+  }
+
+  // Tujuan pan CF = pusat objek + arah pandang * jarak, dihitung dari posisi
+  // objek TERKINI — objek yang sudah berpindah tetap diikuti kamera. dist
+  // ikut dikirim: di mode ortho viewer memakainya sebagai zoom.
+  _camTo(s) {
+    const F = window.__f03;
+    const c = F ? this.liveCenterOf(s.target) : null;
+    if (!c) return null;
+    return {
+      pos: [c.x + s._dir.x * s.dist, c.y + s._dir.y * s.dist, c.z + s._dir.z * s.dist],
+      tgt: [c.x, c.y, c.z],
+      dist: s.dist
+    };
   }
 
   applyCam(t) {
@@ -4513,18 +4564,22 @@ class ActionPlayer {
         continue;
       }
       if (t >= s.end) continue;          // range selesai -> kamera lepas
+      const live = this._camTo(s);       // objek masih bergerak -> tujuan ikut posisi terbaru
+      if (live) s._to = live;
       const f = (t - s.start) / (s.end - s.start);
+      const d0 = s._from.dist || 0, d1 = s._to.dist || 0;
       state = {
         pos: [s._from.pos[0] + (s._to.pos[0] - s._from.pos[0]) * f,
               s._from.pos[1] + (s._to.pos[1] - s._from.pos[1]) * f,
               s._from.pos[2] + (s._to.pos[2] - s._from.pos[2]) * f],
         tgt: [s._from.tgt[0] + (s._to.tgt[0] - s._from.tgt[0]) * f,
               s._from.tgt[1] + (s._to.tgt[1] - s._from.tgt[1]) * f,
-              s._from.tgt[2] + (s._to.tgt[2] - s._from.tgt[2]) * f]
+              s._from.tgt[2] + (s._to.tgt[2] - s._from.tgt[2]) * f],
+        dist: d0 + (d1 - d0) * f
       };
       break;
     }
-    if (state) F.setCam(state.pos, state.tgt);
+    if (state) F.setCam(state.pos, state.tgt, state.dist);
   }
 
   // State section per waktu: snapshot awal lalu step S berurutan sampai t.
